@@ -1,4 +1,13 @@
 .Canvas {
-    border: solid 1px #33C3F0; 
     position: absolute;
+}
+
+.exp {
+    border: solid 2px #aaaaaa;
+    height: 200px;
+    width: 200px;
+}
+
+.Canvas_ {
+    border: solid 1px #33C3F0;  
 }
