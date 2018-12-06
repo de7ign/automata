@@ -60,6 +60,18 @@ class Canvas extends Component {
 	}
 
 	/**
+	 * Draw the shapes in states[]
+	 */
+	draw() {
+		this.state.context.clearRect(0, 0, this.state.width, this.state.height)
+		for(var i = 0; i < this.states.length; i++){
+			this.state.context.beginPath();
+			this.state.context.arc(this.states[i].x, this.states[i].y, this.radius, 0, (Math.PI/180)*360, 0)
+			this.state.context.stroke();
+		}
+	}
+
+	/**
 	 * set the canvas and context as canvas object
 	 */
 	componentDidMount() {
@@ -102,11 +114,12 @@ class Canvas extends Component {
 	/**
 	 * Event for tracking the state object movement with mouse tracking
 	 */
-	objectMoveHandler = (event) => {
+	moveObjectHandler = (event) => {
 		if(this.toMove){
 			this.selectedState.x = event.clientX - this.state.canvas.getBoundingClientRect().left - this.delX;
 			this.selectedState.y = event.clientY - this.state.canvas.getBoundingClientRect().top - this.delY;
 		}
+		this.draw()
 	}
 
 	/**
@@ -115,12 +128,6 @@ class Canvas extends Component {
 	mouseUpHandler = () => {
 		console.log('inside mouseUpHandler')
 		this.toMove = false;
-		this.state.context.clearRect(0, 0, this.state.width, this.state.height)
-		for(var i = 0; i < this.states.length; i++){
-			this.state.context.beginPath();
-			this.state.context.arc(this.states[i].x, this.states[i].y, this.radius, 0, (Math.PI/180)*360, 0)
-			this.state.context.stroke();
-		}
 	}
 
 	/**
@@ -134,11 +141,11 @@ class Canvas extends Component {
 		return (
 			<div className="Canvas">
 				<div className="Canvas_" >
-					<canvas id="canvas" width={this.state.width} height={this.state.height} onDoubleClick={this.drawCircle} onMouseDown={this.selectObjectHandler} onMouseMove={this.objectMoveHandler} onMouseUp={this.mouseUpHandler} selectstart={this.selectStartHandler}>
+					<canvas id="canvas" width={this.state.width} height={this.state.height} onDoubleClick={this.drawCircle} onMouseDown={this.selectObjectHandler} onMouseMove={this.moveObjectHandler} onMouseUp={this.mouseUpHandler}>
 						<p>Canvas element is not supported</p>
 					</canvas>
 				</div>
-				<button onClick={this.clearCanvas}>clearCanvas</button>
+				<button onClick={this.clearCanvas}>Clear Canvas</button>
 			</div>
 		);
   	}
