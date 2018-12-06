@@ -118,8 +118,8 @@ class Canvas extends Component {
 		if(this.toMove){
 			this.selectedState.x = event.clientX - this.state.canvas.getBoundingClientRect().left - this.delX;
 			this.selectedState.y = event.clientY - this.state.canvas.getBoundingClientRect().top - this.delY;
+			this.draw()
 		}
-		this.draw()
 	}
 
 	/**
@@ -135,6 +135,7 @@ class Canvas extends Component {
 	 */
 	clearCanvas = () => {
 		this.state.context.clearRect(0,0, this.state.width, this.state.height)
+		this.states = []
 	}
 
     render() {
