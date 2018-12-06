@@ -23,8 +23,9 @@ class Canvas extends Component {
 	 * setState is not required for drawing, but for showing the x and y co-ordinates, later it can be removed
 	 */
 	drawCircle = (event) => {
-		var mouseX = event.clientX - this.state.canvas.getBoundingClientRect().left;
-		var mouseY = event.clientY - this.state.canvas.getBoundingClientRect().top;
+		var mouse = this.getMouseLocation(event);
+		var mouseX = mouse.x;
+		var mouseY = mouse.y;
 		this.state.context.beginPath();
 		this.state.context.arc(mouseX, mouseY, this.radius, 0, (Math.PI/180)*360, 0)
 		this.state.context.stroke();
@@ -62,7 +63,7 @@ class Canvas extends Component {
 	/**
 	 * Draw the shapes in states[]
 	 */
-	draw() {
+	reDraw() {
 		this.state.context.clearRect(0, 0, this.state.width, this.state.height)
 		for(var i = 0; i < this.states.length; i++){
 			this.state.context.beginPath();
@@ -89,8 +90,9 @@ class Canvas extends Component {
 	 */
 	selectObjectHandler = (event) => {
 		console.log("inside selectObjectHandler")
-		var selectX = event.clientX - this.state.canvas.getBoundingClientRect().left;
-		var selectY = event.clientY - this.state.canvas.getBoundingClientRect().top;
+		var mouse = this.getMouseLocation(event);
+		var selectX = mouse.x;
+		var selectY = mouse.y;
 		console.log('selectX and selectY', selectX, selectY)
 		for(var i = this.states.length - 1; i >=0; i --) {
 			if (this.containsPoints(this.states[i], selectX, selectY)){
@@ -116,9 +118,10 @@ class Canvas extends Component {
 	 */
 	moveObjectHandler = (event) => {
 		if(this.toMove){
-			this.selectedState.x = event.clientX - this.state.canvas.getBoundingClientRect().left - this.delX;
-			this.selectedState.y = event.clientY - this.state.canvas.getBoundingClientRect().top - this.delY;
-			this.draw()
+			var mouse = this.getMouseLocation(event);
+			this.selectedState.x = mouse.x - this.delX;
+			this.selectedState.y = mouse.y - this.delY;
+			this.reDraw();
 		}
 	}
 
@@ -126,7 +129,7 @@ class Canvas extends Component {
 	 * Event for making toMove as false, when user lifts the mouse up
 	 */
 	mouseUpHandler = () => {
-		console.log('inside mouseUpHandler')
+		console.log('inside mouseUpHandler');
 		this.toMove = false;
 	}
 
@@ -134,8 +137,19 @@ class Canvas extends Component {
 	 * Event for clearing the whole canvas
 	 */
 	clearCanvas = () => {
-		this.state.context.clearRect(0,0, this.state.width, this.state.height)
-		this.states = []
+		this.state.context.clearRect(0,0, this.state.width, this.state.height);
+		this.states = [];
+	}
+
+	/**
+	 * get mouse x and y co-ordinates inside the canvas
+	 * @param {object} event 
+	 */
+	getMouseLocation(event) {
+		var mouse = {};
+		mouse.x = event.clientX - this.state.canvas.getBoundingClientRect().left;
+		mouse.y = event.clientY - this.state.canvas.getBoundingClientRect().top;
+		return mouse;
 	}
 
     render() {
