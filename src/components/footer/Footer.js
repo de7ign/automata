@@ -4,7 +4,7 @@ import { AppBar, Typography, Grid } from '@material-ui/core';
 class Footer extends Component {
   render() {
     return (
-      <AppBar position="static" style={{ background: '#DCDCDC', boxShadow: 'none'}}>
+      <AppBar position="static" style={{ background: '#eceff1', boxShadow: 'none'}}>
         <Grid container style={{marginTop: 80 , marginBottom: 80}}>
           <Grid item xs={3}></Grid>
           <Grid item xs={9} style={{marginBottom: 20}}>
