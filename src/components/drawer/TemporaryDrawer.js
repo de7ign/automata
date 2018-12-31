@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import Drawer from '@material-ui/core/Drawer';
 import Divider from '@material-ui/core/Divider';
@@ -51,7 +50,6 @@ class TemporaryDrawer extends Component {
 
     return (
       <div>
-        <Button onClick={this.toggleDrawer}>Open Left</Button>
         <Drawer open={this.state.open} onClose={this.toggleDrawer}>
           <div
             tabIndex={0}

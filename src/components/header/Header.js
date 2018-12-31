@@ -1,13 +1,25 @@
 import React, { Component } from 'react';
 import { AppBar, Typography, Toolbar, IconButton, SvgIcon, Tooltip } from '@material-ui/core';
 import { Menu, OndemandVideo, Brush } from '@material-ui/icons';
+import TemporaryDrawer from '../drawer/TemporaryDrawer';
 
 class Header extends Component {
+  
+  constructor(props) {
+    super(props);
+    this.TemporaryDrawerRef = React.createRef();
+  }
+
+  handleToggleDrawer = () => {
+    this.TemporaryDrawerRef.current.toggleDrawer();
+  }
+
   render() {
     return (
+      <div>
       <AppBar position="static" style={{background: '#42a5f5'}}>
         <Toolbar>
-          <IconButton color="inherit" aria-label="Open Drawer" style={{marginRight: 20}}>
+          <IconButton color="inherit" aria-label="Open Drawer" style={{marginRight: 20}} onClick={this.handleToggleDrawer}>
             <Menu />
           </IconButton>
           <Typography variant="title" color="inherit">Automata Simulator</Typography>
@@ -30,6 +42,8 @@ class Header extends Component {
           </Tooltip>
         </Toolbar>
       </AppBar>
+      <TemporaryDrawer ref={this.TemporaryDrawerRef} />
+      </div>
     )
   }
 }
