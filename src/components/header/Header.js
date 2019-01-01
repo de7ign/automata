@@ -4,7 +4,7 @@ import { Menu, OndemandVideo, Brush } from '@material-ui/icons';
 import TemporaryDrawer from '../drawer/TemporaryDrawer';
 
 class Header extends Component {
-  
+
   constructor(props) {
     super(props);
     this.TemporaryDrawerRef = React.createRef();
@@ -23,6 +23,9 @@ class Header extends Component {
             <Menu />
           </IconButton>
           <Typography variant="title" color="inherit">Automata Simulator</Typography>
+          <a style={{ textDecoration: "none", color: "white" }} href="#notice">
+            <Typography variant="caption" color="inherit">&nbsp;Pre-Alpha</Typography>
+          </a>
           <Tooltip title="Predefined Examples">
             <IconButton color="inherit" aria-label="Examples" style={{position: "absolute", right: 140}}>
               <Brush />

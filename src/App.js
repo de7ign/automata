@@ -3,6 +3,7 @@ import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import './App.css';
 import Canvas from './components/canvas/Canvas';
+import PreAlphaNotice from './components/preAlpha/PreAlphaNotice';
 
 class App extends Component {
   render() {
@@ -10,6 +11,7 @@ class App extends Component {
       <div className="App">
         <Header />
         <Canvas />
+        <PreAlphaNotice />
         <Footer />
       </div>
     );
