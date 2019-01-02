@@ -35,7 +35,7 @@ class Utils extends Component {
         </Typography>
         <div style={{margin: 10}}>
           <Button variant="contained" style={{margin: 10, backgroundColor: '#42a5f5',  color: "white", width: "10em"}}>
-            Export &nbsp;<Autorenew />
+            Convert &nbsp;<Autorenew />
           </Button>
         </div>
         <Divider />
