@@ -219,17 +219,13 @@ class Canvas extends Component {
 
     render() {
 		return (
-      <div>
-        <br/>
-        <Paper elevation={2} style={{margin: 20, padding: 20, display: "inline-block"}}>
-          <div style={{ border: "solid 3px #33C3F0", display: "inline-block", borderRadius: "5px"}}>
-            <canvas id="canvas" width="1200" height="700" >
-              <p>Canvas element is not supported</p>
-            </canvas>
-          </div>
-        </Paper>
-        <br/>
-      </div>
+      <Paper elevation={12} style={{marginLeft: 20, marginTop: 20, marginBottom: 20, padding: 20, display: "inline-block"}}>
+        <div style={{ border: "solid 3px #33C3F0", display: "inline-block", borderRadius: "5px"}}>
+          <canvas id="canvas" width="1200" height="700" >
+            <p>Canvas element is not supported</p>
+          </canvas>
+        </div>
+      </Paper>
 		);
   	}
 }
