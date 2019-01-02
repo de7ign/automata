@@ -4,13 +4,17 @@ import Footer from './components/footer/Footer';
 import './App.css';
 import Canvas from './components/canvas/Canvas';
 import PreAlphaNotice from './components/preAlpha/PreAlphaNotice';
+import Utils from './components/utils/Utils';
 
 class App extends Component {
   render() {
     return (
       <div className="App">
         <Header />
-        <Canvas />
+        <div style={{display: "flex", flexDirection: "row"}}>
+          <Canvas />
+          <Utils />
+        </div>
         <PreAlphaNotice />
         <Footer />
       </div>
