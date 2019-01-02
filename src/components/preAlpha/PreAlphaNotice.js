@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 
 const PreAlphaNotice = () => {
   return (
-    <Card style={{marginLeft: 20, marginRight: 20, marginBottom: 20, padding: 20}} id="notice">
+    <Card style={{marginLeft: 20, marginRight: 20, marginBottom: 20, padding: 20}} id="notice" elevation={12}>
     <CardContent>
       <Typography variant="title" gutterBottom>
         Pre-Alpha Release
