@@ -128,7 +128,11 @@ class Header extends React.Component {
             >
               Automata Playground
             </Typography>
-            <Typography variant="caption" color="inherit">
+            <Typography
+              className={classes.title}
+              variant="caption"
+              color="inherit"
+            >
               <a href="#notice">&nbsp;Pre-Alpha</a>
             </Typography>
             <div className={classes.grow} />

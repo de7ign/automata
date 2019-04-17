@@ -2,14 +2,20 @@ import React from "react";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
 
-const PreAlphaNotice = () => {
+const styles = theme => ({
+  root: {
+    padding: theme.spacing.unit * 2,
+    margin: theme.spacing.unit * 2
+  }
+});
+
+const PreAlphaNotice = props => {
+  const { classes } = props;
   return (
-    <Card
-      style={{ marginLeft: 20, marginRight: 20, marginBottom: 20, padding: 20 }}
-      id="notice"
-      elevation={12}
-    >
+    <Card className={classes.root} id="notice" elevation={12}>
       <CardContent>
         <Typography variant="title" gutterBottom>
           Pre-Alpha Release
@@ -33,4 +39,8 @@ const PreAlphaNotice = () => {
   );
 };
 
-export default PreAlphaNotice;
+PreAlphaNotice.propTypes = {
+  classes: PropTypes.shape().isRequired
+};
+
+export default withStyles(styles)(PreAlphaNotice);
