@@ -57,7 +57,7 @@ class Header extends React.Component {
   TemporaryDrawerRef = React.createRef();
 
   handleToggleDrawer = () => {
-    this.TemporaryDrawerRef.current.toggleDrawer();
+    this.TemporaryDrawerRef.handleToggleDrawer();
   };
 
   handleMenuClose = () => {
@@ -163,7 +163,11 @@ class Header extends React.Component {
           </Toolbar>
         </AppBar>
         {renderMobileMenu}
-        <TemporaryDrawer ref={this.TemporaryDrawerRef} />
+        <TemporaryDrawer
+          innerRef={ref => {
+            this.TemporaryDrawerRef = ref;
+          }}
+        />
       </div>
     );
   }

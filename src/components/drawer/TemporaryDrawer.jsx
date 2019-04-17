@@ -4,6 +4,14 @@ import Drawer from "@material-ui/core/Drawer";
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
+
+const styles = {
+  list: {
+    width: 250
+  }
+};
 
 class TemporaryDrawer extends Component {
   state = {
@@ -12,7 +20,7 @@ class TemporaryDrawer extends Component {
     selectedLinkKey: null
   };
 
-  toggleDrawer = () => {
+  handleToggleDrawer = () => {
     this.setState(prevState => ({ open: !prevState.open }));
   };
 
@@ -25,8 +33,11 @@ class TemporaryDrawer extends Component {
   };
 
   render() {
+    const { classes } = this.props;
+    const { open, selectedModeKey, selectedLinkKey } = this.state;
+
     const sideList = (
-      <div style={{ width: 250 }}>
+      <div className={classes.list}>
         <List>
           {[
             ["DFA", 1],
@@ -35,7 +46,6 @@ class TemporaryDrawer extends Component {
             ["ENFA to NFA", 4],
             ["DFA Minimization", 5]
           ].map(([value, key]) => {
-            const { selectedModeKey } = this.state;
             return (
               <ListItem
                 key={key}
@@ -56,7 +66,6 @@ class TemporaryDrawer extends Component {
             ["GitHub", 3],
             ["Feedback", 4]
           ].map(([value, key]) => {
-            const { selectedLinkKey } = this.state;
             return (
               <ListItem
                 key={key}
@@ -71,15 +80,15 @@ class TemporaryDrawer extends Component {
         </List>
       </div>
     );
-    const { open } = this.state;
+
     return (
       <div>
-        <Drawer open={open} onClose={this.toggleDrawer}>
+        <Drawer open={open} onClose={this.handleToggleDrawer}>
           <div
             tabIndex={0}
             role="button"
-            onClick={this.toggleDrawer}
-            onKeyDown={this.toggleDrawer}
+            onClick={this.handleToggleDrawer}
+            onKeyDown={this.handleToggleDrawer}
           >
             {sideList}
           </div>
@@ -89,4 +98,8 @@ class TemporaryDrawer extends Component {
   }
 }
 
-export default TemporaryDrawer;
+TemporaryDrawer.propTypes = {
+  classes: PropTypes.shape().isRequired
+};
+
+export default withStyles(styles)(TemporaryDrawer);
