@@ -42,10 +42,6 @@ const styles = theme => ({
     [theme.breakpoints.up("md")]: {
       display: "none"
     }
-  },
-  "@global a": {
-    textDecoration: "none",
-    color: "#ffffff"
   }
 });
 
@@ -128,12 +124,13 @@ class Header extends React.Component {
             >
               Automata Playground
             </Typography>
-            <Typography
-              className={classes.title}
-              variant="caption"
-              color="inherit"
-            >
-              <a href="#notice">&nbsp;Pre-Alpha</a>
+            <Typography className={classes.title} variant="caption">
+              <a
+                href="#notice"
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                &nbsp;Pre-Alpha
+              </a>
             </Typography>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
