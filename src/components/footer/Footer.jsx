@@ -1,49 +1,86 @@
 import React from "react";
-import { AppBar, Typography, Grid } from "@material-ui/core";
+import { Typography, Grid, Paper } from "@material-ui/core";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
 
-const Footer = () => {
+const styles = theme => ({
+  container: {
+    padding: theme.spacing.unit * 8,
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing.unit * 3,
+      marginLeft: theme.spacing.unit
+    }
+  },
+  title: {
+    marginBottom: theme.spacing.unit * 2
+  }
+});
+
+const Footer = props => {
+  const { classes } = props;
+
   return (
-    <AppBar
-      position="static"
-      style={{ background: "#eceff1", boxShadow: "none" }}
-    >
-      <Grid container style={{ marginTop: 80, marginBottom: 80 }}>
-        <Grid item xs={3} />
-        <Grid item xs={9} style={{ marginBottom: 20 }}>
-          <Typography variant="title">Quick Links</Typography>
+    <Paper elevation={0} square>
+      <Grid container className={classes.container}>
+        <Grid item lg={3} md={3} />
+        <Grid item lg={9} md={9} xs={12} className={classes.title}>
+          <Typography variant="h5" component="h3">
+            Quick Links
+          </Typography>
         </Grid>
-        <Grid item xs={3} />
-        <Grid item xs={2}>
-          <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
-            <li>
-              <a href="https://github.com/nihalmurmu/Automata">
-                <Typography variant="subtitle1">Github</Typography>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/nihalmurmu/Automata">
-                <Typography variant="subtitle1">Examples</Typography>
-              </a>
-            </li>
-          </ul>
+
+        <Grid item lg={3} md={3} />
+        <Grid item lg={3} md={3} xs={12}>
+          <Typography variant="subtitle1">
+            <a
+              href="https://github.com/nihalmurmu/Automata"
+              style={{ textDecoration: "none", color: "black" }}
+            >
+              Github
+            </a>
+          </Typography>
         </Grid>
-        <Grid item>
-          <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
-            <li>
-              <a href="https://github.com/nihalmurmu/Automata">
-                <Typography variant="subtitle1">Tutorial</Typography>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/nihalmurmu/Automata">
-                <Typography variant="subtitle1">Any Suggestion ?</Typography>
-              </a>
-            </li>
-          </ul>
+        <Grid item lg={3} md={3} xs={12}>
+          <Typography variant="subtitle1">
+            <a
+              href="https://github.com/nihalmurmu/Automata"
+              style={{ textDecoration: "none", color: "black" }}
+            >
+              Examples
+            </a>
+          </Typography>
         </Grid>
+        <Grid item lg={3} md={3} />
+
+        <Grid item lg={3} md={3} />
+        <Grid item lg={3} md={3} xs={12}>
+          <Typography variant="subtitle1">
+            <a
+              href="https://github.com/nihalmurmu/Automata"
+              style={{ textDecoration: "none", color: "black" }}
+            >
+              Tutorial
+            </a>
+          </Typography>
+        </Grid>
+        <Grid item lg={3} md={3} xs={12}>
+          <Typography variant="subtitle1">
+            <a
+              href="https://github.com/nihalmurmu/Automata"
+              style={{ textDecoration: "none", color: "black" }}
+            >
+              Any suggestion?
+            </a>
+          </Typography>
+        </Grid>
+        <Grid item lg={3} md={3} />
       </Grid>
-    </AppBar>
+    </Paper>
   );
 };
 
-export default Footer;
+Footer.propTypes = {
+  classes: PropTypes.shape().isRequired
+};
+
+export default withStyles(styles)(Footer);
