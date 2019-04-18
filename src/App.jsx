@@ -2,18 +2,14 @@ import React from "react";
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
 import "./App.css";
-import Canvas from "./components/canvas/Canvas";
+import Workspace from "./components/workspace/Workspace";
 import PreAlphaNotice from "./components/preAlpha/PreAlphaNotice";
-import Utils from "./components/utils/Utils";
 
 const App = () => {
   return (
     <div className="App">
       <Header />
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <Canvas />
-        <Utils />
-      </div>
+      <Workspace />
       <PreAlphaNotice />
       <Footer />
     </div>

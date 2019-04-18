@@ -1,6 +1,6 @@
 import React from "react";
 import { Paper } from "@material-ui/core";
-import "../../engine/fsm";
+// import "../../engine/fsm";
 
 const Canvas = () => {
   return (
