@@ -1,7 +1,7 @@
 {
   "name": "automata",
   "version": "0.1.0",
-  "homepage": "http://nihalmurmu.github.io/Automata",
+  "homepage": "http://nihalmurmu.github.io/automata",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^3.7.1",
