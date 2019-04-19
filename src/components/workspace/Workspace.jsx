@@ -36,11 +36,19 @@ const nodes = new DataSet([
   { id: 5, label: "Node 5" }
 ]);
 
+/*
+  all the edges will have the property `smooth: {type: "curvedCW", roundness: 0.0 }` except the node with self edge
+  `roundnes: 0.0` gives the edges a straight line.
+  increasing the roundness factor will help in the case of where two distinct edges are connecting two same node with different direction
+  otherwise edges and its labels will overlap
+*/
 const edges = new DataSet([
-  { from: 1, to: 3 },
-  { from: 1, to: 2 },
-  { from: 2, to: 4 },
-  { from: 2, to: 5 }
+  { from: 1, to: 3, label: "a", smooth: { type: "curvedCW", roundness: 0.0 } },
+  { from: 1, to: 2, label: "b", smooth: { type: "curvedCW", roundness: 0.0 } },
+  { from: 2, to: 4, label: "c", smooth: { type: "curvedCW", roundness: 0.0 } },
+  { from: 2, to: 5, label: "d", smooth: { type: "curvedCW", roundness: 0.1 } },
+  { from: 5, to: 2, label: "e", smooth: { type: "curvedCW", roundness: 0.1 } },
+  { from: 2, to: 2, label: "f" }
 ]);
 
 const data = {
@@ -48,7 +56,20 @@ const data = {
   edges
 };
 
-const options = {};
+const options = {
+  clickToUse: true,
+  nodes: {
+    shape: "circle"
+  },
+  edges: {
+    arrows: {
+      to: { enabled: true, scaleFactor: 1, type: "arrow" }
+    }
+  },
+  physics: {
+    enabled: false // should I enable it or add a functionality user can enable/disable physics ?
+  }
+};
 
 class Workspace extends React.Component {
   constructor(props) {
