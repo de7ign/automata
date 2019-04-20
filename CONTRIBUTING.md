@@ -4,10 +4,10 @@ possible.
 
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the maintainers of this repository before making a change.
 
-Please note we have a [code of conduct](https://github.com/nihalmurmu/Automata/blob/master/CODE_OF_CONDUCT.md), please follow it in all your interactions with the project.
+Please note we have a [code of conduct](https://github.com/nihalmurmu/automata/blob/master/CODE_OF_CONDUCT.md), please follow it in all your interactions with the project.
 
 ## Our Development Process
-We love and follow GitHub flow, read the GitHub flow guidlines [here](https://guides.github.com/introduction/flow/index.html)
+We love and follow GitHub flow, read the Gitflow guidlines [here](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)
 
 We use GitHub to sync code to and from our internal repository. We'll use GitHub
 to track issues and feature requests, as well as accept pull requests.
@@ -15,7 +15,7 @@ to track issues and feature requests, as well as accept pull requests.
 ## Pull Requests
 We actively welcome your pull requests.
 
-1. Fork the repo and create your branch from `master`.
+1. Fork the repo and create your branch from `develop`.
 2. If you've added code that should be tested.
 3. Ensure the test suite passes.
 4. Make sure your code lints.
@@ -37,12 +37,13 @@ clear and has sufficient instructions to be able to reproduce the issue.
 
 People :heart: thorough bug reports.
 
-Report a bug by [opening a new issue](https://github.com/nihalmurmu/Automata/issues); it's that easy!
+Report a bug by [opening a new issue](https://github.com/nihalmurmu/automata/issues); it's that easy!
 
 ## Coding Style  
 * 2 spaces for indentation rather than tabs
 * 80 character line length
 * Run `npm run lint` to conform to our lint rules
+* Additionally you can also run `npm run pretty` to prettify the code
 
 ## License
-By contributing to Algorithms, you agree that your contributions will be licensed under its MIT license.
+By contributing to `automata`, you agree that your contributions will be licensed under its MIT license.
