@@ -1,13 +1,9 @@
 {
-  "main.css": "/automata/static/css/main.bcf14a2e.chunk.css",
-  "main.js": "/automata/static/js/main.d3cf69f0.chunk.js",
-  "main.js.map": "/automata/static/js/main.d3cf69f0.chunk.js.map",
+  "main.css": "/automata/static/css/main.caea66df.chunk.css",
+  "main.js": "/automata/static/js/main.5da9d4ea.chunk.js",
   "runtime~main.js": "/automata/static/js/runtime~main.a7eb554e.js",
-  "runtime~main.js.map": "/automata/static/js/runtime~main.a7eb554e.js.map",
-  "static/js/2.924b4403.chunk.js": "/automata/static/js/2.924b4403.chunk.js",
-  "static/js/2.924b4403.chunk.js.map": "/automata/static/js/2.924b4403.chunk.js.map",
+  "static/js/2.4f487de1.chunk.js": "/automata/static/js/2.4f487de1.chunk.js",
   "index.html": "/automata/index.html",
-  "precache-manifest.2c488d836d845df40868b0423a1759f9.js": "/automata/precache-manifest.2c488d836d845df40868b0423a1759f9.js",
-  "service-worker.js": "/automata/service-worker.js",
-  "static/css/main.bcf14a2e.chunk.css.map": "/automata/static/css/main.bcf14a2e.chunk.css.map"
+  "precache-manifest.4e4e6e64155ac3f8d835051abe6f1622.js": "/automata/precache-manifest.4e4e6e64155ac3f8d835051abe6f1622.js",
+  "service-worker.js": "/automata/service-worker.js"
 }
