@@ -1,17 +1,20 @@
 import React from "react";
 import PropTypes from "prop-types";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
-import MenuItem from "@material-ui/core/MenuItem";
-import Menu from "@material-ui/core/Menu";
-import { withStyles } from "@material-ui/core/styles";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  MenuItem,
+  Menu,
+  withStyles,
+  SvgIcon,
+  Tooltip
+} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import OndemandVideoIcon from "@material-ui/icons/OndemandVideo";
 import BrushIcon from "@material-ui/icons/Brush";
 import MoreIcon from "@material-ui/icons/MoreVert";
-import { SvgIcon, Tooltip } from "@material-ui/core";
 import TemporaryDrawer from "../drawer/TemporaryDrawer";
 
 const styles = theme => ({

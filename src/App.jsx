@@ -1,9 +1,9 @@
 import React from "react";
-import Header from "./components/header/Header";
-import Footer from "./components/footer/Footer";
 import "./App.css";
+import Header from "./components/header/Header";
 import Workspace from "./components/workspace/Workspace";
 import PreAlphaNotice from "./components/preAlpha/PreAlphaNotice";
+import Footer from "./components/footer/Footer";
 
 const App = () => {
   return (

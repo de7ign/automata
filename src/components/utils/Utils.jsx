@@ -1,7 +1,11 @@
 import React from "react";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
-import Divider from "@material-ui/core/Divider";
+import {
+  Paper,
+  Typography,
+  Divider,
+  Button,
+  TextField
+} from "@material-ui/core";
 import {
   Build,
   Share,
@@ -10,8 +14,6 @@ import {
   Delete,
   Autorenew
 } from "@material-ui/icons";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 
 const Utils = () => {
   return (

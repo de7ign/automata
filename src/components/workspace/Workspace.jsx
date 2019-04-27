@@ -1,7 +1,6 @@
 import React from "react";
-import { Paper, Grid } from "@material-ui/core";
+import { Paper, Grid, withStyles } from "@material-ui/core";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
 import { Network, DataSet } from "vis";
 
 const styles = theme => ({
