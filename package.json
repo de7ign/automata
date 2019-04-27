@@ -9,6 +9,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
+    "react-ga": "^2.5.7",
     "react-scripts": "^2.1.8",
     "vis": "^4.21.0"
   },
