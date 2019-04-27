@@ -1,7 +1,6 @@
 import React from "react";
-import { Typography, Grid, Paper } from "@material-ui/core";
+import { Typography, Grid, Paper, withStyles } from "@material-ui/core";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
 
 const styles = theme => ({
   container: {
