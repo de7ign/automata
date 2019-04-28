@@ -79,6 +79,18 @@ class Workspace extends React.Component {
 
   componentDidMount() {
     this.network = new Network(this.visRef, data, options);
+
+    /**
+     * create a node when double clicked in canvas
+     */
+    this.network.on("doubleClick", params => {
+      nodes.add({
+        id: nodes.length + 1,
+        label: `node ${nodes.length + 1}`,
+        x: params.pointer.canvas.x,
+        y: params.pointer.canvas.y
+      });
+    });
   }
 
   render() {
