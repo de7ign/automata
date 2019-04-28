@@ -1,7 +1,7 @@
 import React from "react";
 import { Paper, Grid, withStyles } from "@material-ui/core";
 import PropTypes from "prop-types";
-import { Network, DataSet } from "vis";
+import { Network, DataSet, keycharm } from "vis";
 
 const styles = theme => ({
   root: {
@@ -79,6 +79,19 @@ class Workspace extends React.Component {
 
   componentDidMount() {
     this.network = new Network(this.visRef, data, options);
+    this.visRef.focus();
+    const keys = keycharm({
+      container: this.visRef,
+      preventDefault: true
+    });
+
+    /**
+     * click event will focus on the container
+     * It's necessary for keyboard events to work
+     */
+    this.network.on("click", () => {
+      this.visRef.focus();
+    });
 
     /**
      * create a node when double clicked in canvas
@@ -91,6 +104,14 @@ class Workspace extends React.Component {
         y: params.pointer.canvas.y
       });
     });
+
+    /**
+     * delete key will delete the selected node
+     */
+    keys.bind("delete", () => {
+      const selection = this.network.getSelection();
+      nodes.remove(selection.nodes[0]);
+    });
   }
 
   render() {
@@ -101,6 +122,8 @@ class Workspace extends React.Component {
           <Grid item lg={9} xs={12}>
             <Paper className={classes.paper} elevation={12}>
               <div
+                // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+                tabIndex={0}
                 ref={ref => {
                   this.visRef = ref;
                 }}
