@@ -3,7 +3,7 @@ import "./App.css";
 import ReactGA from "react-ga";
 import Header from "./components/header/Header";
 import Workspace from "./components/workspace/Workspace";
-import PreAlphaNotice from "./components/preAlpha/PreAlphaNotice";
+import Notice from "./components/notice/Notice";
 import Footer from "./components/footer/Footer";
 
 class App extends React.Component {
@@ -17,7 +17,7 @@ class App extends React.Component {
       <div className="App">
         <Header />
         <Workspace />
-        <PreAlphaNotice />
+        <Notice />
         <Footer />
       </div>
     );

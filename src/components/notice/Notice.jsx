@@ -9,7 +9,7 @@ const styles = theme => ({
   }
 });
 
-const PreAlphaNotice = props => {
+const Notice = props => {
   const { classes } = props;
   return (
     <Card className={classes.root} id="notice" elevation={12}>
@@ -36,8 +36,8 @@ const PreAlphaNotice = props => {
   );
 };
 
-PreAlphaNotice.propTypes = {
+Notice.propTypes = {
   classes: PropTypes.shape().isRequired
 };
 
-export default withStyles(styles)(PreAlphaNotice);
+export default withStyles(styles)(Notice);
