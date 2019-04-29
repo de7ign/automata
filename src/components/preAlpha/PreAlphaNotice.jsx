@@ -15,10 +15,10 @@ const PreAlphaNotice = props => {
     <Card className={classes.root} id="notice" elevation={12}>
       <CardContent>
         <Typography variant="title" gutterBottom>
-          Pre-Alpha Release
+          Alpha Release
         </Typography>
         <Typography variant="body1">
-          Application is in pre-alpha phase
+          Application is in active development phase
           <br />
           This web application is currently in the stages of its development.
           <br />
