@@ -63,10 +63,25 @@ const options = {
   edges: {
     arrows: {
       to: { enabled: true, scaleFactor: 1, type: "arrow" }
-    }
+    },
+    // by default all edges property should be this
+    smooth: { type: "curvedCW", roundness: 0.0 }
   },
   physics: {
     enabled: false // should I enable it or add a functionality user can enable/disable physics ?
+  },
+  manipulation: {
+    addEdge: (edgeData, callback) => {
+      // if (edgeData.from === edgeData.to) {
+      //   let r = alert("Do you want to connect the node to itself?");
+      //   if (r === true) {
+      //     callback(edgeData);
+      //   }
+      // } else {
+      //   callback(edgeData);
+      // }
+      callback(edgeData);
+    }
   }
 };
 
@@ -112,6 +127,24 @@ class Workspace extends React.Component {
       const selection = this.network.getSelection();
       nodes.remove(selection.nodes[0]);
     });
+
+    /**
+     * edges can be drawn by pressing and holding down shift and then click dragging from one node to other node
+     */
+    keys.bind(
+      "shift",
+      () => {
+        this.network.addEdgeMode();
+      },
+      "keydown"
+    );
+    keys.bind(
+      "shift",
+      () => {
+        this.network.disableEditMode();
+      },
+      "keyup"
+    );
   }
 
   render() {
