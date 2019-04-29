@@ -1,7 +1,7 @@
 import React from "react";
 import { Paper, Grid, withStyles } from "@material-ui/core";
 import PropTypes from "prop-types";
-import { Network, DataSet } from "vis";
+import { Network, DataSet, keycharm } from "vis";
 
 const styles = theme => ({
   root: {
@@ -63,10 +63,25 @@ const options = {
   edges: {
     arrows: {
       to: { enabled: true, scaleFactor: 1, type: "arrow" }
-    }
+    },
+    // by default all edges property should be this
+    smooth: { type: "curvedCW", roundness: 0.0 }
   },
   physics: {
     enabled: false // should I enable it or add a functionality user can enable/disable physics ?
+  },
+  manipulation: {
+    addEdge: (edgeData, callback) => {
+      // if (edgeData.from === edgeData.to) {
+      //   let r = alert("Do you want to connect the node to itself?");
+      //   if (r === true) {
+      //     callback(edgeData);
+      //   }
+      // } else {
+      //   callback(edgeData);
+      // }
+      callback(edgeData);
+    }
   }
 };
 
@@ -79,6 +94,60 @@ class Workspace extends React.Component {
 
   componentDidMount() {
     this.network = new Network(this.visRef, data, options);
+    this.visRef.focus();
+    const keys = keycharm({
+      container: this.visRef,
+      preventDefault: true
+    });
+
+    /**
+     * click event will focus on the container
+     * It's necessary for keyboard events to work
+     */
+    this.network.on("click", () => {
+      this.visRef.focus();
+    });
+
+    /**
+     * create a node when double clicked in canvas
+     */
+    this.network.on("doubleClick", params => {
+      nodes.add({
+        id: nodes.length + 1,
+        label: `node ${nodes.length + 1}`,
+        x: params.pointer.canvas.x,
+        y: params.pointer.canvas.y
+      });
+    });
+
+    /**
+     * delete key will delete the selected node/edges
+     */
+    keys.bind("delete", () => {
+      const selection = this.network.getSelection();
+      if (!selection.nodes[0]) {
+        edges.remove(selection.edges[0])
+      }
+      nodes.remove(selection.nodes[0]);
+    });
+
+    /**
+     * edges can be drawn by pressing and holding down shift and then click dragging from one node to other node
+     */
+    keys.bind(
+      "shift",
+      () => {
+        this.network.addEdgeMode();
+      },
+      "keydown"
+    );
+    keys.bind(
+      "shift",
+      () => {
+        this.network.disableEditMode();
+      },
+      "keyup"
+    );
   }
 
   render() {
@@ -89,6 +158,8 @@ class Workspace extends React.Component {
           <Grid item lg={9} xs={12}>
             <Paper className={classes.paper} elevation={12}>
               <div
+                // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+                tabIndex={0}
                 ref={ref => {
                   this.visRef = ref;
                 }}
