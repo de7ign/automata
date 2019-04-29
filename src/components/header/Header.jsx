@@ -132,7 +132,7 @@ class Header extends React.Component {
                 href="#notice"
                 style={{ textDecoration: "none", color: "white" }}
               >
-                &nbsp;Pre-Alpha
+                &nbsp;Alpha
               </a>
             </Typography>
             <div className={classes.grow} />
