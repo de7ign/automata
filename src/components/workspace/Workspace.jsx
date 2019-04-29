@@ -121,10 +121,13 @@ class Workspace extends React.Component {
     });
 
     /**
-     * delete key will delete the selected node
+     * delete key will delete the selected node/edges
      */
     keys.bind("delete", () => {
       const selection = this.network.getSelection();
+      if (!selection.nodes[0]) {
+        edges.remove(selection.edges[0])
+      }
       nodes.remove(selection.nodes[0]);
     });
 
