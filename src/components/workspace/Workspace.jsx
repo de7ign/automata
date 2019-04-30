@@ -1,5 +1,16 @@
 import React from "react";
-import { Paper, Grid, withStyles } from "@material-ui/core";
+import {
+  Paper,
+  Grid,
+  withStyles,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  TextField,
+  Button
+} from "@material-ui/core";
 import PropTypes from "prop-types";
 import { Network, DataSet, keycharm } from "vis";
 
@@ -55,44 +66,53 @@ const data = {
   edges
 };
 
-const options = {
-  clickToUse: true,
-  nodes: {
-    shape: "circle"
-  },
-  edges: {
-    arrows: {
-      to: { enabled: true, scaleFactor: 1, type: "arrow" }
-    },
-    // by default all edges property should be this
-    smooth: { type: "curvedCW", roundness: 0.0 }
-  },
-  physics: {
-    enabled: false // should I enable it or add a functionality user can enable/disable physics ?
-  },
-  manipulation: {
-    addEdge: (edgeData, callback) => {
-      // if (edgeData.from === edgeData.to) {
-      //   let r = alert("Do you want to connect the node to itself?");
-      //   if (r === true) {
-      //     callback(edgeData);
-      //   }
-      // } else {
-      //   callback(edgeData);
-      // }
-      callback(edgeData);
-    }
-  }
-};
-
 class Workspace extends React.Component {
   constructor(props) {
     super(props);
     this.network = {};
     this.visRef = React.createRef();
+
+    this.state = {
+      open: false,
+      edgeLabel: "",
+      edgeLabelError: false
+    };
   }
 
   componentDidMount() {
+    const options = {
+      clickToUse: true,
+      nodes: {
+        shape: "circle"
+      },
+      edges: {
+        arrows: {
+          to: { enabled: true, scaleFactor: 1, type: "arrow" }
+        },
+        // by default all edges property should be this
+        smooth: { type: "curvedCW", roundness: 0.0 }
+      },
+      physics: {
+        enabled: false // should I enable it or add a functionality user can enable/disable physics ?
+      },
+      manipulation: {
+        addEdge: (edgeData, callback) => {
+          // if (edgeData.from === edgeData.to) {
+          //   let r = alert("Do you want to connect the node to itself?");
+          //   if (r === true) {
+          //     callback(edgeData);
+          //   }
+          // } else {
+          //   callback(edgeData);
+          // }
+          // this.handleClickOpen();
+          // edgeData.label = this.state.edgeLabel
+          this.handleClickOpen();
+          callback(edgeData);
+        }
+      }
+    };
+
     this.network = new Network(this.visRef, data, options);
     this.visRef.focus();
     const keys = keycharm({
@@ -126,7 +146,7 @@ class Workspace extends React.Component {
     keys.bind("delete", () => {
       const selection = this.network.getSelection();
       if (!selection.nodes[0]) {
-        edges.remove(selection.edges[0])
+        edges.remove(selection.edges[0]);
       }
       nodes.remove(selection.nodes[0]);
     });
@@ -150,8 +170,36 @@ class Workspace extends React.Component {
     );
   }
 
+  handleClickOpen = () => {
+    this.setState({ open: true });
+  };
+
+  handleClose = () => {
+    this.setState({ open: false, edgeLabelError: false });
+
+    // no label provided ? then delete the edge
+    edges.remove(edges.getIds()[edges.length - 1]);
+  };
+
+  handleEnterClose = () => {
+    const { edgeLabel } = this.state;
+
+    // edge label shouldn't be empty or contain any space
+    if (edgeLabel !== "" && !/\s/g.test(edgeLabel)) {
+      edges.update({ id: edges.getIds()[edges.length - 1], label: edgeLabel });
+      this.setState({ open: false });
+    } else {
+      this.setState({ edgeLabelError: true });
+    }
+  };
+
+  handleEdgeLabelChange = event => {
+    this.setState({ edgeLabel: event.target.value });
+  };
+
   render() {
     const { classes } = this.props;
+    const { open, edgeLabelError } = this.state;
     return (
       <div className={classes.root}>
         <Grid container spacing={16}>
@@ -173,6 +221,42 @@ class Workspace extends React.Component {
             </Paper>
           </Grid>
         </Grid>
+
+        <Dialog
+          open={open}
+          onClose={this.handleClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Edge</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Please enter a label for your new edge
+            </DialogContentText>
+            {edgeLabelError ? (
+              <DialogContentText style={{ color: "red" }}>
+                Label cannot be empty or include space
+              </DialogContentText>
+            ) : (
+              ""
+            )}
+            <TextField
+              autoFocus
+              autoComplete="off"
+              margin="dense"
+              id="edgelabel"
+              onChange={this.handleEdgeLabelChange}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.handleEnterClose} color="primary">
+              Enter
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
