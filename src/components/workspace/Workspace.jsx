@@ -1,5 +1,16 @@
 import React from "react";
-import { Paper, Grid, withStyles } from "@material-ui/core";
+import {
+  Paper,
+  Grid,
+  withStyles,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  TextField,
+  Button
+} from "@material-ui/core";
 import PropTypes from "prop-types";
 import { Network, DataSet, keycharm } from "vis";
 
@@ -55,44 +66,55 @@ const data = {
   edges
 };
 
-const options = {
-  clickToUse: true,
-  nodes: {
-    shape: "circle"
-  },
-  edges: {
-    arrows: {
-      to: { enabled: true, scaleFactor: 1, type: "arrow" }
-    },
-    // by default all edges property should be this
-    smooth: { type: "curvedCW", roundness: 0.0 }
-  },
-  physics: {
-    enabled: false // should I enable it or add a functionality user can enable/disable physics ?
-  },
-  manipulation: {
-    addEdge: (edgeData, callback) => {
-      // if (edgeData.from === edgeData.to) {
-      //   let r = alert("Do you want to connect the node to itself?");
-      //   if (r === true) {
-      //     callback(edgeData);
-      //   }
-      // } else {
-      //   callback(edgeData);
-      // }
-      callback(edgeData);
-    }
-  }
-};
-
 class Workspace extends React.Component {
   constructor(props) {
     super(props);
     this.network = {};
     this.visRef = React.createRef();
+
+    this.state = {
+      edgeDialogOpen: false,
+      edgeLabel: "",
+      labelError: false,
+      nodeDialogOpen: false,
+      nodeLabel: ""
+    };
   }
 
   componentDidMount() {
+    const options = {
+      clickToUse: true,
+      nodes: {
+        shape: "circle"
+      },
+      edges: {
+        arrows: {
+          to: { enabled: true, scaleFactor: 1, type: "arrow" }
+        },
+        // by default all edges property should be this
+        smooth: { type: "curvedCW", roundness: 0.0 }
+      },
+      physics: {
+        enabled: false // should I enable it or add a functionality user can enable/disable physics ?
+      },
+      manipulation: {
+        addEdge: (edgeData, callback) => {
+          // if (edgeData.from === edgeData.to) {
+          //   let r = alert("Do you want to connect the node to itself?");
+          //   if (r === true) {
+          //     callback(edgeData);
+          //   }
+          // } else {
+          //   callback(edgeData);
+          // }
+          // this.handleClickOpen();
+          // edgeData.label = this.state.edgeLabel
+          this.handleEdgeDialogOpen();
+          callback(edgeData);
+        }
+      }
+    };
+
     this.network = new Network(this.visRef, data, options);
     this.visRef.focus();
     const keys = keycharm({
@@ -113,11 +135,11 @@ class Workspace extends React.Component {
      */
     this.network.on("doubleClick", params => {
       nodes.add({
-        id: nodes.length + 1,
-        label: `node ${nodes.length + 1}`,
+        label: "",
         x: params.pointer.canvas.x,
         y: params.pointer.canvas.y
       });
+      this.handleNodeDialogOpen();
     });
 
     /**
@@ -126,7 +148,7 @@ class Workspace extends React.Component {
     keys.bind("delete", () => {
       const selection = this.network.getSelection();
       if (!selection.nodes[0]) {
-        edges.remove(selection.edges[0])
+        edges.remove(selection.edges[0]);
       }
       nodes.remove(selection.nodes[0]);
     });
@@ -150,8 +172,71 @@ class Workspace extends React.Component {
     );
   }
 
+  handleNodeDialogOpen = () => {
+    this.setState({ nodeDialogOpen: true });
+  };
+
+  handleNodeDialogClose = () => {
+    this.setState({ nodeDialogOpen: false, labelError: false });
+
+    // no label provided ? then delete the node
+    nodes.remove(nodes.getIds()[nodes.length - 1]);
+  };
+
+  handleNodeDialogEnterClose = () => {
+    const { nodeLabel } = this.state;
+
+    // node label shouldn't be empty
+    if (nodeLabel !== "") {
+      nodes.update({ id: nodes.getIds()[nodes.length - 1], label: nodeLabel });
+      this.setState({
+        nodeDialogOpen: false,
+        labelError: false,
+        nodeLabel: ""
+      });
+    } else {
+      this.setState({ labelError: true });
+    }
+  };
+
+  handleNodeLabelChange = event => {
+    this.setState({ nodeLabel: event.target.value });
+  };
+
+  handleEdgeDialogOpen = () => {
+    this.setState({ edgeDialogOpen: true });
+  };
+
+  handleEdgeDialogClose = () => {
+    this.setState({ edgeDialogOpen: false, labelError: false });
+
+    // no label provided ? then delete the edge
+    edges.remove(edges.getIds()[edges.length - 1]);
+  };
+
+  handleEdgeDialogEnterClose = () => {
+    const { edgeLabel } = this.state;
+
+    // edge label shouldn't be empty or contain any space
+    if (edgeLabel !== "" && !/\s/g.test(edgeLabel)) {
+      edges.update({ id: edges.getIds()[edges.length - 1], label: edgeLabel });
+      this.setState({
+        edgeDialogOpen: false,
+        labelError: false,
+        edgeLabel: ""
+      });
+    } else {
+      this.setState({ labelError: true });
+    }
+  };
+
+  handleEdgeLabelChange = event => {
+    this.setState({ edgeLabel: event.target.value });
+  };
+
   render() {
     const { classes } = this.props;
+    const { edgeDialogOpen, labelError, nodeDialogOpen } = this.state;
     return (
       <div className={classes.root}>
         <Grid container spacing={16}>
@@ -173,6 +258,78 @@ class Workspace extends React.Component {
             </Paper>
           </Grid>
         </Grid>
+
+        <Dialog
+          open={nodeDialogOpen}
+          onClose={this.handleNodeDialogClose}
+          aria-labelledby="node-form-dialog-title"
+        >
+          <DialogTitle id="node-form-dialog-title">Node</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Please enter a label for your new node
+            </DialogContentText>
+            {labelError ? (
+              <DialogContentText style={{ color: "red" }}>
+                Label cannot be empty or include space
+              </DialogContentText>
+            ) : (
+              ""
+            )}
+            <TextField
+              autoFocus
+              autoComplete="off"
+              margin="dense"
+              id="nodelabel"
+              onChange={this.handleNodeLabelChange}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleNodeDialogClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.handleNodeDialogEnterClose} color="primary">
+              Enter
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={edgeDialogOpen}
+          onClose={this.handleEdgeDialogClose}
+          aria-labelledby="edge-form-dialog-title"
+        >
+          <DialogTitle id="edge-form-dialog-title">Edge</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Please enter a label for your new edge
+            </DialogContentText>
+            {labelError ? (
+              <DialogContentText style={{ color: "red" }}>
+                Label cannot be empty or include space
+              </DialogContentText>
+            ) : (
+              ""
+            )}
+            <TextField
+              autoFocus
+              autoComplete="off"
+              margin="dense"
+              id="edgelabel"
+              onChange={this.handleEdgeLabelChange}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleEdgeDialogClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.handleEdgeDialogEnterClose} color="primary">
+              Enter
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
