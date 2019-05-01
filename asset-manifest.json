@@ -1,9 +1,9 @@
 {
-  "main.css": "/automata/static/css/main.caea66df.chunk.css",
-  "main.js": "/automata/static/js/main.5da9d4ea.chunk.js",
+  "main.css": "/automata/static/css/main.a1ff8d39.chunk.css",
+  "main.js": "/automata/static/js/main.49b50f02.chunk.js",
   "runtime~main.js": "/automata/static/js/runtime~main.a7eb554e.js",
-  "static/js/2.4f487de1.chunk.js": "/automata/static/js/2.4f487de1.chunk.js",
+  "static/js/2.c1426b7b.chunk.js": "/automata/static/js/2.c1426b7b.chunk.js",
   "index.html": "/automata/index.html",
-  "precache-manifest.4e4e6e64155ac3f8d835051abe6f1622.js": "/automata/precache-manifest.4e4e6e64155ac3f8d835051abe6f1622.js",
+  "precache-manifest.7267dde726f5592aa0b883b02a7bc71a.js": "/automata/precache-manifest.7267dde726f5592aa0b883b02a7bc71a.js",
   "service-worker.js": "/automata/service-worker.js"
 }
