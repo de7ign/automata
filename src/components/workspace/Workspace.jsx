@@ -241,7 +241,7 @@ class Workspace extends React.Component {
       <div className={classes.root}>
         <Grid container spacing={16}>
           <Grid item lg={9} xs={12}>
-            <Paper className={classes.paper} elevation={12}>
+            <Paper className={classes.paper} elevation={6}>
               <div
                 // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                 tabIndex={0}
@@ -253,7 +253,7 @@ class Workspace extends React.Component {
             </Paper>
           </Grid>
           <Grid item lg={3} xs={12}>
-            <Paper className={classes.paper} elevation={12}>
+            <Paper className={classes.paper} elevation={6}>
               <div className={classes.divUtil}>tools</div>
             </Paper>
           </Grid>

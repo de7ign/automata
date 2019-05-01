@@ -13,36 +13,32 @@ const Notice = props => {
   const { classes } = props;
   return (
     <div>
-      <Card className={classes.root} id="notice" elevation={12}>
+      <Card className={classes.root} id="notice" elevation={6}>
         <CardContent>
           <Typography variant="title" gutterBottom>
             How to get hands dirty
           </Typography>
-          <Typography variant="body2">
-            Create a Node
-          </Typography>
+          <Typography variant="body2">Create a Node</Typography>
           <Typography variant="body1">
             Double click to create a node
             <br />
           </Typography>
-          <Typography variant="body2">
-            Create an Edge
-          </Typography>
+          <Typography variant="body2">Create an Edge</Typography>
           <Typography variant="body1">
-            Press and hold down shift button, then click-drag from one node to other node you wish to join
+            Press and hold down shift button, then click-drag from one node to
+            other node you wish to join
             <br />
           </Typography>
-          <Typography variant="body2">
-            Delete ?
-          </Typography>
+          <Typography variant="body2">Delete ?</Typography>
           <Typography variant="body1">
-            Just select the object you want to delete and press &apos;delete&apos; key!
+            Just select the object you want to delete and press
+            &apos;delete&apos; key!
             <br />
           </Typography>
         </CardContent>
       </Card>
 
-      <Card className={classes.root} id="notice" elevation={12}>
+      <Card className={classes.root} id="notice" elevation={6}>
         <CardContent>
           <Typography variant="title" gutterBottom>
             Alpha Release
