@@ -73,7 +73,7 @@ class Workspace extends React.Component {
     this.visRef = React.createRef();
 
     this.state = {
-      open: false,
+      edgeDialogOpen: false,
       edgeLabel: "",
       edgeLabelError: false
     };
@@ -107,7 +107,7 @@ class Workspace extends React.Component {
           // }
           // this.handleClickOpen();
           // edgeData.label = this.state.edgeLabel
-          this.handleClickOpen();
+          this.handleEdgeDialogOpen();
           callback(edgeData);
         }
       }
@@ -170,24 +170,24 @@ class Workspace extends React.Component {
     );
   }
 
-  handleClickOpen = () => {
-    this.setState({ open: true });
+  handleEdgeDialogOpen = () => {
+    this.setState({ edgeDialogOpen: true });
   };
 
-  handleClose = () => {
-    this.setState({ open: false, edgeLabelError: false });
+  handleEdgeDialogClose = () => {
+    this.setState({ edgeDialogOpen: false, edgeLabelError: false });
 
     // no label provided ? then delete the edge
     edges.remove(edges.getIds()[edges.length - 1]);
   };
 
-  handleEnterClose = () => {
+  handleEdgeDialogEnterClose = () => {
     const { edgeLabel } = this.state;
 
     // edge label shouldn't be empty or contain any space
     if (edgeLabel !== "" && !/\s/g.test(edgeLabel)) {
       edges.update({ id: edges.getIds()[edges.length - 1], label: edgeLabel });
-      this.setState({ open: false });
+      this.setState({ edgeDialogOpen: false, edgeLabelError: false, edgeLabel: "" });
     } else {
       this.setState({ edgeLabelError: true });
     }
@@ -199,7 +199,7 @@ class Workspace extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { open, edgeLabelError } = this.state;
+    const { edgeDialogOpen, edgeLabelError } = this.state;
     return (
       <div className={classes.root}>
         <Grid container spacing={16}>
@@ -223,11 +223,11 @@ class Workspace extends React.Component {
         </Grid>
 
         <Dialog
-          open={open}
-          onClose={this.handleClose}
-          aria-labelledby="form-dialog-title"
+          open={edgeDialogOpen}
+          onClose={this.handleEdgeDialogClose}
+          aria-labelledby="edge-form-dialog-title"
         >
-          <DialogTitle id="form-dialog-title">Edge</DialogTitle>
+          <DialogTitle id="edge-form-dialog-title">Edge</DialogTitle>
           <DialogContent>
             <DialogContentText>
               Please enter a label for your new edge
@@ -249,10 +249,10 @@ class Workspace extends React.Component {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleClose} color="primary">
+            <Button onClick={this.handleEdgeDialogClose} color="primary">
               Cancel
             </Button>
-            <Button onClick={this.handleEnterClose} color="primary">
+            <Button onClick={this.handleEdgeDialogEnterClose} color="primary">
               Enter
             </Button>
           </DialogActions>
