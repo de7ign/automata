@@ -75,7 +75,9 @@ class Workspace extends React.Component {
     this.state = {
       edgeDialogOpen: false,
       edgeLabel: "",
-      edgeLabelError: false
+      labelError: false,
+      nodeDialogOpen: false,
+      nodeLabel: ""
     };
   }
 
@@ -133,11 +135,11 @@ class Workspace extends React.Component {
      */
     this.network.on("doubleClick", params => {
       nodes.add({
-        id: nodes.length + 1,
-        label: `node ${nodes.length + 1}`,
+        label: "",
         x: params.pointer.canvas.x,
         y: params.pointer.canvas.y
       });
+      this.handleNodeDialogOpen();
     });
 
     /**
@@ -170,12 +172,43 @@ class Workspace extends React.Component {
     );
   }
 
+  handleNodeDialogOpen = () => {
+    this.setState({ nodeDialogOpen: true });
+  };
+
+  handleNodeDialogClose = () => {
+    this.setState({ nodeDialogOpen: false, labelError: false });
+
+    // no label provided ? then delete the node
+    nodes.remove(nodes.getIds()[nodes.length - 1]);
+  };
+
+  handleNodeDialogEnterClose = () => {
+    const { nodeLabel } = this.state;
+
+    // node label shouldn't be empty
+    if (nodeLabel !== "") {
+      nodes.update({ id: nodes.getIds()[nodes.length - 1], label: nodeLabel });
+      this.setState({
+        nodeDialogOpen: false,
+        labelError: false,
+        nodeLabel: ""
+      });
+    } else {
+      this.setState({ labelError: true });
+    }
+  };
+
+  handleNodeLabelChange = event => {
+    this.setState({ nodeLabel: event.target.value });
+  };
+
   handleEdgeDialogOpen = () => {
     this.setState({ edgeDialogOpen: true });
   };
 
   handleEdgeDialogClose = () => {
-    this.setState({ edgeDialogOpen: false, edgeLabelError: false });
+    this.setState({ edgeDialogOpen: false, labelError: false });
 
     // no label provided ? then delete the edge
     edges.remove(edges.getIds()[edges.length - 1]);
@@ -187,9 +220,13 @@ class Workspace extends React.Component {
     // edge label shouldn't be empty or contain any space
     if (edgeLabel !== "" && !/\s/g.test(edgeLabel)) {
       edges.update({ id: edges.getIds()[edges.length - 1], label: edgeLabel });
-      this.setState({ edgeDialogOpen: false, edgeLabelError: false, edgeLabel: "" });
+      this.setState({
+        edgeDialogOpen: false,
+        labelError: false,
+        edgeLabel: ""
+      });
     } else {
-      this.setState({ edgeLabelError: true });
+      this.setState({ labelError: true });
     }
   };
 
@@ -199,7 +236,7 @@ class Workspace extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { edgeDialogOpen, edgeLabelError } = this.state;
+    const { edgeDialogOpen, labelError, nodeDialogOpen } = this.state;
     return (
       <div className={classes.root}>
         <Grid container spacing={16}>
@@ -223,6 +260,42 @@ class Workspace extends React.Component {
         </Grid>
 
         <Dialog
+          open={nodeDialogOpen}
+          onClose={this.handleNodeDialogClose}
+          aria-labelledby="node-form-dialog-title"
+        >
+          <DialogTitle id="node-form-dialog-title">Node</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Please enter a label for your new node
+            </DialogContentText>
+            {labelError ? (
+              <DialogContentText style={{ color: "red" }}>
+                Label cannot be empty or include space
+              </DialogContentText>
+            ) : (
+              ""
+            )}
+            <TextField
+              autoFocus
+              autoComplete="off"
+              margin="dense"
+              id="nodelabel"
+              onChange={this.handleNodeLabelChange}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleNodeDialogClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.handleNodeDialogEnterClose} color="primary">
+              Enter
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
           open={edgeDialogOpen}
           onClose={this.handleEdgeDialogClose}
           aria-labelledby="edge-form-dialog-title"
@@ -232,7 +305,7 @@ class Workspace extends React.Component {
             <DialogContentText>
               Please enter a label for your new edge
             </DialogContentText>
-            {edgeLabelError ? (
+            {labelError ? (
               <DialogContentText style={{ color: "red" }}>
                 Label cannot be empty or include space
               </DialogContentText>
