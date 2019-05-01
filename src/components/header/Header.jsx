@@ -109,7 +109,7 @@ class Header extends React.Component {
 
     return (
       <div className={classes.root}>
-        <AppBar position="static">
+        <AppBar position="static" style={{ backgroundColor: "#212734" }}>
           <Toolbar>
             <IconButton
               className={classes.menuButton}
