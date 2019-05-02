@@ -151,6 +151,15 @@ class Workspace extends React.Component {
     });
 
     /**
+     * when canvas is out of focus, and any object is tried to drag it works
+     * and selected object is dragged, but the canvas stay out of focus.
+     * this will take care of the problem
+     */
+    this.network.on("dragStart", () => {
+      this.visRef.focus();
+    });
+
+    /**
      * delete key will delete the selected node/edges
      */
     keys.bind("delete", () => {
