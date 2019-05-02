@@ -85,7 +85,15 @@ class Workspace extends React.Component {
     const options = {
       clickToUse: true,
       nodes: {
-        shape: "circle"
+        shape: "circle",
+        heightConstraint: {
+          minimum: 50,
+          maximum: 50
+        },
+        widthConstraint: {
+          minimum: 50,
+          maximum: 50
+        }
       },
       edges: {
         arrows: {
