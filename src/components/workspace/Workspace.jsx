@@ -87,8 +87,7 @@ class Workspace extends React.Component {
       nodes: {
         shape: "circle",
         heightConstraint: {
-          minimum: 50,
-          maximum: 50
+          minimum: 50
         },
         widthConstraint: {
           minimum: 50,
@@ -117,8 +116,13 @@ class Workspace extends React.Component {
           // }
           // this.handleClickOpen();
           // edgeData.label = this.state.edgeLabel
-          this.handleEdgeDialogOpen();
-          callback(edgeData);
+
+          if (!this.isEdgePresent(edgeData)) {
+            this.handleEdgeDialogOpen();
+            callback(edgeData);
+          } else {
+            // give a alert/notification there's already a edge
+          }
         }
       }
     };
@@ -188,6 +192,22 @@ class Workspace extends React.Component {
       "keyup"
     );
   }
+
+  /** checks if there's already a edge with same from and to as new proposed edge */
+  isEdgePresent = edgeData => {
+    let flag = false;
+    const edgesData = edges.get();
+    for (let i = 0; i < edgesData.length; i += 1) {
+      if (
+        edgesData[i].from === edgeData.from &&
+        edgesData[i].to === edgeData.to
+      ) {
+        flag = true;
+        break;
+      }
+    }
+    return flag;
+  };
 
   handleNodeDialogOpen = () => {
     this.setState({ nodeDialogOpen: true });
