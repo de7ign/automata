@@ -5,7 +5,6 @@ import Header from "./components/header/Header";
 import Workspace from "./components/workspace/Workspace";
 import Notice from "./components/notice/Notice";
 import Footer from "./components/footer/Footer";
-import CustomizedSnackbars from "./components/snackbar/CustomizedSnackbars";
 
 class App extends React.Component {
   componentDidMount() {
@@ -18,7 +17,6 @@ class App extends React.Component {
       <div className="App">
         <Header />
         <Workspace />
-        <CustomizedSnackbars />
         <Notice />
         <Footer />
       </div>

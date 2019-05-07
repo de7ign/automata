@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import Button from "@material-ui/core/Button";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ErrorIcon from "@material-ui/icons/Error";
 import InfoIcon from "@material-ui/icons/Info";
@@ -86,57 +85,51 @@ MySnackbarContent.propTypes = {
   variant: PropTypes.oneOf(["success", "warning", "error", "info"]).isRequired
 };
 
+/** TODO
+ *  modify the MySnackBarContent code to remove the classname default props
+ */
 MySnackbarContent.defaultProps = {
-  className: PropTypes.string,
+  className: "",
   onClose: PropTypes.func
 };
 
 const MySnackbarContentWrapper = withStyles(styles1)(MySnackbarContent);
 
-const styles2 = theme => ({
-  margin: {
-    margin: theme.spacing.unit
-  }
-});
-
 class CustomizedSnackbars extends React.Component {
   state = {
-    open: false
+    open: false,
+    variant: null,
+    message: null
   };
 
-  handleClick = () => {
-    this.setState({ open: true });
+  handleClick = (variant, message) => {
+    const { open } = this.state;
+    if (open) return;
+    this.setState({ open: true, variant, message });
   };
 
-  handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
+  handleClose = reason => {
+    if (reason === "clickaway") return;
     this.setState({ open: false });
   };
 
   render() {
-    const { classes } = this.props;
-    const { open } = this.state;
+    const { open, variant, message } = this.state;
     return (
       <div>
-        <Button className={classes.margin} onClick={this.handleClick}>
-          Open success snackbar
-        </Button>
         <Snackbar
           anchorOrigin={{
             vertical: "bottom",
             horizontal: "left"
           }}
           open={open}
-          autoHideDuration={6000}
+          autoHideDuration={3000}
           onClose={this.handleClose}
         >
           <MySnackbarContentWrapper
             onClose={this.handleClose}
-            variant="success"
-            message="This is a success message!"
+            variant={variant}
+            message={message}
           />
         </Snackbar>
         {/* <MySnackbarContentWrapper
@@ -164,8 +157,4 @@ class CustomizedSnackbars extends React.Component {
   }
 }
 
-CustomizedSnackbars.propTypes = {
-  classes: PropTypes.shape().isRequired
-};
-
-export default withStyles(styles2)(CustomizedSnackbars);
+export default CustomizedSnackbars;

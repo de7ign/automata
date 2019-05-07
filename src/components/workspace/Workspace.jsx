@@ -13,6 +13,7 @@ import {
 } from "@material-ui/core";
 import PropTypes from "prop-types";
 import { Network, DataSet, keycharm } from "vis";
+import CustomizedSnackbars from "../snackbar/CustomizedSnackbars";
 
 const styles = theme => ({
   root: {
@@ -67,19 +68,19 @@ const data = {
 };
 
 class Workspace extends React.Component {
-  constructor(props) {
-    super(props);
-    this.network = {};
-    this.visRef = React.createRef();
+  visRef = React.createRef();
 
-    this.state = {
-      edgeDialogOpen: false,
-      edgeLabel: "",
-      labelError: false,
-      nodeDialogOpen: false,
-      nodeLabel: ""
-    };
-  }
+  CustomizedSnackbarRef = React.createRef();
+
+  network = {};
+
+  state = {
+    edgeDialogOpen: false,
+    edgeLabel: "",
+    labelError: false,
+    nodeDialogOpen: false,
+    nodeLabel: ""
+  };
 
   componentDidMount() {
     const options = {
@@ -271,6 +272,16 @@ class Workspace extends React.Component {
     this.setState({ edgeLabel: event.target.value });
   };
 
+  /**
+   * This function will handle the display of snackbar notification
+   */
+  handleSnackbarOpen = () => {
+    const variantArray = ["success", "warning", "error", "info"];
+    const variant =
+      variantArray[Math.floor(Math.random() * variantArray.length)];
+    this.CustomizedSnackbarRef.current.handleClick(variant, variant);
+  };
+
   render() {
     const { classes } = this.props;
     const { edgeDialogOpen, labelError, nodeDialogOpen } = this.state;
@@ -367,6 +378,8 @@ class Workspace extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <CustomizedSnackbars ref={this.CustomizedSnackbarRef} />
       </div>
     );
   }
