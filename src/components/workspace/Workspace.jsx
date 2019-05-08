@@ -82,6 +82,13 @@ class Workspace extends React.Component {
     nodeLabel: ""
   };
 
+  /**
+   *  TODO:
+   *  maybe instead of making a different DS for storing final states I can just make a new attribute in node dataset ?
+   *  It'll be helpful when the DS will be passed for processing
+   */
+  finalStates = [3];
+
   componentDidMount() {
     const options = {
       clickToUse: true,
@@ -135,6 +142,17 @@ class Workspace extends React.Component {
       preventDefault: true
     });
 
+    this.network.on("beforeDrawing", ctx => {
+      if (this.finalStates !== null) {
+        const nodePosition = this.network.getPositions(this.finalStates);
+        ctx.strokeStyle = "#2B7CE9";
+        this.finalStates.forEach(value => {
+          ctx.circle(nodePosition[value].x, nodePosition[value].y, 36);
+          ctx.stroke();
+        });
+      }
+    });
+
     /**
      * click event will focus on the container
      * It's necessary for keyboard events to work
@@ -147,12 +165,28 @@ class Workspace extends React.Component {
      * create a node when double clicked in canvas
      */
     this.network.on("doubleClick", params => {
-      nodes.add({
-        label: "",
-        x: params.pointer.canvas.x,
-        y: params.pointer.canvas.y
-      });
-      this.handleNodeDialogOpen();
+      const selectedNodes = this.network.getSelectedNodes();
+
+      /**
+       * maybe selectedNodes.length === 0 can be used ?
+       */
+      if (selectedNodes[0] === undefined) {
+        nodes.add({
+          label: "",
+          x: params.pointer.canvas.x,
+          y: params.pointer.canvas.y
+        });
+        this.handleNodeDialogOpen();
+      } else {
+        // if the state is already in finalStates[] then remove it from finalStates[]
+        for (let i = 0; i < this.finalStates.length; i += 1) {
+          if (this.finalStates[i] === selectedNodes[0]) {
+            this.finalStates.splice(i, 1);
+            return;
+          }
+        }
+        this.finalStates.push(selectedNodes[0]);
+      }
     });
 
     /**
@@ -171,6 +205,16 @@ class Workspace extends React.Component {
       const selection = this.network.getSelection();
       if (!selection.nodes[0]) {
         edges.remove(selection.edges[0]);
+      }
+      // remove the node from finalStates[] too
+      /**
+       *  TODO:
+       *  migrate from vanilla JS to lodash for all these array and object operations
+       */
+      for (let i = 0; i < this.finalStates.length; i += 1) {
+        if (this.finalStates[i] === selection.nodes[0]) {
+          this.finalStates.splice(i, 1);
+        }
       }
       nodes.remove(selection.nodes[0]);
     });
