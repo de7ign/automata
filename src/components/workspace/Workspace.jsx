@@ -40,9 +40,9 @@ const styles = theme => ({
 });
 
 const nodes = new DataSet([
-  { id: 1, label: "Node 1" },
+  { id: 1, label: "start" },
   { id: 2, label: "Node 2" },
-  { id: 3, label: "Node 3" },
+  { id: 3, label: "final" },
   { id: 4, label: "Node 4" },
   { id: 5, label: "Node 5" }
 ]);
@@ -143,10 +143,81 @@ class Workspace extends React.Component {
     });
 
     this.network.on("beforeDrawing", ctx => {
+      /**
+       *  TODO
+       *  make changes in nodes dataset for dynamic start node
+       *  or no need for maintaining any new datastructure if default start node will be there.
+       *  currently thinking of making a default start state so no need for new datastructure/dataset
+       */
+      // to make arrow on node 1 to represent it as start node
+      const startNode = 1;
+      const startNodePosition = this.network.getPositions([startNode]);
+      // in order to keep the default dx as 30, we need to limit the length of node label, otherwise arrow and node will overlap
+      const x1 = startNodePosition[startNode].x - 30;
+      const y1 = startNodePosition[startNode].y;
+      const x2 = startNodePosition[startNode].x - 80;
+      const y2 = startNodePosition[startNode].y;
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = "#2B7CE9";
+      ctx.stroke();
+
+      const startRadians =
+        Math.atan((y2 - y1) / (x2 - x1)) +
+        ((x2 >= x1 ? -90 : 90) * Math.PI) / 180;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.translate(x1, y1);
+      ctx.rotate(startRadians);
+      ctx.moveTo(0, 0);
+      ctx.lineTo(5, 18);
+      ctx.lineTo(0, 16);
+      ctx.lineTo(-5, 18);
+      ctx.closePath();
+      ctx.restore();
+      ctx.fillStyle = "#2B7CE9";
+      ctx.fill();
+
+      // const x_center = startNodePosition[startNode].x - 50;
+      // const y_center = startNodePosition[startNode].y;
+
+      // let angle;
+      // let x;
+      // let y;
+      // const radius = 30
+
+      // ctx.beginPath();
+
+      // angle = Math.atan2(y_center , x_center);
+      // x = radius * Math.cos(angle) + x_center;
+      // y = radius * Math.sin(angle) + y_center;
+
+      // ctx.moveTo(x, y);
+
+      // angle += (1.0 / 3.0) * (2 * Math.PI);
+      // x = radius * Math.cos(angle) + x_center;
+      // y = radius * Math.sin(angle) + y_center;
+
+      // ctx.lineTo(x, y);
+
+      // angle += (1.0 / 3.0) * (2 * Math.PI);
+      // x = radius * Math.cos(angle) + x_center;
+      // y = radius * Math.sin(angle) + y_center;
+
+      // ctx.lineTo(x, y);
+
+      // ctx.closePath();
+
+      // ctx.fill();
+
       if (this.finalStates !== null) {
         const nodePosition = this.network.getPositions(this.finalStates);
         ctx.strokeStyle = "#2B7CE9";
         this.finalStates.forEach(value => {
+          // in order to keep the default dx as 36, we need to limit the length of node label, otherwise arrow and node will overlap
           ctx.circle(nodePosition[value].x, nodePosition[value].y, 36);
           ctx.stroke();
         });
