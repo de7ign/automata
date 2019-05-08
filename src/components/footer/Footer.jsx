@@ -132,6 +132,8 @@ const Footer = props => {
         <Grid item lg={3} md={3} xs={12}>
           <Typography variant="subtitle1">
             <a
+              target="_blank"
+              rel="noopener noreferrer"
               href="https://github.com/nihalmurmu/Automata"
               style={{ textDecoration: "none", color: "white" }}
             >
@@ -142,6 +144,8 @@ const Footer = props => {
         <Grid item lg={3} md={3} xs={12}>
           <Typography variant="subtitle1">
             <a
+              target="_blank"
+              rel="noopener noreferrer"
               href="https://github.com/nihalmurmu/Automata"
               style={{ textDecoration: "none", color: "white" }}
             >
@@ -155,6 +159,8 @@ const Footer = props => {
         <Grid item lg={3} md={3} xs={12}>
           <Typography variant="subtitle1">
             <a
+              target="_blank"
+              rel="noopener noreferrer"
               href="https://github.com/nihalmurmu/Automata"
               style={{ textDecoration: "none", color: "white" }}
             >
@@ -165,6 +171,8 @@ const Footer = props => {
         <Grid item lg={3} md={3} xs={12}>
           <Typography variant="subtitle1">
             <a
+              target="_blank"
+              rel="noopener noreferrer"
               href="https://github.com/nihalmurmu/Automata"
               style={{ textDecoration: "none", color: "white" }}
             >
@@ -178,6 +186,8 @@ const Footer = props => {
       <div className={classes.about}>
         <Typography variant="overline" color="inherit">
           <a
+            target="_blank"
+            rel="noopener noreferrer"
             href="https://nihalmurmue.me"
             style={{ textDecoration: "none", color: "white" }}
           >
