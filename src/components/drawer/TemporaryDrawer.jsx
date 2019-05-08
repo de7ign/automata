@@ -55,7 +55,7 @@ class TemporaryDrawer extends Component {
                 selected={selectedModeKey === key}
                 onClick={event => this.handleModeListItemClick(event, key)}
               >
-                <ListItemText primary={value} />
+                <ListItemText primary={value} secondary="*coming soon*" />
               </ListItem>
             );
           })}
@@ -75,7 +75,7 @@ class TemporaryDrawer extends Component {
                 selected={selectedLinkKey === key}
                 onClick={event => this.handleLinkListItemClick(event, key)}
               >
-                <ListItemText primary={value} />
+                <ListItemText primary={value} secondary="*coming soon*" />
               </ListItem>
             );
           })}
