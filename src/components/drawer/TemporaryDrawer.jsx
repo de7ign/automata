@@ -75,7 +75,7 @@ class TemporaryDrawer extends Component {
                 selected={selectedLinkKey === key}
                 onClick={event => this.handleLinkListItemClick(event, key)}
               >
-                <ListItemText primary={value} secondary="*coming soon*" />
+                <ListItemText primary={value} />
               </ListItem>
             );
           })}
