@@ -18,22 +18,29 @@ const Notice = props => {
           <Typography variant="title" gutterBottom>
             How to get hands dirty
           </Typography>
-          <Typography variant="body2">Create a Node</Typography>
-          <Typography variant="body1">
-            Double click to create a node
+          <Typography variant="body2">Operation on States</Typography>
+          <Typography variant="body1" gutterBottom>
+            + Double click to create a state.
             <br />
+            + Double click on a non-final state to make it a final state.
+            <br />
+            + Double click on a final state to make it a non-final state.
+            <br />
+            <em>*Edit features are coming soon*</em>
           </Typography>
-          <Typography variant="body2">Create an Edge</Typography>
-          <Typography variant="body1">
-            Press and hold down shift button, then click-drag from one node to
-            other node you wish to join
+          <Typography variant="body2">Operation on Transition edges</Typography>
+          <Typography variant="body1" gutterBottom>
+            + Press and hold down shift button, then click-drag from one node to
+            other node you wish to join.
             <br />
+            <em>*Edit features are coming soon*</em>
           </Typography>
           <Typography variant="body2">Delete ?</Typography>
           <Typography variant="body1">
             Just select the object you want to delete and press
             &apos;delete&apos; key!
             <br />
+            <b>*note* start state can&apos;t be deleted</b>
           </Typography>
         </CardContent>
       </Card>
