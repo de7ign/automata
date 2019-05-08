@@ -274,9 +274,14 @@ class Workspace extends React.Component {
      */
     keys.bind("delete", () => {
       const selection = this.network.getSelection();
+
+      // if it's a start state then don't remove it
+      if (selection.nodes[0] === 1) return;
+
       if (!selection.nodes[0]) {
         edges.remove(selection.edges[0]);
       }
+
       // remove the node from finalStates[] too
       /**
        *  TODO:
@@ -287,6 +292,7 @@ class Workspace extends React.Component {
           this.finalStates.splice(i, 1);
         }
       }
+
       nodes.remove(selection.nodes[0]);
     });
 
