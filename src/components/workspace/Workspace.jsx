@@ -237,7 +237,6 @@ class Workspace extends React.Component {
      */
     this.network.on("doubleClick", params => {
       const selectedNodes = this.network.getSelectedNodes();
-
       /**
        * maybe selectedNodes.length === 0 can be used ?
        */
@@ -276,7 +275,10 @@ class Workspace extends React.Component {
       const selection = this.network.getSelection();
 
       // if it's a start state then don't remove it
-      if (selection.nodes[0] === 1) return;
+      if (selection.nodes[0] === 1) {
+        this.handleSnackbarOpen("error", "start state can't be removed");
+        return;
+      }
 
       if (!selection.nodes[0]) {
         edges.remove(selection.edges[0]);
@@ -394,13 +396,15 @@ class Workspace extends React.Component {
   };
 
   /**
-   * This function will handle the display of snackbar notification
+   *  This function will handle the display of snackbar notification
+   *  @params {string}  variant - It takes the variant of snackbar, one of - (success, warning, error, info)
+   *  @params {string}  message - Message to be shown in snackbar
    */
-  handleSnackbarOpen = () => {
-    const variantArray = ["success", "warning", "error", "info"];
-    const variant =
-      variantArray[Math.floor(Math.random() * variantArray.length)];
-    this.CustomizedSnackbarRef.current.handleClick(variant, variant);
+  handleSnackbarOpen = (variant, message) => {
+    // const variantArray = ["success", "warning", "error", "info"];
+    // const variant =
+    //   variantArray[Math.floor(Math.random() * variantArray.length)];
+    this.CustomizedSnackbarRef.current.handleClick(variant, message);
   };
 
   render() {
