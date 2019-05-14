@@ -10,8 +10,23 @@ import {
   DialogActions,
   TextField,
   Button,
-  ClickAwayListener
+  ClickAwayListener,
+  Typography,
+  Divider,
+  IconButton
 } from "@material-ui/core";
+import {
+  Build,
+  Share,
+  Delete,
+  Autorenew,
+  SkipPrevious,
+  SkipNext,
+  Stop,
+  PlayArrow,
+  Pause,
+  Warning
+} from "@material-ui/icons";
 import PropTypes from "prop-types";
 import { Network, DataSet, keycharm } from "vis";
 import CustomizedSnackbars from "../snackbar/CustomizedSnackbars";
@@ -44,6 +59,11 @@ const styles = theme => ({
     [theme.breakpoints.down("md")]: {
       height: window.innerHeight * 0.3
     }
+  },
+  icon: {
+    margin: theme.spacing.unit,
+    verticalAlign: "middle",
+    fontSize: "large"
   }
 });
 
@@ -95,7 +115,8 @@ class Workspace extends React.Component {
     nodeDialogOpen: false,
     nodeLabel: "",
     editLabel: "",
-    disableEditLabelMode: true
+    disableEditLabelMode: true,
+    playing: false
   };
 
   /**
@@ -576,6 +597,16 @@ class Workspace extends React.Component {
     this.CustomizedSnackbarRef.current.handleClick(variant, message);
   };
 
+  handlePlayPauseToggle = () => {
+    this.setState(prevState => ({
+      playing: !prevState.playing
+    }));
+  };
+
+  handleStopClick = () => {
+    this.setState({ playing: false });
+  };
+
   render() {
     const { classes } = this.props;
     const {
@@ -583,7 +614,8 @@ class Workspace extends React.Component {
       labelError,
       nodeDialogOpen,
       editLabel,
-      disableEditLabelMode
+      disableEditLabelMode,
+      playing
     } = this.state;
     return (
       <div className={classes.root}>
@@ -616,7 +648,103 @@ class Workspace extends React.Component {
           </Grid>
           <Grid item lg={3} xs={12}>
             <Paper className={classes.paper} elevation={6}>
-              <div className={classes.divUtil}>tools</div>
+              <div className={classes.divUtil}>
+                <Typography variant="overline" color="secondary">
+                  <Warning className={classes.icon} />
+                  This is just a initial design of Tools and Utilities.
+                  <br />
+                  Until finalised you may notice some tools move, redesigned or
+                  even disappear for a while
+                </Typography>
+                <Divider />
+                <br />
+                <Typography variant="overline">
+                  <Build className={classes.icon} />
+                  Test
+                </Typography>
+                <Divider />
+
+                <TextField
+                  placeholder="string"
+                  fullWidth
+                  margin="dense"
+                  variant="outlined"
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                  onChange=""
+                />
+                <Button variant="outlined" fullWidth>
+                  Test
+                </Button>
+                <br />
+                <IconButton style={{ color: "#000000" }}>
+                  <SkipPrevious />
+                </IconButton>
+                {playing ? (
+                  <IconButton
+                    style={{ color: "#000000" }}
+                    onClick={this.handlePlayPauseToggle}
+                  >
+                    <Pause />
+                  </IconButton>
+                ) : (
+                  <IconButton
+                    style={{ color: "#000000" }}
+                    onClick={this.handlePlayPauseToggle}
+                  >
+                    <PlayArrow />
+                  </IconButton>
+                )}
+                <IconButton style={{ color: "#000000" }}>
+                  <SkipNext />
+                </IconButton>
+                <IconButton
+                  style={{ color: "#000000" }}
+                  onClick={this.handleStopClick}
+                >
+                  <Stop />
+                </IconButton>
+
+                <br />
+                <br />
+                <Typography variant="overline">
+                  <Autorenew className={classes.icon} />
+                  Convert
+                </Typography>
+                <Divider />
+                <br />
+                <Button variant="outlined" fullWidth>
+                  Convert
+                </Button>
+
+                <br />
+                <br />
+                <Typography variant="overline">
+                  <Share className={classes.icon} />
+                  Share
+                </Typography>
+                <Divider />
+                <br />
+                <Button variant="outlined" fullWidth>
+                  Export
+                </Button>
+                <Button variant="outlined" fullWidth>
+                  Import
+                </Button>
+
+                <br />
+                <br />
+                <Typography variant="overline">
+                  <Delete className={classes.icon} />
+                  Clear Workspace
+                </Typography>
+                <Divider />
+                <br />
+                <Button variant="outlined" fullWidth>
+                  Clear
+                </Button>
+              </div>
             </Paper>
           </Grid>
         </Grid>
