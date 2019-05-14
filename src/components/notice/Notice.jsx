@@ -26,21 +26,22 @@ const Notice = props => {
             <br />
             + Double click on a final state to make it a non-final state.
             <br />
-            <em>*Edit features are coming soon*</em>
+            + Select a node, and edit the node label in text field above
+            <br />
           </Typography>
           <Typography variant="body2">Operation on Transition edges</Typography>
           <Typography variant="body1" gutterBottom>
             + Press and hold down shift button, then click-drag from one node to
             other node you wish to join.
             <br />
-            <em>*Edit features are coming soon*</em>
+            + Select a edge, and edit the node label in text field above
+            <br />
           </Typography>
           <Typography variant="body2">Delete ?</Typography>
           <Typography variant="body1">
             Just select the object you want to delete and press
             &apos;delete&apos; key!
             <br />
-            <b>*note* start state can&apos;t be deleted</b>
           </Typography>
         </CardContent>
       </Card>
