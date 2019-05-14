@@ -84,6 +84,8 @@ class Workspace extends React.Component {
 
   nodeSelected = {};
 
+  edgeSelected = {};
+
   currentElementLabel = "";
 
   state = {
@@ -248,6 +250,7 @@ class Workspace extends React.Component {
     this.network.on("click", params => {
       this.visRef.focus();
       const nodeId = params.nodes[0];
+      const edgeId = params.edges[0];
 
       /**
        *  this below piece of code is similar to handleEditLabelClickAway()
@@ -263,8 +266,10 @@ class Workspace extends React.Component {
        *  the problem is when node is selected, edit mode is enabled and user agains click on different node
        *  the deselectNode is fired and then selectNode is fired but the unselectAll() in handleEditLabelClickAway()
        *  unselects the new selected node.
+       *
+       *  update: below code now handles the edit of edges too.
        */
-      if (nodeId === undefined) {
+      if (nodeId === undefined && edgeId === undefined) {
         const { editLabel, disableEditLabelMode } = this.state;
 
         // this regex checks if only space(s) are present
@@ -281,17 +286,27 @@ class Workspace extends React.Component {
 
         /**
          * @todo - remove any leading and trailing extra space(s)
-         * @todo - notification feature which will say if label is too big,
+         * @todo - notification feature which will say if label is too big, - only for nodes
          * due to design implementation we cannot increase the size of a node
          * which results in limit the label length.
          */
 
-        if (!disableEditLabelMode) {
+        if (
+          !disableEditLabelMode &&
+          Object.prototype.hasOwnProperty.call(this.nodeSelected, "id")
+        ) {
           this.updateNodeLabel(editLabel);
+        } else if (
+          !disableEditLabelMode &&
+          Object.prototype.hasOwnProperty.call(this.edgeSelected, "id")
+        ) {
+          this.updateEdgeLabel(editLabel);
         }
 
         // disable the edit label mode
         this.setState({ editLabel: "", disableEditLabelMode: true });
+        this.nodeSelected = {};
+        this.edgeSelected = {};
       }
     });
 
@@ -337,6 +352,7 @@ class Workspace extends React.Component {
      *  and user can change the label of selected node.
      */
     this.network.on("selectNode", params => {
+      this.edgeSelected = {};
       const nodeId = params.nodes[0];
       this.nodeSelected = nodes.get(nodeId);
 
@@ -344,6 +360,24 @@ class Workspace extends React.Component {
       this.currentElementLabel = this.nodeSelected.label;
       this.setState({
         editLabel: this.nodeSelected.label,
+        disableEditLabelMode: false
+      });
+    });
+
+    /**
+     *  If clicked on a node then it's label is displayed on edit label text box
+     *  and user can change the label of selected node.
+     */
+    this.network.on("selectEdge", params => {
+      this.nodeSelected = {};
+      const edgeId = params.edges[0];
+
+      this.edgeSelected = edges.get(edgeId);
+
+      // enable the edit label mode
+      this.currentElementLabel = this.edgeSelected.label;
+      this.setState({
+        editLabel: this.edgeSelected.label,
         disableEditLabelMode: false
       });
     });
@@ -481,6 +515,14 @@ class Workspace extends React.Component {
    */
   updateNodeLabel = label => {
     nodes.update({ id: this.nodeSelected.id, label });
+  };
+
+  /**
+   *  updates the label of the selected Node
+   *  @param {string} - new label which will be used to update the node label
+   */
+  updateEdgeLabel = label => {
+    edges.update({ id: this.edgeSelected.id, label });
   };
 
   handleEditLabelChange = event => {
