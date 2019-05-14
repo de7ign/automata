@@ -9,12 +9,20 @@ import {
   DialogContentText,
   DialogActions,
   TextField,
-  Button
+  Button,
+  ClickAwayListener
 } from "@material-ui/core";
 import PropTypes from "prop-types";
 import { Network, DataSet, keycharm } from "vis";
 import CustomizedSnackbars from "../snackbar/CustomizedSnackbars";
 
+/**
+ *  divUtil height is set to 0.862, which is approximate to canvas
+ *  of height 0.8 plus edit label textbox, it works but it needs refactoring in future.
+ *
+ *  @todo height of canvas and util should be decided by their parent
+ *  container i.e Paper component. inside the paper component div should fill up the remaining space
+ */
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -32,7 +40,7 @@ const styles = theme => ({
     }
   },
   divUtil: {
-    height: window.innerHeight * 0.8,
+    height: window.innerHeight * 0.862,
     [theme.breakpoints.down("md")]: {
       height: window.innerHeight * 0.3
     }
@@ -74,12 +82,18 @@ class Workspace extends React.Component {
 
   network = {};
 
+  nodeSelected = {};
+
+  currentElementLabel = "";
+
   state = {
     edgeDialogOpen: false,
     edgeLabel: "",
     labelError: false,
     nodeDialogOpen: false,
-    nodeLabel: ""
+    nodeLabel: "",
+    editLabel: "",
+    disableEditLabelMode: true
   };
 
   /**
@@ -132,6 +146,9 @@ class Workspace extends React.Component {
             // give a alert/notification there's already a edge
           }
         }
+      },
+      interaction: {
+        selectConnectedEdges: false
       }
     };
 
@@ -228,8 +245,54 @@ class Workspace extends React.Component {
      * click event will focus on the container
      * It's necessary for keyboard events to work
      */
-    this.network.on("click", () => {
+    this.network.on("click", params => {
       this.visRef.focus();
+      const nodeId = params.nodes[0];
+
+      /**
+       *  this below piece of code is similar to handleEditLabelClickAway()
+       *  why rewritten here once again ? only difference is here I don't call
+       *  unselectAll()
+       *
+       *  this entire piece of code can be in network.on("deselectNode", (){})
+       *  but when one a node is selected hence edit label mode is enabled,
+       *  clicking anywhere outside the canvas and text box should disable
+       *  edit label mode and unselect the nodes. -  that is what handleEditLabelClickAway() is doing
+       *
+       *  but when the handleEditLabelClickAway() is called inside network.on("deselectNode", (){})
+       *  the problem is when node is selected, edit mode is enabled and user agains click on different node
+       *  the deselectNode is fired and then selectNode is fired but the unselectAll() in handleEditLabelClickAway()
+       *  unselects the new selected node.
+       */
+      if (nodeId === undefined) {
+        const { editLabel, disableEditLabelMode } = this.state;
+
+        // this regex checks if only space(s) are present
+        const spacePattern = /^\s*$/g;
+
+        if (
+          (editLabel === "" || spacePattern.test(editLabel)) &&
+          !disableEditLabelMode
+        ) {
+          this.setState({ editLabel: "", disableEditLabelMode: true });
+          this.handleSnackbarOpen("warning", "label can't be empty");
+          return;
+        }
+
+        /**
+         * @todo - remove any leading and trailing extra space(s)
+         * @todo - notification feature which will say if label is too big,
+         * due to design implementation we cannot increase the size of a node
+         * which results in limit the label length.
+         */
+
+        if (!disableEditLabelMode) {
+          this.updateNodeLabel(editLabel);
+        }
+
+        // disable the edit label mode
+        this.setState({ editLabel: "", disableEditLabelMode: true });
+      }
     });
 
     /**
@@ -237,6 +300,7 @@ class Workspace extends React.Component {
      */
     this.network.on("doubleClick", params => {
       const selectedNodes = this.network.getSelectedNodes();
+
       /**
        * maybe selectedNodes.length === 0 can be used ?
        */
@@ -266,6 +330,22 @@ class Workspace extends React.Component {
      */
     this.network.on("dragStart", () => {
       this.visRef.focus();
+    });
+
+    /**
+     *  If clicked on a node then it's label is displayed on edit label text box
+     *  and user can change the label of selected node.
+     */
+    this.network.on("selectNode", params => {
+      const nodeId = params.nodes[0];
+      this.nodeSelected = nodes.get(nodeId);
+
+      // enable the edit label mode
+      this.currentElementLabel = this.nodeSelected.label;
+      this.setState({
+        editLabel: this.nodeSelected.label,
+        disableEditLabelMode: false
+      });
     });
 
     /**
@@ -396,6 +476,53 @@ class Workspace extends React.Component {
   };
 
   /**
+   *  updates the label of the selected Node
+   *  @param {string} - new label which will be used to update the node label
+   */
+  updateNodeLabel = label => {
+    nodes.update({ id: this.nodeSelected.id, label });
+  };
+
+  handleEditLabelChange = event => {
+    this.setState({ editLabel: event.target.value });
+  };
+
+  handleEditLabelClickAway = () => {
+    const { editLabel, disableEditLabelMode } = this.state;
+
+    // this regex checks if only space(s) are present
+    const spacePattern = /^\s*$/g;
+
+    if (
+      (editLabel === "" || spacePattern.test(editLabel)) &&
+      !disableEditLabelMode
+    ) {
+      this.network.unselectAll();
+      this.setState({ editLabel: "", disableEditLabelMode: true });
+      this.handleSnackbarOpen("warning", "label can't be empty");
+      return;
+    }
+
+    /**
+     * @todo - remove any leading and trailing extra space(s)
+     * @todo - notification feature which will say if label is too big,
+     * due to design implementation we cannot increase the size of a node
+     * which results in limit the label length.
+     */
+
+    if (!disableEditLabelMode) {
+      this.updateNodeLabel(editLabel);
+    }
+
+    /**
+     *  unselect the selected node
+     *  disable the edit label mode
+     */
+    this.network.unselectAll();
+    this.setState({ editLabel: "", disableEditLabelMode: true });
+  };
+
+  /**
    *  This function will handle the display of snackbar notification
    *  @params {string}  variant - It takes the variant of snackbar, one of - (success, warning, error, info)
    *  @params {string}  message - Message to be shown in snackbar
@@ -409,12 +536,32 @@ class Workspace extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { edgeDialogOpen, labelError, nodeDialogOpen } = this.state;
+    const {
+      edgeDialogOpen,
+      labelError,
+      nodeDialogOpen,
+      editLabel,
+      disableEditLabelMode
+    } = this.state;
     return (
       <div className={classes.root}>
         <Grid container spacing={16}>
           <Grid item lg={9} xs={12}>
             <Paper className={classes.paper} elevation={6}>
+              <ClickAwayListener onClickAway={this.handleEditLabelClickAway}>
+                <TextField
+                  placeholder="Nodes/Edges label"
+                  fullWidth
+                  margin="dense"
+                  variant="outlined"
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                  value={editLabel}
+                  disabled={disableEditLabelMode}
+                  onChange={this.handleEditLabelChange}
+                />
+              </ClickAwayListener>
               <div
                 // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                 tabIndex={0}
