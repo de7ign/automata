@@ -364,8 +364,13 @@ class Workspace extends React.Component {
      * and selected object is dragged, but the canvas stay out of focus.
      * this will take care of the problem
      */
-    this.network.on("dragStart", () => {
+    this.network.on("dragStart", params => {
       this.visRef.focus();
+      if (params.nodes[0] !== undefined) {
+        this.handleNodeSelected(params);
+      }
+      // no need to do the same for edges, as dragStart doesn't select a edge.
+      // params.edges[] remains empty
     });
 
     /**
@@ -373,16 +378,8 @@ class Workspace extends React.Component {
      *  and user can change the label of selected node.
      */
     this.network.on("selectNode", params => {
-      this.edgeSelected = {};
-      const nodeId = params.nodes[0];
-      this.nodeSelected = nodes.get(nodeId);
-
-      // enable the edit label mode
-      this.currentElementLabel = this.nodeSelected.label;
-      this.setState({
-        editLabel: this.nodeSelected.label,
-        disableEditLabelMode: false
-      });
+      // made a separate function as it will be used by the network.on("dragStart",(){}) too.
+      this.handleNodeSelected(params);
     });
 
     /**
@@ -466,6 +463,19 @@ class Workspace extends React.Component {
       }
     }
     return flag;
+  };
+
+  handleNodeSelected = params => {
+    this.edgeSelected = {};
+    const nodeId = params.nodes[0];
+    this.nodeSelected = nodes.get(nodeId);
+
+    // enable the edit label mode
+    this.currentElementLabel = this.nodeSelected.label;
+    this.setState({
+      editLabel: this.nodeSelected.label,
+      disableEditLabelMode: false
+    });
   };
 
   handleNodeDialogOpen = () => {
@@ -672,7 +682,6 @@ class Workspace extends React.Component {
                   InputLabelProps={{
                     shrink: true
                   }}
-                  onChange=""
                 />
                 <Button variant="outlined" fullWidth>
                   Test
