@@ -560,6 +560,10 @@ class Workspace extends React.Component {
     this.setState({ editLabel: event.target.value });
   };
 
+  handleWorkspaceClickAway = () => {
+    this.network.disableEditMode();
+  }
+
   handleEditLabelClickAway = () => {
     const { editLabel, disableEditLabelMode } = this.state;
 
@@ -632,28 +636,34 @@ class Workspace extends React.Component {
         <Grid container spacing={16}>
           <Grid item lg={9} xs={12}>
             <Paper className={classes.paper} elevation={6}>
-              <ClickAwayListener onClickAway={this.handleEditLabelClickAway}>
-                <TextField
-                  placeholder="Nodes/Edges label"
-                  fullWidth
-                  margin="dense"
-                  variant="outlined"
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  value={editLabel}
-                  disabled={disableEditLabelMode}
-                  onChange={this.handleEditLabelChange}
-                />
+              <ClickAwayListener onClickAway={this.handleWorkspaceClickAway}>
+                <div>
+                  <ClickAwayListener
+                    onClickAway={this.handleEditLabelClickAway}
+                  >
+                    <TextField
+                      placeholder="Nodes/Edges label"
+                      fullWidth
+                      margin="dense"
+                      variant="outlined"
+                      InputLabelProps={{
+                        shrink: true
+                      }}
+                      value={editLabel}
+                      disabled={disableEditLabelMode}
+                      onChange={this.handleEditLabelChange}
+                    />
+                  </ClickAwayListener>
+                  <div
+                    // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+                    tabIndex={0}
+                    ref={ref => {
+                      this.visRef = ref;
+                    }}
+                    className={classes.divCanvas}
+                  />
+                </div>
               </ClickAwayListener>
-              <div
-                // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-                tabIndex={0}
-                ref={ref => {
-                  this.visRef = ref;
-                }}
-                className={classes.divCanvas}
-              />
             </Paper>
           </Grid>
           <Grid item lg={3} xs={12}>
