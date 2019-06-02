@@ -562,7 +562,7 @@ class Workspace extends React.Component {
 
   handleWorkspaceClickAway = () => {
     this.network.disableEditMode();
-  }
+  };
 
   handleEditLabelClickAway = () => {
     const { editLabel, disableEditLabelMode } = this.state;
@@ -619,6 +619,11 @@ class Workspace extends React.Component {
 
   handleStopClick = () => {
     this.setState({ playing: false });
+  };
+
+  handleClearWorkspace = () => {
+    this.finalStates = [];
+    nodes.remove(nodes.getIds().slice(1));
   };
 
   render() {
@@ -760,7 +765,7 @@ class Workspace extends React.Component {
                 </Typography>
                 <Divider />
                 <br />
-                <Button variant="outlined" fullWidth>
+                <Button variant="outlined" fullWidth onClick={this.handleClearWorkspace}>
                   Clear
                 </Button>
               </div>
