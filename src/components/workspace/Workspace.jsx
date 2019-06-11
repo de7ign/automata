@@ -29,6 +29,7 @@ import {
 } from "@material-ui/icons";
 import PropTypes from "prop-types";
 import { Network, DataSet, keycharm } from "vis";
+import fileDownload from "js-file-download";
 import CustomizedSnackbars from "../snackbar/CustomizedSnackbars";
 
 /**
@@ -624,6 +625,38 @@ class Workspace extends React.Component {
   handleClearWorkspace = () => {
     this.finalStates = [];
     nodes.remove(nodes.getIds().slice(1));
+    edges.clear();
+  };
+
+  handleExport = () => {
+    let payload = {
+      nodes: nodes.get(),
+      edges: edges.get(),
+      finalStates: this.finalStates
+    };
+    payload = JSON.stringify(payload);
+    fileDownload(payload, "export.json");
+  };
+
+  handleImport = ({ target }) => {
+    const fileReader = new FileReader();
+    const { files } = target;
+
+    fileReader.readAsText(files[0]);
+    fileReader.onload = e => {
+      this.handleClearWorkspace();
+      const importData = JSON.parse(e.target.result);
+      
+      /**
+       * try to include start node, or else update the coordinates
+       */
+      nodes.add(importData.nodes.splice(1));
+      edges.add(importData.edges);
+      this.finalStates = importData.finalStates;
+
+      // change the file input
+      e.target.value = null;
+    };
   };
 
   render() {
@@ -750,12 +783,26 @@ class Workspace extends React.Component {
                 </Typography>
                 <Divider />
                 <br />
-                <Button variant="outlined" fullWidth>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={this.handleExport}
+                >
                   Export
                 </Button>
-                <Button variant="outlined" fullWidth>
-                  Import
-                </Button>
+
+                <label htmlFor="icon-button-photo">
+                  <input
+                    accept=".json"
+                    id="icon-button-photo"
+                    onChange={this.handleImport}
+                    type="file"
+                    hidden
+                  />
+                  <Button variant="outlined" component="span" fullWidth>
+                    Import
+                  </Button>
+                </label>
 
                 <br />
                 <br />
@@ -765,7 +812,11 @@ class Workspace extends React.Component {
                 </Typography>
                 <Divider />
                 <br />
-                <Button variant="outlined" fullWidth onClick={this.handleClearWorkspace}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={this.handleClearWorkspace}
+                >
                   Clear
                 </Button>
               </div>
