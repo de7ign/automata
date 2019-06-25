@@ -56,10 +56,11 @@ const styles = theme => ({
     }
   },
   divUtil: {
-    height: window.innerHeight * 0.862,
-    [theme.breakpoints.down("md")]: {
-      height: window.innerHeight * 0.3
-    }
+    // height: window.innerHeight * 0.862,
+    // [theme.breakpoints.down("md")]: {
+    //   height: window.innerHeight * 0.3
+    // }
+    height: "100%"
   },
   icon: {
     margin: theme.spacing.unit,
@@ -646,7 +647,7 @@ class Workspace extends React.Component {
     fileReader.onload = e => {
       this.handleClearWorkspace();
       const importData = JSON.parse(e.target.result);
-      
+
       /**
        * try to include start node, or else update the coordinates
        */
@@ -716,109 +717,120 @@ class Workspace extends React.Component {
                 </Typography>
                 <Divider />
                 <br />
-                <Typography variant="overline">
-                  <Build className={classes.icon} />
-                  Test
-                </Typography>
-                <Divider />
+                <Grid container spacing={16}>
+                  <Grid item xs={6} lg={12}>
+                    <Typography variant="overline">
+                      <Build className={classes.icon} />
+                      Test
+                    </Typography>
+                    <Divider />
 
-                <TextField
-                  placeholder="string"
-                  fullWidth
-                  margin="dense"
-                  variant="outlined"
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                />
-                <Button variant="outlined" fullWidth>
-                  Test
-                </Button>
-                <br />
-                <IconButton style={{ color: "#000000" }}>
-                  <SkipPrevious />
-                </IconButton>
-                {playing ? (
-                  <IconButton
-                    style={{ color: "#000000" }}
-                    onClick={this.handlePlayPauseToggle}
-                  >
-                    <Pause />
-                  </IconButton>
-                ) : (
-                  <IconButton
-                    style={{ color: "#000000" }}
-                    onClick={this.handlePlayPauseToggle}
-                  >
-                    <PlayArrow />
-                  </IconButton>
-                )}
-                <IconButton style={{ color: "#000000" }}>
-                  <SkipNext />
-                </IconButton>
-                <IconButton
-                  style={{ color: "#000000" }}
-                  onClick={this.handleStopClick}
-                >
-                  <Stop />
-                </IconButton>
+                    <TextField
+                      placeholder="string"
+                      fullWidth
+                      margin="dense"
+                      variant="outlined"
+                      InputLabelProps={{
+                        shrink: true
+                      }}
+                    />
+                    <Button variant="outlined" fullWidth>
+                      Test
+                    </Button>
+                    <br />
+                    <IconButton style={{ color: "#000000" }}>
+                      <SkipPrevious />
+                    </IconButton>
+                    {playing ? (
+                      <IconButton
+                        style={{ color: "#000000" }}
+                        onClick={this.handlePlayPauseToggle}
+                      >
+                        <Pause />
+                      </IconButton>
+                    ) : (
+                      <IconButton
+                        style={{ color: "#000000" }}
+                        onClick={this.handlePlayPauseToggle}
+                      >
+                        <PlayArrow />
+                      </IconButton>
+                    )}
+                    <IconButton style={{ color: "#000000" }}>
+                      <SkipNext />
+                    </IconButton>
+                    <IconButton
+                      style={{ color: "#000000" }}
+                      onClick={this.handleStopClick}
+                    >
+                      <Stop />
+                    </IconButton>
 
-                <br />
-                <br />
-                <Typography variant="overline">
-                  <Autorenew className={classes.icon} />
-                  Convert
-                </Typography>
-                <Divider />
-                <br />
-                <Button variant="outlined" fullWidth>
-                  Convert
-                </Button>
+                    <br />
+                    <br />
 
-                <br />
-                <br />
-                <Typography variant="overline">
-                  <Share className={classes.icon} />
-                  Share
-                </Typography>
-                <Divider />
-                <br />
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={this.handleExport}
-                >
-                  Export
-                </Button>
+                    <Typography variant="overline">
+                      <Autorenew className={classes.icon} />
+                      Convert
+                    </Typography>
+                    <Divider />
 
-                <label htmlFor="icon-button-photo">
-                  <input
-                    accept=".json"
-                    id="icon-button-photo"
-                    onChange={this.handleImport}
-                    type="file"
-                    hidden
-                  />
-                  <Button variant="outlined" component="span" fullWidth>
-                    Import
-                  </Button>
-                </label>
+                    <br />
 
-                <br />
-                <br />
-                <Typography variant="overline">
-                  <Delete className={classes.icon} />
-                  Clear Workspace
-                </Typography>
-                <Divider />
-                <br />
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={this.handleClearWorkspace}
-                >
-                  Clear
-                </Button>
+                    <Button variant="outlined" fullWidth>
+                      Convert
+                    </Button>
+                  </Grid>
+
+                  <br />
+                  <br />
+
+                  <Grid item xs={6} lg={12}>
+                    <Typography variant="overline">
+                      <Share className={classes.icon} />
+                      Share
+                    </Typography>
+                    <Divider />
+                    <br />
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      onClick={this.handleExport}
+                    >
+                      Export
+                    </Button>
+
+                    <label htmlFor="icon-button-photo">
+                      <input
+                        accept=".json"
+                        id="icon-button-photo"
+                        onChange={this.handleImport}
+                        type="file"
+                        hidden
+                      />
+                      <Button variant="outlined" component="span" fullWidth>
+                        Import
+                      </Button>
+                    </label>
+
+                    <br />
+                    <br />
+
+                    <Typography variant="overline">
+                      <Delete className={classes.icon} />
+                      Clear Workspace
+                    </Typography>
+                    <Divider />
+                    <br />
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      onClick={this.handleClearWorkspace}
+                    >
+                      Clear
+                    </Button>
+                  </Grid>
+                </Grid>
               </div>
             </Paper>
           </Grid>
