@@ -430,6 +430,9 @@ class Workspace extends React.Component {
       }
 
       nodes.remove(selection.nodes[0]);
+      
+      // disable the edit label mode
+      this.setState({ editLabel: "", disableEditLabelMode: true });
     });
 
     /**
