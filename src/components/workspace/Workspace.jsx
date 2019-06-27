@@ -430,7 +430,7 @@ class Workspace extends React.Component {
       }
 
       nodes.remove(selection.nodes[0]);
-      
+
       // disable the edit label mode
       this.setState({ editLabel: "", disableEditLabelMode: true });
     });
@@ -717,6 +717,14 @@ class Workspace extends React.Component {
                   <br />
                   Until finalised you may notice some tools move, redesigned or
                   even disappear for a while
+                  <br />
+                  <Typography variant="caption" color="primary">
+                    Updates
+                    <br />
+                    1. Share is now available with JSON format
+                    <br />
+                    2. Clear Workspace is now available
+                  </Typography>
                 </Typography>
                 <Divider />
                 <br />
