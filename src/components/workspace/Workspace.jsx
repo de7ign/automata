@@ -118,7 +118,8 @@ class Workspace extends React.Component {
     nodeLabel: "",
     editLabel: "",
     disableEditLabelMode: true,
-    playing: false
+    playing: false,
+    exportDialogOpen: false
   };
 
   /**
@@ -632,7 +633,13 @@ class Workspace extends React.Component {
     edges.clear();
   };
 
-  handleExport = () => {
+  handleExportDialogToggle = () => {
+    this.setState(prevState => ({
+      exportDialogOpen: !prevState.exportDialogOpen
+    }));
+  };
+
+  exportAsJSON = () => {
     let payload = {
       nodes: nodes.get(),
       edges: edges.get(),
@@ -640,6 +647,24 @@ class Workspace extends React.Component {
     };
     payload = JSON.stringify(payload);
     fileDownload(payload, "export.json");
+    this.handleExportDialogToggle();
+  };
+
+  exportAsPNG = () => {
+    let imgBlob;
+
+    this.handleExportDialogToggle();
+
+    this.network.once("afterDrawing", ctx => {
+      imgBlob = ctx.canvas.toDataURL();
+    });
+    this.network.redraw();
+
+    const download = document.createElement("a");
+    download.href = imgBlob;
+    download.download = "export.png";
+    download.click();
+    download.remove();
   };
 
   handleImport = ({ target }) => {
@@ -671,7 +696,8 @@ class Workspace extends React.Component {
       nodeDialogOpen,
       editLabel,
       disableEditLabelMode,
-      playing
+      playing,
+      exportDialogOpen
     } = this.state;
     return (
       <div className={classes.root}>
@@ -721,7 +747,7 @@ class Workspace extends React.Component {
                   <Typography variant="caption" color="primary">
                     Updates
                     <br />
-                    1. Share is now available with JSON format
+                    1. Share is now available with JSON and PNG format
                     <br />
                     2. Clear Workspace is now available
                   </Typography>
@@ -806,7 +832,7 @@ class Workspace extends React.Component {
                     <Button
                       variant="outlined"
                       fullWidth
-                      onClick={this.handleExport}
+                      onClick={this.handleExportDialogToggle}
                     >
                       Export
                     </Button>
@@ -846,6 +872,38 @@ class Workspace extends React.Component {
             </Paper>
           </Grid>
         </Grid>
+
+        <Dialog
+          open={exportDialogOpen}
+          onClose={this.handleExportDialogToggle}
+          aria-labelledby="export-as-dialog"
+        >
+          <DialogTitle id="export-as-dialog">Export</DialogTitle>
+
+          <DialogContent>
+            <DialogContentText>
+              Please choose an export format
+            </DialogContentText>
+            <div style={{ paddingTop: 4, paddingBottom: 4 }}>
+              <Button
+                variant="outlined"
+                fullWidth
+                style={{ marginTop: 4, marginBottom: 4 }}
+                onClick={this.exportAsJSON}
+              >
+                as JSON
+              </Button>
+              <Button
+                variant="outlined"
+                fullWidth
+                style={{ marginTop: 4, marginBottom: 4 }}
+                onClick={this.exportAsPNG}
+              >
+                as PNG
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <Dialog
           open={nodeDialogOpen}
