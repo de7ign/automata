@@ -154,22 +154,12 @@ class Workspace extends React.Component {
       },
       manipulation: {
         addEdge: (edgeData, callback) => {
-          // if (edgeData.from === edgeData.to) {
-          //   let r = alert("Do you want to connect the node to itself?");
-          //   if (r === true) {
-          //     callback(edgeData);
-          //   }
-          // } else {
-          //   callback(edgeData);
-          // }
-          // this.handleClickOpen();
-          // edgeData.label = this.state.edgeLabel
-
           if (!this.isEdgePresent(edgeData)) {
             this.handleEdgeDialogOpen();
             callback(edgeData);
           } else {
             // give a alert/notification there's already a edge
+            this.handleSnackbarOpen("warning", "There's already a edge")
           }
         }
       },
