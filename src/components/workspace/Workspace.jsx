@@ -159,7 +159,7 @@ class Workspace extends React.Component {
             callback(edgeData);
           } else {
             // give a alert/notification there's already a edge
-            this.handleSnackbarOpen("warning", "There's already a edge")
+            this.handleSnackbarOpen("warning", "There's already a edge");
           }
         }
       },
@@ -214,38 +214,6 @@ class Workspace extends React.Component {
       ctx.fillStyle = "#2B7CE9";
       ctx.fill();
 
-      // const x_center = startNodePosition[startNode].x - 50;
-      // const y_center = startNodePosition[startNode].y;
-
-      // let angle;
-      // let x;
-      // let y;
-      // const radius = 30
-
-      // ctx.beginPath();
-
-      // angle = Math.atan2(y_center , x_center);
-      // x = radius * Math.cos(angle) + x_center;
-      // y = radius * Math.sin(angle) + y_center;
-
-      // ctx.moveTo(x, y);
-
-      // angle += (1.0 / 3.0) * (2 * Math.PI);
-      // x = radius * Math.cos(angle) + x_center;
-      // y = radius * Math.sin(angle) + y_center;
-
-      // ctx.lineTo(x, y);
-
-      // angle += (1.0 / 3.0) * (2 * Math.PI);
-      // x = radius * Math.cos(angle) + x_center;
-      // y = radius * Math.sin(angle) + y_center;
-
-      // ctx.lineTo(x, y);
-
-      // ctx.closePath();
-
-      // ctx.fill();
-
       if (this.finalStates !== null) {
         const nodePosition = this.network.getPositions(this.finalStates);
         ctx.strokeStyle = "#2B7CE9";
@@ -262,94 +230,14 @@ class Workspace extends React.Component {
      * It's necessary for keyboard events to work
      */
     this.network.on("click", params => {
-      this.visRef.focus();
-      const nodeId = params.nodes[0];
-      const edgeId = params.edges[0];
-
-      /**
-       *  this below piece of code is similar to handleEditLabelClickAway()
-       *  why rewritten here once again ? only difference is here I don't call
-       *  unselectAll()
-       *
-       *  this entire piece of code can be in network.on("deselectNode", (){})
-       *  but when one a node is selected hence edit label mode is enabled,
-       *  clicking anywhere outside the canvas and text box should disable
-       *  edit label mode and unselect the nodes. -  that is what handleEditLabelClickAway() is doing
-       *
-       *  but when the handleEditLabelClickAway() is called inside network.on("deselectNode", (){})
-       *  the problem is when node is selected, edit mode is enabled and user agains click on different node
-       *  the deselectNode is fired and then selectNode is fired but the unselectAll() in handleEditLabelClickAway()
-       *  unselects the new selected node.
-       *
-       *  update: below code now handles the edit of edges too.
-       */
-      if (nodeId === undefined && edgeId === undefined) {
-        const { editLabel, disableEditLabelMode } = this.state;
-
-        // this regex checks if only space(s) are present
-        const spacePattern = /^\s*$/g;
-
-        if (
-          (editLabel === "" || spacePattern.test(editLabel)) &&
-          !disableEditLabelMode
-        ) {
-          this.setState({ editLabel: "", disableEditLabelMode: true });
-          this.handleSnackbarOpen("warning", "label can't be empty");
-          return;
-        }
-
-        /**
-         * @todo - remove any leading and trailing extra space(s)
-         * @todo - notification feature which will say if label is too big, - only for nodes
-         * due to design implementation we cannot increase the size of a node
-         * which results in limit the label length.
-         */
-
-        if (
-          !disableEditLabelMode &&
-          Object.prototype.hasOwnProperty.call(this.nodeSelected, "id")
-        ) {
-          this.updateNodeLabel(editLabel);
-        } else if (
-          !disableEditLabelMode &&
-          Object.prototype.hasOwnProperty.call(this.edgeSelected, "id")
-        ) {
-          this.updateEdgeLabel(editLabel);
-        }
-
-        // disable the edit label mode
-        this.setState({ editLabel: "", disableEditLabelMode: true });
-        this.nodeSelected = {};
-        this.edgeSelected = {};
-      }
+      this.onNetworkSingleClick(params);
     });
 
     /**
      * create a node when double clicked in canvas
      */
     this.network.on("doubleClick", params => {
-      const selectedNodes = this.network.getSelectedNodes();
-
-      /**
-       * maybe selectedNodes.length === 0 can be used ?
-       */
-      if (selectedNodes[0] === undefined) {
-        nodes.add({
-          label: "",
-          x: params.pointer.canvas.x,
-          y: params.pointer.canvas.y
-        });
-        this.handleNodeDialogOpen();
-      } else {
-        // if the state is already in finalStates[] then remove it from finalStates[]
-        for (let i = 0; i < this.finalStates.length; i += 1) {
-          if (this.finalStates[i] === selectedNodes[0]) {
-            this.finalStates.splice(i, 1);
-            return;
-          }
-        }
-        this.finalStates.push(selectedNodes[0]);
-      }
+      this.onNetworkDoubleClick(params);
     });
 
     /**
@@ -358,12 +246,7 @@ class Workspace extends React.Component {
      * this will take care of the problem
      */
     this.network.on("dragStart", params => {
-      this.visRef.focus();
-      if (params.nodes[0] !== undefined) {
-        this.handleNodeSelected(params);
-      }
-      // no need to do the same for edges, as dragStart doesn't select a edge.
-      // params.edges[] remains empty
+      this.onNetworkDragStart(params);
     });
 
     /**
@@ -372,7 +255,7 @@ class Workspace extends React.Component {
      */
     this.network.on("selectNode", params => {
       // made a separate function as it will be used by the network.on("dragStart",(){}) too.
-      this.handleNodeSelected(params);
+      this.onNetworkNodeSelected(params);
     });
 
     /**
@@ -380,50 +263,14 @@ class Workspace extends React.Component {
      *  and user can change the label of selected node.
      */
     this.network.on("selectEdge", params => {
-      this.nodeSelected = {};
-      const edgeId = params.edges[0];
-
-      this.edgeSelected = edges.get(edgeId);
-
-      // enable the edit label mode
-      this.currentElementLabel = this.edgeSelected.label;
-      this.setState({
-        editLabel: this.edgeSelected.label,
-        disableEditLabelMode: false
-      });
+      this.onNetworkEdgeSelected(params);
     });
 
     /**
      * delete key will delete the selected node/edges
      */
     keys.bind("delete", () => {
-      const selection = this.network.getSelection();
-
-      // if it's a start state then don't remove it
-      if (selection.nodes[0] === 1) {
-        this.handleSnackbarOpen("error", "start state can't be removed");
-        return;
-      }
-
-      if (!selection.nodes[0]) {
-        edges.remove(selection.edges[0]);
-      }
-
-      // remove the node from finalStates[] too
-      /**
-       *  TODO:
-       *  migrate from vanilla JS to lodash for all these array and object operations
-       */
-      for (let i = 0; i < this.finalStates.length; i += 1) {
-        if (this.finalStates[i] === selection.nodes[0]) {
-          this.finalStates.splice(i, 1);
-        }
-      }
-
-      nodes.remove(selection.nodes[0]);
-
-      // disable the edit label mode
-      this.setState({ editLabel: "", disableEditLabelMode: true });
+      this.onNetworkDeleteKeyPress();
     });
 
     /**
@@ -445,26 +292,161 @@ class Workspace extends React.Component {
     );
   }
 
+  onNetworkDeleteKeyPress = () => {
+    const selection = this.network.getSelection();
+
+    // if any node is selected then proceed
+    if (selection.nodes.length) {
+      // if selected node is start state
+      if (selection.nodes[0] === 1) {
+        this.handleSnackbarOpen("error", "start state can't be removed");
+        return;
+      }
+
+      // if selected element is a final state
+      for (let i = 0; i < this.finalStates.length; i += 1) {
+        if (this.finalStates[i] === selection.nodes[0]) {
+          this.finalStates.splice(i, 1);
+        }
+      }
+
+      // remove the edges connected to it
+      edges.remove(this.network.getConnectedEdges(selection.nodes[0]));
+    }
+
+    // delete the selected element
+    this.network.deleteSelected();
+
+    // disable the edit label mode
+    this.setState({ editLabel: "", disableEditLabelMode: true });
+  };
+
   /** checks if there's already a edge with same from and to as new proposed edge */
   isEdgePresent = edgeData => {
-    let flag = false;
     const edgesData = edges.get();
     for (let i = 0; i < edgesData.length; i += 1) {
       if (
         edgesData[i].from === edgeData.from &&
         edgesData[i].to === edgeData.to
       ) {
-        flag = true;
-        break;
+        return true;
       }
     }
-    return flag;
+    return false;
   };
 
-  handleNodeSelected = params => {
-    this.edgeSelected = {};
+  /**
+   *
+   */
+
+  onNetworkSingleClick = params => {
+    this.visRef.focus();
     const nodeId = params.nodes[0];
-    this.nodeSelected = nodes.get(nodeId);
+    const edgeId = params.edges[0];
+
+    /**
+     *  this below piece of code is similar to handleEditLabelClickAway()
+     *  why rewritten here once again ? only difference is here I don't call
+     *  unselectAll()
+     *
+     *  this entire piece of code can be in network.on("deselectNode", (){})
+     *  but when one a node is selected hence edit label mode is enabled,
+     *  clicking anywhere outside the canvas and text box should disable
+     *  edit label mode and unselect the nodes. -  that is what handleEditLabelClickAway() is doing
+     *
+     *  but when the handleEditLabelClickAway() is called inside network.on("deselectNode", (){})
+     *  the problem is when node is selected, edit mode is enabled and user agains click on different node
+     *  the deselectNode is fired and then selectNode is fired but the unselectAll() in handleEditLabelClickAway()
+     *  unselects the new selected node.
+     *
+     *  update: below code now handles the edit of edges too.
+     */
+    if (nodeId === undefined && edgeId === undefined) {
+      const { editLabel, disableEditLabelMode } = this.state;
+
+      // this regex checks if only space(s) are present
+      const spacePattern = /^\s*$/g;
+
+      if (
+        (editLabel === "" || spacePattern.test(editLabel)) &&
+        !disableEditLabelMode
+      ) {
+        this.setState({ editLabel: "", disableEditLabelMode: true });
+        this.handleSnackbarOpen("warning", "label can't be empty");
+        return;
+      }
+
+      /**
+       * @todo - remove any leading and trailing extra space(s)
+       * @todo - notification feature which will say if label is too big, - only for nodes
+       * due to design implementation we cannot increase the size of a node
+       * which results in limit the label length.
+       */
+
+      if (
+        !disableEditLabelMode &&
+        Object.prototype.hasOwnProperty.call(this.nodeSelected, "id")
+      ) {
+        this.updateNodeLabel(editLabel);
+      } else if (
+        !disableEditLabelMode &&
+        Object.prototype.hasOwnProperty.call(this.edgeSelected, "id")
+      ) {
+        this.updateEdgeLabel(editLabel);
+      }
+
+      // disable the edit label mode
+      this.setState({ editLabel: "", disableEditLabelMode: true });
+      this.nodeSelected = {};
+      this.edgeSelected = {};
+    }
+  };
+
+  /**
+   * Called when double click is done
+   * a new node is created if double clicked on canvas
+   * a node is made final/non-final node if double clicked on that node.
+   */
+
+  onNetworkDoubleClick = params => {
+    const selectedNodes = this.network.getSelectedNodes();
+
+    if (selectedNodes.length === 0) {
+      nodes.add({
+        label: "",
+        x: params.pointer.canvas.x,
+        y: params.pointer.canvas.y
+      });
+      this.handleAddNodeDialogOpen();
+    } else {
+      // if the state is already in finalStates[] then remove it from finalStates[]
+      for (let i = 0; i < this.finalStates.length; i += 1) {
+        if (this.finalStates[i] === selectedNodes[0]) {
+          this.finalStates.splice(i, 1);
+          return;
+        }
+      }
+      this.finalStates.push(selectedNodes[0]);
+    }
+  };
+
+  onNetworkDragStart = params => {
+    this.visRef.focus();
+    if (params.nodes[0] !== undefined) {
+      this.onNetworkNodeSelected(params);
+    }
+    // no need to do the same for edges, as dragStart doesn't select a edge.
+    // params.edges[] remains empty
+  };
+
+  /**
+   * When a node is selected
+   * activate the edit label textbox
+   * and autofill with edge label
+   */
+  onNetworkNodeSelected = params => {
+    this.edgeSelected = {};
+    this.nodeSelected = nodes.get(params.nodes[0]);
 
     // enable the edit label mode
     this.currentElementLabel = this.nodeSelected.label;
@@ -474,11 +456,28 @@ class Workspace extends React.Component {
     });
   };
 
-  handleNodeDialogOpen = () => {
+  /**
+   * When an edge is selected
+   * activate the edit label textbox
+   * and autofill with edge label
+   */
+  onNetworkEdgeSelected = params => {
+    this.nodeSelected = {};
+    this.edgeSelected = edges.get(params.edges[0]);
+
+    // enable the edit label mode
+    this.currentElementLabel = this.edgeSelected.label;
+    this.setState({
+      editLabel: this.edgeSelected.label,
+      disableEditLabelMode: false
+    });
+  };
+
+  handleAddNodeDialogOpen = () => {
     this.setState({ nodeDialogOpen: true });
   };
 
-  handleNodeDialogClose = () => {
+  handleAddNodeDialogClose = () => {
     this.setState({ nodeDialogOpen: false, labelError: false });
 
     // no label provided ? then delete the node
@@ -629,7 +628,7 @@ class Workspace extends React.Component {
     }));
   };
 
-  exportAsJSON = () => {
+  handleExportAsJSON = () => {
     let payload = {
       nodes: nodes.get(),
       edges: edges.get(),
@@ -640,7 +639,7 @@ class Workspace extends React.Component {
     this.handleExportDialogToggle();
   };
 
-  exportAsPNG = () => {
+  handleExportAsPNG = () => {
     let imgBlob;
 
     this.handleExportDialogToggle();
@@ -879,7 +878,7 @@ class Workspace extends React.Component {
                 variant="outlined"
                 fullWidth
                 style={{ marginTop: 4, marginBottom: 4 }}
-                onClick={this.exportAsJSON}
+                onClick={this.handleExportAsJSON}
               >
                 as JSON
               </Button>
@@ -887,7 +886,7 @@ class Workspace extends React.Component {
                 variant="outlined"
                 fullWidth
                 style={{ marginTop: 4, marginBottom: 4 }}
-                onClick={this.exportAsPNG}
+                onClick={this.handleExportAsPNG}
               >
                 as PNG
               </Button>
@@ -897,7 +896,7 @@ class Workspace extends React.Component {
 
         <Dialog
           open={nodeDialogOpen}
-          onClose={this.handleNodeDialogClose}
+          onClose={this.handleAddNodeDialogClose}
           aria-labelledby="node-form-dialog-title"
         >
           <DialogTitle id="node-form-dialog-title">Node</DialogTitle>
@@ -922,7 +921,7 @@ class Workspace extends React.Component {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleNodeDialogClose} color="primary">
+            <Button onClick={this.handleAddNodeDialogClose} color="primary">
               Cancel
             </Button>
             <Button onClick={this.handleNodeDialogEnterClose} color="primary">
