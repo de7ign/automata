@@ -671,9 +671,11 @@ class Workspace extends React.Component {
       edges.add(importData.edges);
       this.finalStates = importData.finalStates;
 
-      // change the file input
-      e.target.value = null;
-    };
+
+    };      
+    // change the file input
+    // eslint-disable-next-line no-param-reassign
+    target.value = null;
   };
 
   handleInputStringChange = event => {
