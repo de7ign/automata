@@ -119,7 +119,8 @@ class Workspace extends React.Component {
     editLabel: "",
     disableEditLabelMode: true,
     playing: false,
-    exportDialogOpen: false
+    exportDialogOpen: false,
+    inputString: ""
   };
 
   /**
@@ -677,6 +678,82 @@ class Workspace extends React.Component {
     };
   };
 
+  handleInputStringChange = event => {
+    this.setState({ inputString: event.target.value });
+  };
+
+  testDFA = () => {
+    const machine = {
+      nodes: nodes.get(),
+      edges: edges.get(),
+      finalStates: this.finalStates
+    };
+
+    const { inputString } = this.state;
+
+    /**
+     * SANITIZATION
+     * 1. No isolated nodes should be present
+     * 2. There can be only one final state in DFA mode.
+     */
+
+    for (let index = 0; index < machine.nodes.length; index += 1) {
+      const node = machine.nodes[index];
+      let found = false;
+      for (let index1 = 0; index1 < machine.edges.length; index1 += 1) {
+        const edge = machine.edges[index1];
+        if (edge.from === node.id || edge.to === node.id) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        this.handleSnackbarOpen("error", "isolated nodes found");
+        return;
+      }
+    }
+
+    if (machine.finalStates.length > 1) {
+      this.handleSnackbarOpen("error", "only one final state is allowed");
+      return;
+    }
+
+    if (machine.finalStates.length < 1) {
+      this.handleSnackbarOpen("error", "please provide one final state");
+      return;
+    }
+
+    // compute dfa
+    let state = 1;
+    
+    for (let index = 0; index < inputString.length; index += 1) {
+      let toContinue = false;
+      const alphabet = inputString[index];
+      for (let index2 = 0; index2 < machine.edges.length; index2 += 1) {
+        const edge = machine.edges[index2];
+        if (edge.from === state && edge.label === alphabet) {
+          state = edge.to;
+          toContinue = true;
+          break;
+        }
+      }
+      if (!toContinue) {
+        this.handleSnackbarOpen("error", "not accepted");
+        return;
+      }
+    }
+
+    for (let index = 0; index < this.finalStates.length; index += 1) {
+      const element = this.finalStates[index];
+      if (element === state) {
+        this.handleSnackbarOpen("success", "accepted");
+        return;
+      }
+    }
+
+    this.handleSnackbarOpen("error", "not accepted");
+  };
+
   render() {
     const { classes } = this.props;
     const {
@@ -759,8 +836,9 @@ class Workspace extends React.Component {
                       InputLabelProps={{
                         shrink: true
                       }}
+                      onChange={this.handleInputStringChange}
                     />
-                    <Button variant="outlined" fullWidth>
+                    <Button variant="outlined" fullWidth onClick={this.testDFA}>
                       Test
                     </Button>
                     <br />
