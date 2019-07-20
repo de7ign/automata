@@ -70,11 +70,9 @@ const styles = theme => ({
 });
 
 const nodes = new DataSet([
-  { id: 1, label: "start" },
-  { id: 2, label: "Node 2" },
-  { id: 3, label: "final" },
-  { id: 4, label: "Node 4" },
-  { id: 5, label: "Node 5" }
+  { id: 1, label: "start", x: -184, y: -41 },
+  { id: 2, label: "Node 1", x: 11, y: -40 },
+  { id: 3, label: "Node 2", x: 215, y: -37 }
 ]);
 
 /*
@@ -84,12 +82,12 @@ const nodes = new DataSet([
   otherwise edges and its labels will overlap
 */
 const edges = new DataSet([
-  { from: 1, to: 3, label: "a", smooth: { type: "curvedCW", roundness: 0.0 } },
-  { from: 1, to: 2, label: "b", smooth: { type: "curvedCW", roundness: 0.0 } },
-  { from: 2, to: 4, label: "c", smooth: { type: "curvedCW", roundness: 0.0 } },
-  { from: 2, to: 5, label: "d", smooth: { type: "curvedCW", roundness: 0.1 } },
-  { from: 5, to: 2, label: "e", smooth: { type: "curvedCW", roundness: 0.1 } },
-  { from: 2, to: 2, label: "f" }
+  { from: 1, to: 2, label: "1", smooth: { type: "curvedCW", roundness: 0.2 } },
+  { from: 1, to: 1, label: "0" },
+  { from: 2, to: 1, label: "1", smooth: { type: "curvedCW", roundness: 0.2 } },
+  { from: 2, to: 3, label: "0", smooth: { type: "curvedCW", roundness: 0.2 } },
+  { from: 3, to: 2, label: "0", smooth: { type: "curvedCW", roundness: 0.2 } },
+  { from: 3, to: 3, label: "1" }
 ]);
 
 const data = {
@@ -725,7 +723,7 @@ class Workspace extends React.Component {
 
     // compute dfa
     let state = 1;
-    
+
     for (let index = 0; index < inputString.length; index += 1) {
       let toContinue = false;
       const alphabet = inputString[index];
