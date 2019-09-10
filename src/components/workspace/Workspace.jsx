@@ -402,7 +402,6 @@ class Workspace extends React.Component {
   };
 
   /**
-   * Called when double click is done
    * a new node is created if double clicked on canvas
    * a node is made final/non-final node if double clicked on that node.
    */
@@ -483,6 +482,11 @@ class Workspace extends React.Component {
     nodes.remove(nodes.getIds()[nodes.length - 1]);
   };
 
+  handleNodeDialogKeyPress = (event) => {
+    if(event.key === 'Enter')
+      this.handleNodeDialogEnterClose();
+  }
+
   handleNodeDialogEnterClose = () => {
     const { nodeLabel } = this.state;
 
@@ -513,6 +517,11 @@ class Workspace extends React.Component {
     // no label provided ? then delete the edge
     edges.remove(edges.getIds()[edges.length - 1]);
   };
+
+  handleEdgeDialogKeyPress = (event) => {
+    if(event.key === 'Enter')
+      this.handleEdgeDialogEnterClose();
+  }
 
   handleEdgeDialogEnterClose = () => {
     const { edgeLabel } = this.state;
@@ -996,6 +1005,7 @@ class Workspace extends React.Component {
               id="nodelabel"
               onChange={this.handleNodeLabelChange}
               fullWidth
+              onKeyPress={this.handleNodeDialogKeyPress}
             />
           </DialogContent>
           <DialogActions>
@@ -1032,6 +1042,7 @@ class Workspace extends React.Component {
               id="edgelabel"
               onChange={this.handleEdgeLabelChange}
               fullWidth
+              onKeyPress={this.handleEdgeDialogKeyPress}
             />
           </DialogContent>
           <DialogActions>
