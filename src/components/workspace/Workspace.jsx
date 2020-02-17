@@ -28,7 +28,8 @@ import {
   Warning
 } from "@material-ui/icons";
 import PropTypes from "prop-types";
-import { Network, DataSet, keycharm } from "vis";
+import { Network, DataSet } from "vis-network";
+import keycharm from "keycharm"
 import fileDownload from "js-file-download";
 import CustomizedSnackbars from "../snackbar/CustomizedSnackbars";
 
@@ -167,10 +168,10 @@ class Workspace extends React.Component {
       }
     };
 
-    this.network = new Network(this.visRef, data, options);
-    this.visRef.focus();
+    this.network = new Network(this.visRef.current, data, options);
+    this.visRef.current.focus();
     const keys = keycharm({
-      container: this.visRef,
+      container: this.visRef.current,
       preventDefault: true
     });
 
@@ -218,7 +219,9 @@ class Workspace extends React.Component {
         ctx.strokeStyle = "#2B7CE9";
         this.finalStates.forEach(value => {
           // in order to keep the default dx as 36, we need to limit the length of node label, otherwise arrow and node will overlap
-          ctx.circle(nodePosition[value].x, nodePosition[value].y, 36);
+          // ctx.circle(nodePosition[value].x, nodePosition[value].y, 36);
+          ctx.beginPath();
+          ctx.arc(nodePosition[value].x, nodePosition[value].y, 0, Math.PI * 2, 36);
           ctx.stroke();
         });
       }
@@ -229,6 +232,7 @@ class Workspace extends React.Component {
      * It's necessary for keyboard events to work
      */
     this.network.on("click", params => {
+      console.log("network - single click")
       this.onNetworkSingleClick(params);
     });
 
@@ -339,7 +343,7 @@ class Workspace extends React.Component {
    */
 
   onNetworkSingleClick = params => {
-    this.visRef.focus();
+    this.visRef.current.focus();
     const nodeId = params.nodes[0];
     const edgeId = params.edges[0];
 
@@ -429,7 +433,7 @@ class Workspace extends React.Component {
   };
 
   onNetworkDragStart = params => {
-    this.visRef.focus();
+    this.visRef.current.focus();
     if (params.nodes[0] !== undefined) {
       this.onNetworkNodeSelected(params);
     }
@@ -800,9 +804,7 @@ class Workspace extends React.Component {
                   <div
                     // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                     tabIndex={0}
-                    ref={ref => {
-                      this.visRef = ref;
-                    }}
+                    ref={this.visRef}
                     className={classes.divCanvas}
                   />
                 </div>
