@@ -4,8 +4,9 @@
   "homepage": "http://nihalmurmu.github.io/automata",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^3.7.1",
-    "@material-ui/icons": "^3.0.1",
+    "@material-ui/core": "^4.9.5",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.45",
     "classnames": "^2.2.6",
     "js-file-download": "^0.4.7",
     "keycharm": "^0.3.1",
@@ -23,10 +24,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint src/**/*.jsx",
-    "pretty": "npx prettier --write src/**/*.jsx src/**/*.js",
-    "pretty-lint": "npm run pretty && npm run lint",
-    "predeploy": "npm run build",
+    "lint": "yarn run eslint src/**/*.jsx src/**/*.js --fix",
+    "pretty": "yarn run prettier --write src/**/*.jsx src/**/*.js",
+    "pretty-lint": "yarn run pretty && yarn run lint",
+    "predeploy": "yarn run build",
     "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
@@ -39,12 +40,14 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.17.1",
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-react": "^7.12.4",
+    "eslint-plugin-react-hooks": "^2.5.0",
     "gh-pages": "^2.0.1",
     "prettier": "^1.17.0"
   }
