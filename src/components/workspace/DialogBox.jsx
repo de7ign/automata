@@ -69,7 +69,7 @@ const DialogBox = props => {
 
 DialogBox.propTypes = {
   dialogTexts: PropTypes.objectOf(PropTypes.string).isRequired,
-  open: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
   submit: PropTypes.func.isRequired,
   close: PropTypes.func.isRequired
 };

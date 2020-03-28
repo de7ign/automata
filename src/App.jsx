@@ -11,8 +11,10 @@ class App extends React.Component {
   muiSnackbarRef = React.createRef();
 
   componentDidMount() {
-    ReactGA.initialize("UA-138685124-2");
-    ReactGA.pageview(window.location.pathname);
+    if (process.env.NODE_ENV === "production") {
+      ReactGA.initialize("UA-138685124-2");
+      ReactGA.pageview(window.location.pathname);
+    }
   }
 
   /**
@@ -30,7 +32,7 @@ class App extends React.Component {
       <StrictMode>
         <div className="App">
           <Header />
-          <Workspace notification={this.displaySnackbar} />
+          <Workspace snackbar={this.displaySnackbar} />
           <Notice />
           <Footer />
           <MuiSnackbar ref={this.muiSnackbarRef} />
