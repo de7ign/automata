@@ -4,7 +4,6 @@ const TD1 = {
   NODES: new DataSet([
     {
       id: "1",
-      title: "title asd",
       label: "start",
       final: true,
       x: -184,
@@ -12,7 +11,6 @@ const TD1 = {
     },
     {
       id: "2",
-      title: "title asd",
       label: "Node 1",
       final: false,
       x: 11,
@@ -21,7 +19,6 @@ const TD1 = {
     {
       id: "3",
       label: "Node 2",
-      title: "title asd",
       final: true,
       x: 215,
       y: -37

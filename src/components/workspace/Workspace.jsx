@@ -6,24 +6,29 @@ import { randomUUID } from "vis-util";
 import PropTypes from "prop-types";
 import { Paper, TextField } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import Grid from "@material-ui/core/Grid";
 import DialogBox from "./DialogBox";
 import createTestData from "./prepareDevNetwork";
+import ToolBar from "./ToolBar";
 
 const useStyles = makeStyles(theme => ({
   root: {
-    flexGrow: 1,
     margin: theme.spacing.unit * 2
   },
   paper: {
-    padding: theme.spacing.unit
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+    padding: theme.spacing.unit,
+    height: "85vh"
   },
   canvas: {
-    height: "85vh"
+    flex: "1"
   }
 }));
 
 const NODES = new DataSet([
-  { id: "1", title: "title asd", label: "start", final: false, x: -184, y: -41 }
+  { id: "1", label: "start", final: false, x: -184, y: -41 }
 ]);
 
 const EDGES = new DataSet([]);
@@ -42,7 +47,7 @@ const EDGE_CONTENT_TEXT = "Please enter a label for your new edge";
 const LABEL_INPUT_EMPTY_WARNING = "Label can't be empty";
 
 const Workspace = props => {
-  const { notifcation } = props;
+  const { snackbar } = props;
 
   const networkRef = useRef(null);
   const [viewNodeDialog, setViewNodeDialog] = useState(false);
@@ -60,20 +65,17 @@ const Workspace = props => {
   let automataNetwork = null;
   let automataNetworkKeyCharm = null;
 
-  const currentNode = useRef({
+  const nodeObject = useRef({
     id: "",
     label: "",
     x: "",
     y: ""
   });
 
-  const selectedNode = useRef();
-  const selectedEdge = useRef();
+  const edgeObject = useRef({ id: "", from: "", to: "", label: "" });
 
   const [disableEditLabel, setDisableEditLabel] = useState(true);
   const editLabelTextBoxRef = useRef();
-
-  const currentEdge = useRef();
 
   const isEdgePresent = edge => {
     const edgesList = EDGES.get();
@@ -86,6 +88,22 @@ const Workspace = props => {
   };
 
   /**
+   * Displays the snackbar notification
+   *
+   * @param {String} variant - error, warning, info, success
+   * @param {String} message - The notification message
+   */
+  const notification = (variant, message) => {
+    try {
+      snackbar(variant, message);
+    } catch (e) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(e);
+      }
+    }
+  };
+
+  /**
    * add a new node to network
    *
    * @param {String} nodeLabel - label of node
@@ -93,17 +111,164 @@ const Workspace = props => {
    * @param {Number} yCoOrdinate - y coordinate of number w/ respect to canvas
    */
   const addNode = (nodeLabel, xCoOrdinate, yCoOrdinate) => {
-    currentNode.current.id = randomUUID();
-    currentNode.current.label = nodeLabel || "node";
-    currentNode.current.x = xCoOrdinate;
-    currentNode.current.y = yCoOrdinate;
+    nodeObject.current.id = randomUUID();
+    nodeObject.current.label = nodeLabel || "nodeObject";
+    nodeObject.current.x = xCoOrdinate;
+    nodeObject.current.y = yCoOrdinate;
 
     NODES.add({
-      id: currentNode.current.id,
+      id: nodeObject.current.id,
       label: nodeLabel,
       x: xCoOrdinate,
       y: yCoOrdinate
     });
+  };
+
+  /**
+   * handles when network is double clicked
+   *
+   * @param {Object} params
+   */
+  const onNetworkDoubleClick = params => {
+    const {
+      pointer: {
+        canvas: { x, y }
+      },
+      nodes
+    } = params;
+
+    const nodeID = nodes[0];
+    if (nodeID) {
+      const nodeSelected = NODES.get(nodeID);
+      NODES.update({ id: nodeID, final: !nodeSelected.final });
+      return;
+    }
+
+    // create node
+    /*
+      FIXME: wasted re-render
+      if dialogTexts is not updated, then don't set Dialog Text once again
+    */
+    setViewNodeDialog(true);
+    addNode("", x, y);
+  };
+
+  /**
+   * handles when a node is selected in network
+   *
+   * @param {Object} params
+   */
+  const onNetworkNodeSelect = params => {
+    const { nodes } = params;
+
+    const nodeID = nodes[0];
+    nodeObject.current = NODES.get(nodeID);
+    setDisableEditLabel(false);
+    editLabelTextBoxRef.current.value = nodeObject.current.label;
+  };
+
+  /**
+   * handles when a edge is selected in network
+   *
+   * @param {Object} params
+   */
+  const onNetworkEdgeSelect = params => {
+    const { edges } = params;
+
+    const edgeID = edges[0];
+    edgeObject.current = EDGES.get(edgeID);
+    setDisableEditLabel(false);
+    editLabelTextBoxRef.current.value = edgeObject.current.label;
+  };
+
+  /**
+   * Disable the node/edge label edit box
+   */
+  const disableEditLabelTextBox = () => {
+    editLabelTextBoxRef.current.value = "";
+    setDisableEditLabel(true);
+  };
+
+  /**
+   * Deletes the selected node/edge
+   */
+  const networkDeleteSelected = () => {
+    const {
+      nodes: nodesSelected,
+      edges: edgesSelected
+    } = automataNetwork.getSelection();
+
+    if (nodesSelected.length) {
+      if (nodesSelected[0] === "1") {
+        notification("error", "cannot delete start node");
+        return;
+      }
+      automataNetwork.deleteSelected();
+      disableEditLabelTextBox();
+      return;
+    }
+
+    if (edgesSelected.length) {
+      automataNetwork.deleteSelected();
+      disableEditLabelTextBox();
+    }
+  };
+
+  /**
+   * Handles onBlur event of edit label text box
+   */
+  const handleEditLabelTextBoxOnBlur = () => {
+    const newLabel = editLabelTextBoxRef.current.value;
+    if (newLabel.trim() === "") {
+      notification("warning", "label can't be empty");
+      return;
+    }
+
+    if (nodeObject.current.id !== "") {
+      NODES.update({ id: nodeObject.current.id, label: newLabel });
+      nodeObject.current = {
+        id: "",
+        label: "",
+        x: "",
+        y: ""
+      };
+    }
+
+    if (edgeObject.current.id !== "") {
+      EDGES.update({ id: edgeObject.current.id, label: newLabel });
+      edgeObject.current = {
+        id: "",
+        from: "",
+        to: "",
+        label: ""
+      };
+    }
+
+    disableEditLabelTextBox();
+  };
+
+  /**
+   * Handles when a node is deselected
+   */
+  const onNetworkNodeDeselect = () => {
+    nodeObject.current = {
+      id: "",
+      label: "",
+      x: "",
+      y: ""
+    };
+  };
+
+  /**
+   * Handles when an edge is deselected
+   */
+  const onNetworkEdgeDeselect = () => {
+    edgeObject.current = {
+      id: "",
+      from: "",
+      to: "",
+      label: ""
+    };
   };
 
   const OPTIONS = {
@@ -130,7 +295,7 @@ const Workspace = props => {
     manipulation: {
       enabled: false,
       addEdge: (edgeData, callback) => {
-        currentEdge.current = edgeData;
+        edgeObject.current = edgeData;
         if (!isEdgePresent(edgeData)) {
           // TODO: by default edge will be straight, I don't know how I should create a edge
           // if(edgeData.to !== edgeData.from)
@@ -138,112 +303,13 @@ const Workspace = props => {
           callback(edgeData);
           setViewEdgeDialog(true);
         } else {
-          notifcation("error", "There's already a edge");
+          notification("error", "There's already a edge");
         }
       }
     },
     interaction: {
       selectConnectedEdges: false
     }
-  };
-
-  /**
-   * handles when network is double clicked
-   *
-   * @param {Object} params
-   */
-  const onNetworkDoubleClick = params => {
-    const {
-      pointer: {
-        canvas: { x, y }
-      },
-      nodes
-    } = params;
-
-    const nodeID = nodes[0];
-    if (nodeID) {
-      const nodeSelected = NODES.get(nodeID);
-      NODES.update({ id: nodeID, final: !nodeSelected.final });
-      return;
-    }
-
-    // create node
-    /* 
-      FIXME: wasted re-render
-      if dialogTexts is not updated, then don't set Dialog Text once again
-    */
-    setViewNodeDialog(true);
-    addNode("", x, y);
-  };
-
-  /**
-   * handles when a node is selected in network
-   *
-   * @param {Object} params
-   */
-  const onNetworkNodeSelect = params => {
-    const { nodes } = params;
-
-    const nodeID = nodes[0];
-    selectedNode.current = NODES.get(nodeID);
-    setDisableEditLabel(false);
-    editLabelTextBoxRef.current.value = selectedNode.current.label;
-    editLabelTextBoxRef.current.focus();
-  };
-
-  /**
-   * handles when a edge is selected in network
-   *
-   * @param {Object} params
-   */
-  const onNetworkEdgeSelect = params => {
-    const { edges } = params;
-
-    const edgeID = edges[0];
-    selectedEdge.current = EDGES.get(edgeID);
-    setDisableEditLabel(false);
-    editLabelTextBoxRef.current.value = selectedEdge.current.label;
-    editLabelTextBoxRef.current.focus();
-  };
-
-  /**
-   * Deletes the selected node/edge
-   */
-  const networkDeleteSelected = () => {
-    const {
-      nodes: nodesSelected,
-      edges: edgesSelected
-    } = automataNetwork.getSelection();
-
-    if (nodesSelected.length) {
-      if (nodesSelected[0] === 1) {
-        notifcation("error", "cannot delete start node");
-        return;
-      }
-      automataNetwork.deleteSelected();
-      return;
-    }
-
-    if (edgesSelected.length) {
-      automataNetwork.deleteSelected();
-    }
-  };
-
-  /**
-   * Handles onBlur event of edit label text box
-   */
-  const handleEditLabelTextBoxOnBlur = () => {
-    const newLabel = editLabelTextBoxRef.current.value;
-    if (selectedNode.current) {
-      NODES.update({ id: selectedNode.current.id, label: newLabel });
-      selectedNode.current = null;
-    }
-    if (selectedEdge.current) {
-      EDGES.update({ id: selectedEdge.current.id, label: newLabel });
-      selectedEdge.current = null;
-    }
-    editLabelTextBoxRef.current.value = "";
-    setDisableEditLabel(true);
   };
 
   useLayoutEffect(() => {
@@ -276,15 +342,17 @@ const Workspace = props => {
       onNetworkEdgeSelect(params);
     });
 
+    automataNetwork.on("deselectNode", () => {
+      onNetworkNodeDeselect();
+    });
+
+    automataNetwork.on("deselectEdge", () => {
+      onNetworkEdgeDeselect();
+    });
+
     automataNetwork.on("beforeDrawing", ctx => {
       // creating arrow for start state
 
-      /**
-       *  TODO
-       *  make changes in nodes dataset for dynamic start node
-       *  or no need for maintaining any new datastructure if default start node will be there.
-       *  currently thinking of making a default start state so no need for new datastructure/dataset
-       */
       // to make arrow on node 1 to represent it as start node
       const startNode = 1;
       const startNodePosition = automataNetwork.getPositions([startNode]);
@@ -365,51 +433,124 @@ const Workspace = props => {
     );
   }, []);
 
+  /**
+   * Handles when Node DialogBox components is closed
+   */
   const closeNodeDialogBox = () => {
-    const node = currentNode.current;
+    const node = nodeObject.current;
     NODES.remove(node.id);
     setViewNodeDialog(false);
   };
 
+  /**
+   * Handles when Node DialogBox components is closed
+   *
+   * @param value - Label for the node
+   */
   const submitNodeDialogBox = value => {
     setViewNodeDialog(false);
     if (value === "") return;
-    const node = currentNode.current;
+    const node = nodeObject.current;
     NODES.update({ id: node.id, label: value });
   };
 
+  /**
+   * Handles when Edge DialogBox is closed
+   */
   const closeEdgeDialogBox = () => {
-    const edge = currentEdge.current;
+    const edge = edgeObject.current;
     EDGES.remove(edge.id);
     setViewEdgeDialog(false);
   };
 
+  /**
+   * Handles when Edge DialogBox submit is clicked
+   *
+   * @param value - Label for the edge
+   */
   const submitEdgeDialogBox = value => {
     setViewEdgeDialog(false);
     if (value === "") return;
-    const edge = currentEdge.current;
+    const edge = edgeObject.current;
     EDGES.update({ id: edge.id, label: value });
+  };
+
+  /**
+   * Removes all the nodes and edges except the start node
+   */
+  const clearNetwork = () => {
+    NODES.remove(NODES.getIds().slice(1));
+    EDGES.clear();
+  };
+
+  /**
+   * Accepts a JSON, and create a new network based on the JSON
+   *
+   * JSON format must be {nodes: {...}, edges: {...}}
+   *
+   * @param networkData
+   */
+  const createNetworkWithJSON = networkData => {
+    clearNetwork();
+    NODES.add(networkData.nodes.splice(1));
+    EDGES.add(networkData.edges);
+  };
+
+  /**
+   * Returns all the nodes and edges
+   *
+   * @returns {{nodes: {...}, edges: {...}}}
+   */
+  const getNetworkData = () => {
+    return {
+      nodes: NODES.get(),
+      edges: EDGES.get()
+    };
+  };
+
+  /**
+   * Returns image blob of the network
+   */
+  const getImageBlob = () => {
+    let imgBlob = null;
+    automataNetwork.on("afterDrawing", ctx => {
+      imgBlob = ctx.canvas.toDataURL();
+    });
+    automataNetwork.redraw();
+    return imgBlob;
   };
 
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
-      <Paper elevation={6} className={classes.paper}>
-        <TextField
-          placeholder="Nodes/Edges label"
-          fullWidth
-          margin="dense"
-          variant="outlined"
-          InputLabelProps={{
-            shrink: true
-          }}
-          inputRef={editLabelTextBoxRef}
-          disabled={disableEditLabel}
-          onBlur={handleEditLabelTextBoxOnBlur}
-        />
-        <div tabIndex={0} ref={networkRef} className={classes.canvas} />
-      </Paper>
+      <Grid container spacing={2}>
+        <Grid item xs={9}>
+          <Paper elevation={6} className={classes.paper}>
+            <TextField
+              placeholder="Nodes/Edges label"
+              fullWidth
+              margin="dense"
+              variant="outlined"
+              InputLabelProps={{
+                shrink: true
+              }}
+              inputRef={editLabelTextBoxRef}
+              disabled={disableEditLabel}
+              onBlur={handleEditLabelTextBoxOnBlur}
+            />
+            <div tabIndex={0} ref={networkRef} className={classes.canvas} />
+          </Paper>
+        </Grid>
+        <Grid item xs>
+          <ToolBar
+            clearNetwork={clearNetwork}
+            updateNetwork={createNetworkWithJSON}
+            getNetworkData={getNetworkData}
+            getImageBlob={getImageBlob}
+          />
+        </Grid>
+      </Grid>
 
       <DialogBox
         dialogTexts={nodeDialogTexts}
@@ -428,7 +569,7 @@ const Workspace = props => {
 };
 
 Workspace.propTypes = {
-  notifcation: PropTypes.func.isRequired
+  snackbar: PropTypes.func.isRequired
 };
 
 export default Workspace;
