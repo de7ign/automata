@@ -1,8 +1,9 @@
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 import React, { useRef, useState, useLayoutEffect } from "react";
 import keycharm from "keycharm";
-import { Network, DataSet } from "vis-network";
-import { randomUUID } from "vis-util";
+import { Network } from "vis-network/peer/esm/vis-network";
+import { DataSet } from "vis-data/peer/esm/vis-data";
+import { v4 as randomUUID } from "uuid";
 import PropTypes from "prop-types";
 import { Paper, TextField } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
