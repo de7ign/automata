@@ -1,4 +1,4 @@
-import { DataSet } from "vis-network";
+import { DataSet } from "vis-data/peer/esm/vis-data";
 
 const TD1 = {
   NODES: new DataSet([
