@@ -27,10 +27,12 @@ const DialogBox = props => {
       setInputError(true);
       return;
     }
+    setInputError(false);
     submit(textInput);
   };
 
   const handleCancelButton = () => {
+    setInputError(false);
     close();
   };
 
