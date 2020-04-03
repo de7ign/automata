@@ -15,6 +15,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import fileDownload from "js-file-download";
 import PropTypes from "prop-types";
 
+import computeDFA from "../../engine/dfa";
+
 const useStyles = makeStyles(theme => ({
   paper: {
     display: "flex",
@@ -36,14 +38,51 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ToolBar = props => {
-  const { clearNetwork, updateNetwork, getNetworkData, getImageBlob } = props;
+  const {
+    /**
+     * Clears the Network except the start node
+     */
+    clearNetwork,
+    /**
+     * Accepts Network DataSet and update the Network
+     *
+     * @param - Object - network data, can be of type DataSet or JSON Object
+     */
+    updateNetwork,
+    /**
+     * Returns network DataSet
+     *
+     * @return Object - Object of node and edge DataSet <pre>{nodes: DataSet, edges: DataSet}</pre>
+     */
+    getNetworkDataSet,
+    /**
+     * Returns network canvas content as string
+     *
+     * @return string
+     */
+    getImageBlob,
+    /**
+     * Opens a snackbar notification
+     *
+     * @param string - variant ["error", "warning", "info", "success"]
+     */
+    snackbar
+  } = props;
   const [isExportDialogOpen, setExportDialogOpen] = useState(false);
-  const testInput = useRef();
+  const testInputRef = useRef();
 
+  /**
+   * Handles when clear button is clicked
+   */
   const handleClearOnClick = () => {
     clearNetwork();
   };
 
+  /**
+   * Handles when a file is selected for upload
+   *
+   * @param target
+   */
   const handleImportOnChange = ({ target }) => {
     const fileReader = new FileReader();
     const { files } = target;
@@ -60,14 +99,23 @@ const ToolBar = props => {
     target.value = null;
   };
 
+  /**
+   * Handles when export button is clicked
+   */
   const handleExportOnClick = () => {
     setExportDialogOpen(true);
   };
 
+  /**
+   * Handles when export dialog close button is clicked
+   */
   const handleExportDialogOnClose = () => {
     setExportDialogOpen(false);
   };
 
+  /**
+   *  Gets the network canvas data and prompts to download as PNG
+   */
   const exportAsPNG = () => {
     setExportDialogOpen(false);
     const imgBlob = getImageBlob();
@@ -78,23 +126,70 @@ const ToolBar = props => {
     download.remove();
   };
 
+  /**
+   * Gets the network data and prompts to download as JSON
+   */
   const exportAsJSON = () => {
-    const payloadJSON = getNetworkData();
+    const networkDataSet = getNetworkDataSet();
+    const payloadJSON = {
+      nodes: networkDataSet.nodes.get(),
+      edges: networkDataSet.edges.get()
+    };
     const payload = JSON.stringify(payloadJSON);
     fileDownload(payload, "export.json");
     setExportDialogOpen(false);
   };
 
+  /**
+   * Handles when export as PNG in export dialog is clicked
+   */
   const handleExportAsPNGOnClick = () => {
     exportAsPNG();
   };
 
+  /**
+   * Handles when export as JSON in export dialog is clicked
+   */
   const handleExportAsJSONOnClick = () => {
     exportAsJSON();
   };
 
+  /**
+   * Displays the snackbar notification
+   *
+   * @param {String} variant - error, warning, info, success
+   * @param {String} message - The notification message
+   */
+  const notification = (variant, message) => {
+    try {
+      snackbar(variant, message);
+    } catch (e) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(e);
+      }
+    }
+  };
+
+  /**
+   * Handles when test button is clicked
+   */
   const handleTestOnClick = () => {
-    // TODO: complete the method
+    const testInput = testInputRef.current.value.trim();
+    const data = getNetworkDataSet();
+    if (testInput !== "") {
+      try {
+        const result = computeDFA(testInput, data);
+        if (result) {
+          notification("success", "Accepted!");
+        } else {
+          notification("error", "Rejected!");
+        }
+      } catch (e) {
+        if (process.env.NODE_ENV === "development") {
+          console.log(`${e.name} : ${e.message}`);
+        }
+      }
+    }
   };
 
   const classes = useStyles();
@@ -125,7 +220,7 @@ const ToolBar = props => {
             InputLabelProps={{
               shrink: true
             }}
-            inputRef={testInput}
+            inputRef={testInputRef}
           />
           <Button
             variant="outlined"
@@ -265,8 +360,9 @@ const ToolBar = props => {
 ToolBar.propTypes = {
   clearNetwork: PropTypes.func.isRequired,
   updateNetwork: PropTypes.func.isRequired,
-  getNetworkData: PropTypes.func.isRequired,
-  getImageBlob: PropTypes.func.isRequired
+  getNetworkDataSet: PropTypes.func.isRequired,
+  getImageBlob: PropTypes.func.isRequired,
+  snackbar: PropTypes.func.isRequired
 };
 
 export default ToolBar;
