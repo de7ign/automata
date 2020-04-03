@@ -24,7 +24,8 @@ const useStyles = makeStyles(theme => ({
     height: "85vh"
   },
   canvas: {
-    flex: "1"
+    flex: "1",
+    overFlow: "hidden"
   }
 }));
 
@@ -487,9 +488,7 @@ const Workspace = props => {
   /**
    * Accepts a JSON, and create a new network based on the JSON
    *
-   * JSON format must be {nodes: {...}, edges: {...}}
-   *
-   * @param networkData
+   * @param networkData - Object in the form of <pre>{nodes: DataSet, edges: DataSet}</pre>
    */
   const createNetworkWithJSON = networkData => {
     clearNetwork();
@@ -498,19 +497,21 @@ const Workspace = props => {
   };
 
   /**
-   * Returns all the nodes and edges
+   * Returns all the nodes and edges as a DataSet
    *
-   * @returns {{nodes: {...}, edges: {...}}}
+   * @returns Object - Object in the form of <pre>{nodes: DataSet, edges: DataSet}</pre>
    */
-  const getNetworkData = () => {
+  const getNetworkDataSet = () => {
     return {
-      nodes: NODES.get(),
-      edges: EDGES.get()
+      nodes: NODES,
+      edges: EDGES
     };
   };
 
   /**
    * Returns image blob of the network
+   *
+   * @return string
    */
   const getImageBlob = () => {
     let imgBlob = null;
@@ -547,8 +548,9 @@ const Workspace = props => {
           <ToolBar
             clearNetwork={clearNetwork}
             updateNetwork={createNetworkWithJSON}
-            getNetworkData={getNetworkData}
+            getNetworkDataSet={getNetworkDataSet}
             getImageBlob={getImageBlob}
+            snackbar={snackbar}
           />
         </Grid>
       </Grid>

@@ -15,6 +15,7 @@
     "react-dom": "^16.12.0",
     "react-ga": "^2.5.7",
     "react-scripts": "3.4.1",
+    "typescript": "^3.8.3",
     "uuid": "^7.0.2",
     "vis-data": "^6.3.5",
     "vis-network": "^7.4.2"
@@ -24,8 +25,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "yarn run eslint src/**/*.jsx src/**/*.js --fix",
-    "pretty": "yarn run prettier --write src/**/*.jsx src/**/*.js",
+    "lint": "yarn run eslint src/**/*.jsx src/**/*.js src/**/*.ts --fix",
+    "pretty": "yarn run prettier --write src/**/*.jsx src/**/*.js src/**/*.ts",
     "pretty-lint": "yarn run pretty && yarn run lint",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build"

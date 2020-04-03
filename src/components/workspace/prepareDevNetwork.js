@@ -65,7 +65,7 @@ const testDataList = { TD1 };
  * Create a network with some pre built test networks - use for DEV
  *
  * @param {DataSet} nodes network node dataset
- * @param {DataSet} edges network edge daataset
+ * @param {DataSet} edges network edge dataset
  * @param {String} variant the test network which you want to create
  */
 const createTestData = (nodes, edges, variant) => {
