@@ -19,13 +19,11 @@ import computeDFA from "../../engine/dfa";
 
 const useStyles = makeStyles(theme => ({
   paper: {
-    display: "flex",
-    alignItems: "stretch",
     padding: theme.spacing.unit,
     height: "85vh"
   },
   divUtil: {
-    flex: 1
+    height: "100%"
   },
   icon: {
     margin: theme.spacing.unit,

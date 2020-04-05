@@ -17,15 +17,11 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing.unit * 2
   },
   paper: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
     padding: theme.spacing.unit,
     height: "85vh"
   },
   canvas: {
-    flex: "1",
-    overFlow: "hidden"
+    height: "calc(100% - 40px - 8px - 4px)"
   }
 }));
 
