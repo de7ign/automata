@@ -5,9 +5,10 @@ import { Network } from "vis-network/peer/esm/vis-network";
 import { DataSet } from "vis-data/peer/esm/vis-data";
 import { v4 as randomUUID } from "uuid";
 import PropTypes from "prop-types";
-import { Paper, TextField } from "@material-ui/core";
+import { Paper, TextField, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
+import { Warning } from "@material-ui/icons";
 import DialogBox from "./DialogBox";
 import createTestData from "./prepareDevNetwork";
 import ToolBar from "./ToolBar";
@@ -22,6 +23,11 @@ const useStyles = makeStyles(theme => ({
   },
   canvas: {
     height: "calc(100% - 40px - 8px - 4px)"
+  },
+  icon: {
+    margin: theme.spacing.unit,
+    verticalAlign: "middle",
+    fontSize: "large"
   }
 }));
 
@@ -522,6 +528,11 @@ const Workspace = props => {
 
   return (
     <div className={classes.root}>
+      <Typography variant="overline" color="secondary">
+        <Warning className={classes.icon} />
+        This application is in WIP. Currently we don&apos;t support Mobile and
+        Touch devices.
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={9}>
           <Paper elevation={6} className={classes.paper}>
