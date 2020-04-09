@@ -275,6 +275,20 @@ const Workspace = props => {
     };
   };
 
+  /**
+   * Handles when network is dragged,
+   * triggered once in the start of dragging event
+   *
+   * @param params
+   */
+  const onNetworkDragStart = params => {
+    // edge dragging is not supported
+    const { nodes } = params;
+    if (nodes.length) {
+      onNetworkNodeSelect(params);
+    }
+  };
+
   const OPTIONS = {
     nodes: {
       shape: "circle",
@@ -352,6 +366,10 @@ const Workspace = props => {
 
     automataNetwork.on("deselectEdge", () => {
       onNetworkEdgeDeselect();
+    });
+
+    automataNetwork.on("dragStart", params => {
+      onNetworkDragStart(params);
     });
 
     automataNetwork.on("beforeDrawing", ctx => {
