@@ -176,11 +176,15 @@ const ToolBar = props => {
     const data = getNetworkDataSet();
     if (testInput !== "") {
       try {
-        const result = computeDFA(testInput, data);
-        if (result) {
-          notification("success", "Accepted!");
+        const { valid, accepted } = computeDFA(testInput, data);
+        if (valid) {
+          if (accepted) {
+            notification("success", "Accepted!");
+          } else {
+            notification("error", "Rejected!");
+          }
         } else {
-          notification("error", "Rejected!");
+          notification("error", "Oops! This doesn't look like a DFA");
         }
       } catch (e) {
         if (process.env.NODE_ENV === "development") {
