@@ -255,6 +255,7 @@ const Workspace = props => {
    * Handles when a node is deselected
    */
   const onNetworkNodeDeselect = () => {
+    disableEditLabelTextBox();
     nodeObject.current = {
       id: "",
       label: "",
@@ -267,6 +268,7 @@ const Workspace = props => {
    * Handles when an edge is deselected
    */
   const onNetworkEdgeDeselect = () => {
+    disableEditLabelTextBox();
     edgeObject.current = {
       id: "",
       from: "",
