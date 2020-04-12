@@ -207,14 +207,30 @@ const Workspace = props => {
         notification("error", "cannot delete start node");
         return;
       }
+      const connectedEdges = automataNetwork.getConnectedEdges(
+        nodesSelected[0]
+      );
+      EDGES.remove(connectedEdges);
       automataNetwork.deleteSelected();
       disableEditLabelTextBox();
+      nodeObject.current = {
+        id: "",
+        label: "",
+        x: "",
+        y: ""
+      };
       return;
     }
 
     if (edgesSelected.length) {
       automataNetwork.deleteSelected();
       disableEditLabelTextBox();
+      edgeObject.current = {
+        id: "",
+        from: "",
+        to: "",
+        label: ""
+      };
     }
   };
 
