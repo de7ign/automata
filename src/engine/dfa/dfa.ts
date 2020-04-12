@@ -1,4 +1,5 @@
 import { DataSet } from "vis-data/peer/esm/vis-data";
+import { v4 as randomUUID } from "uuid";
 
 /*
 NODE Data Model
@@ -43,6 +44,47 @@ function isAutomataData(data: any): boolean {
     }
   }
   return false;
+}
+
+/**
+ * Do pre processing of network as required
+ * 1. add extra edges if any multi length label is found.
+ *
+ * @param nodes
+ * @param edges
+ */
+function preProcess(nodes: Array<any>, edges: Array<any>) {
+  const edgesLength = edges.length;
+
+  for (let edgeIndex = 0; edgeIndex < edgesLength; edgeIndex += 1) {
+    const edge = edges[edgeIndex];
+    if (edge.label.length > 1) {
+      const { label } = edge;
+      const labelLength = label.length;
+      const edgeTo = edge.to;
+      edge.to = randomUUID();
+      edge.label = label.charAt(0);
+      let previousTo = edge.to;
+      for (let labelIndex = 1; labelIndex < labelLength; labelIndex += 1) {
+        // add new edges
+        const newEdge = {
+          id: randomUUID(),
+          from: "",
+          to: "",
+          label: ""
+        };
+        newEdge.from = previousTo;
+        if (labelIndex + 1 === labelLength) {
+          newEdge.to = edgeTo;
+        } else {
+          newEdge.to = randomUUID();
+          previousTo = newEdge.to;
+        }
+        newEdge.label = label.charAt(labelIndex);
+        edges.push(newEdge);
+      }
+    }
+  }
 }
 
 /**
@@ -124,8 +166,11 @@ function computeDFA(inputString: string, data: automataData): dfaResponse {
      */
 
     const nodes = data.nodes.get();
-    const nodesLength = nodes.length;
     const edges = data.edges.get();
+
+    preProcess(nodes, edges);
+
+    const nodesLength = nodes.length;
     const edgesLength = edges.length;
 
     const isValid = isValidDFA(nodes, edges);

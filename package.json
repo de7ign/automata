@@ -41,6 +41,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@types/uuid": "^7.0.2",
     "babel-eslint": "^10.1.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
