@@ -176,10 +176,10 @@ const ToolBar = props => {
     const data = getNetworkDataSet();
     if (testInput !== "") {
       try {
-        const { valid, accepted } = computeDFA(testInput, data);
+        const { valid, accepted, acceptedNodeLabel } = computeDFA(testInput, data);
         if (valid) {
           if (accepted) {
-            notification("success", "Accepted!");
+            notification("success", `Accepted! on state ${acceptedNodeLabel}`);
           } else {
             notification("error", "Rejected!");
           }

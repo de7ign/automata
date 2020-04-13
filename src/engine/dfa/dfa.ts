@@ -28,7 +28,8 @@ export interface automataData {
 
 export interface dfaResponse {
   valid: boolean;
-  accepted: boolean;
+  accepted?: boolean;
+  acceptedNodeLabel?: string;
 }
 
 /**
@@ -126,22 +127,44 @@ function isValidDFA(nodes: Array<any>, edges: Array<any>): boolean {
   return isUniqueEdges(edges);
 }
 
+function generateResponse(valid: boolean): dfaResponse;
+function generateResponse(valid: boolean, accepted: boolean): dfaResponse;
+function generateResponse(
+  valid: boolean,
+  accepted: boolean,
+  acceptedNodeLabel: string
+): dfaResponse;
+
 /**
  * Generate response object
  *
  * @param valid
  * @param accepted
+ * @param acceptedNodeLabel
  */
-function generateResponse(valid: boolean, accepted: boolean): dfaResponse {
-  const response = {
-    valid: false,
-    accepted: false
+function generateResponse(
+  valid: boolean,
+  accepted?: boolean,
+  acceptedNodeLabel?: string
+): dfaResponse {
+  if (accepted === undefined && acceptedNodeLabel === undefined) {
+    return {
+      valid
+    };
+  }
+
+  if (acceptedNodeLabel === undefined) {
+    return {
+      valid,
+      accepted
+    };
+  }
+
+  return {
+    valid,
+    accepted,
+    acceptedNodeLabel: acceptedNodeLabel
   };
-
-  response.valid = valid;
-  response.accepted = accepted;
-
-  return response;
 }
 
 /**
@@ -174,7 +197,7 @@ function computeDFA(inputString: string, data: automataData): dfaResponse {
     const edgesLength = edges.length;
 
     const isValid = isValidDFA(nodes, edges);
-    if (!isValid) return generateResponse(isValid, false);
+    if (!isValid) return generateResponse(isValid);
 
     const inputStringLength = inputString.length;
     let currentNode = "1";
@@ -205,7 +228,7 @@ function computeDFA(inputString: string, data: automataData): dfaResponse {
     for (let index = 0; index < nodesLength; index += 1) {
       const node = nodes[index];
       if (node.id === currentNode && node.final) {
-        return generateResponse(isValid, true);
+        return generateResponse(isValid, true, node.label);
       }
     }
     return generateResponse(isValid, false);
