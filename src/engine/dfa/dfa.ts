@@ -163,7 +163,7 @@ function generateResponse(
   return {
     valid,
     accepted,
-    acceptedNodeLabel: acceptedNodeLabel
+    acceptedNodeLabel
   };
 }
 
