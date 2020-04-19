@@ -16,32 +16,23 @@ const Notice = props => {
       <Card className={classes.root} id="notice" elevation={6}>
         <CardContent>
           <Typography variant="title" gutterBottom>
-            How to get hands dirty
+            How to get started.
           </Typography>
-          <Typography variant="body2">Operation on States</Typography>
-          <Typography variant="body1" gutterBottom>
-            + Double click to create a state.
+          <hr />
+          <Typography variant="body2" gutterBottom>
+            &bull; Double click to create a state.
             <br />
-            + Double click on a non-final state to make it a final state.
+            &bull; Double click on a state to make it a final state and
+            vice-versa.
             <br />
-            + Double click on a final state to make it a non-final state.
+            &bull; Press and hold down shift button, then click-drag from one
+            state to other state you wish to join.
             <br />
-            + Select a node, and edit the node label in text field above
+            &bull; Select a node/edge, and edit the node label in text field
+            above
             <br />
-          </Typography>
-          <Typography variant="body2">Operation on Transition edges</Typography>
-          <Typography variant="body1" gutterBottom>
-            + Press and hold down shift button, then click-drag from one node to
-            other node you wish to join.
-            <br />
-            + Select a edge, and edit the node label in text field above
-            <br />
-          </Typography>
-          <Typography variant="body2">Delete ?</Typography>
-          <Typography variant="body1">
-            Just select the object you want to delete and press
+            &bull; Just select the node/edge you want to delete and press
             &apos;delete&apos; key!
-            <br />
           </Typography>
         </CardContent>
       </Card>
@@ -51,10 +42,10 @@ const Notice = props => {
           <Typography variant="title" gutterBottom>
             Alpha Release
           </Typography>
-          <Typography variant="body1">
-            Application is in active development phase
-            <br />
-            This web application is currently in the stages of its development.
+          <hr />
+          <Typography variant="body2">
+            This Application is currently in the stages of its active
+            development.
             <br />
             It has some quirks and many parts are not yet available.
             <br />
