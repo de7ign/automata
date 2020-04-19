@@ -58,8 +58,44 @@ const TD1 = {
   ])
 };
 
+const TD2 = {
+  NODES: new DataSet([
+    {
+      id: "1",
+      label: "start",
+      final: false,
+      x: -184,
+      y: -41
+    },
+    {
+      id: "2",
+      label: "Node 1",
+      final: true,
+      x: 11,
+      y: -40
+    }
+  ]),
+  EDGES: new DataSet([
+    {
+      id: "1",
+      from: "1",
+      to: "2",
+      label: "1",
+      smooth: { type: "curvedCW", roundness: 0.2 }
+    },
+    { id: "2", from: "1", to: "1", label: "0" },
+    {
+      id: "3",
+      from: "2",
+      to: "1",
+      label: "1, 2",
+      smooth: { type: "curvedCW", roundness: 0.2 }
+    }
+  ])
+};
+
 // add the new test data in the testDataList
-const testDataList = { TD1 };
+const testDataList = { TD1, TD2 };
 
 /**
  * Create a network with some pre built test networks - use for DEV

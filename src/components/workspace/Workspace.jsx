@@ -380,6 +380,8 @@ const Workspace = props => {
     // for Dev environment
     if (process.env.NODE_ENV === "development") {
       createTestData(NODES, EDGES, "TD1");
+    } else {
+      createTestData(NODES, EDGES, "TD2");
     }
 
     // create network
