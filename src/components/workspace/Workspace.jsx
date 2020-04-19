@@ -359,6 +359,8 @@ const Workspace = props => {
     manipulation: {
       enabled: false,
       addEdge: (edgeData, callback) => {
+        // eslint-disable-next-line no-param-reassign
+        edgeData.smooth = { type: "curvedCW", roundness: 0.2 };
         edgeObject.current = edgeData;
         const edge = getEdge(edgeData);
         if (edge == null) {
