@@ -56,34 +56,44 @@ function isAutomataData(data: any): boolean {
  */
 function preProcess(nodes: Array<any>, edges: Array<any>) {
   const edgesLength = edges.length;
-
-  for (let edgeIndex = 0; edgeIndex < edgesLength; edgeIndex += 1) {
+  for (let edgeIndex = 0; edgeIndex < edgesLength; ) {
     const edge = edges[edgeIndex];
-    if (edge.label.length > 1) {
-      const { label } = edge;
-      const labelLength = label.length;
-      const edgeTo = edge.to;
-      edge.to = randomUUID();
-      edge.label = label.charAt(0);
-      let previousTo = edge.to;
-      for (let labelIndex = 1; labelIndex < labelLength; labelIndex += 1) {
-        // add new edges
-        const newEdge = {
-          id: randomUUID(),
-          from: "",
-          to: "",
-          label: ""
-        };
-        newEdge.from = previousTo;
-        if (labelIndex + 1 === labelLength) {
-          newEdge.to = edgeTo;
-        } else {
-          newEdge.to = randomUUID();
-          previousTo = newEdge.to;
+    const edgeLabelArray = edge.label.split(",");
+    const edgeTo = edge.to;
+    if (edgeLabelArray.length > 1 || edgeLabelArray[0].length > 1) {
+      for (
+        let edgeLabelArrayIndex = 0;
+        edgeLabelArrayIndex < edgeLabelArray.length;
+        edgeLabelArrayIndex += 1
+      ) {
+        const edgeLabel = edgeLabelArray[edgeLabelArrayIndex].trim();
+        let previousTo = edge.from;
+        for (
+          let edgeLabelIndex = 0;
+          edgeLabelIndex < edgeLabel.length;
+          edgeLabelIndex += 1
+        ) {
+          // add new edges
+          const newEdge = {
+            id: randomUUID(),
+            from: "",
+            to: "",
+            label: ""
+          };
+          newEdge.from = previousTo;
+          if (edgeLabelIndex + 1 === edgeLabel.length) {
+            newEdge.to = edgeTo;
+          } else {
+            newEdge.to = randomUUID();
+            previousTo = newEdge.to;
+          }
+          newEdge.label = edgeLabel.charAt(edgeLabelIndex);
+          edges.push(newEdge);
         }
-        newEdge.label = label.charAt(labelIndex);
-        edges.push(newEdge);
       }
+      edges.splice(edgeIndex, 1);
+    } else {
+      edgeIndex += 1;
     }
   }
 }
