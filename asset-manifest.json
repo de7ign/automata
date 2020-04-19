@@ -1,9 +1,18 @@
 {
-  "main.css": "/automata/static/css/main.a1ff8d39.chunk.css",
-  "main.js": "/automata/static/js/main.6d299aca.chunk.js",
-  "runtime~main.js": "/automata/static/js/runtime~main.a7eb554e.js",
-  "static/js/2.0aa5a7cd.chunk.js": "/automata/static/js/2.0aa5a7cd.chunk.js",
-  "index.html": "/automata/index.html",
-  "precache-manifest.20769365fc384c6bd547bc45580d27b3.js": "/automata/precache-manifest.20769365fc384c6bd547bc45580d27b3.js",
-  "service-worker.js": "/automata/service-worker.js"
+  "files": {
+    "main.css": "/automata/static/css/main.a1ff8d39.chunk.css",
+    "main.js": "/automata/static/js/main.f3912ecb.chunk.js",
+    "runtime-main.js": "/automata/static/js/runtime-main.413cfa70.js",
+    "static/js/2.ddba0cc2.chunk.js": "/automata/static/js/2.ddba0cc2.chunk.js",
+    "index.html": "/automata/index.html",
+    "precache-manifest.f65253de26f9671f264ab57d9ccdcecc.js": "/automata/precache-manifest.f65253de26f9671f264ab57d9ccdcecc.js",
+    "service-worker.js": "/automata/service-worker.js",
+    "static/js/2.ddba0cc2.chunk.js.LICENSE.txt": "/automata/static/js/2.ddba0cc2.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.413cfa70.js",
+    "static/js/2.ddba0cc2.chunk.js",
+    "static/css/main.a1ff8d39.chunk.css",
+    "static/js/main.f3912ecb.chunk.js"
+  ]
 }

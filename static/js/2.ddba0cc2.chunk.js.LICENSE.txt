@@ -1,0 +1,185 @@
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
+/*! Hammer.JS - v2.0.17-rc - 2019-12-16
+ * http://naver.github.io/egjs
+ *
+ * Forked By Naver egjs
+ * Copyright (c) hammerjs
+ * Licensed under the MIT license */
+
+/**
+   * vis-util
+   * https://github.com/visjs/vis-util
+   *
+   * utilitie collection for visjs
+   *
+   * @version 4.0.0
+   * @date    2020-02-29T15:35:13.178Z
+   *
+   * @copyright (c) 2011-2017 Almende B.V, http://almende.com
+   * @copyright (c) 2017-2019 visjs contributors, https://github.com/visjs
+   *
+   * @license
+   * vis.js is dual licensed under both
+   *
+   *   1. The Apache 2.0 License
+   *      http://www.apache.org/licenses/LICENSE-2.0
+   *
+   *   and
+   *
+   *   2. The MIT License
+   *      http://opensource.org/licenses/MIT
+   *
+   * vis.js may be distributed under either license.
+   */
+
+/**
+ * A better abstraction over CSS.
+ *
+ * @copyright Oleg Isonen (Slobodskoi) / Isonen 2014-present
+ * @website https://github.com/cssinjs/jss
+ * @license MIT
+ */
+
+/**
+ * vis-data
+ * http://visjs.org/
+ *
+ * Manage unstructured data using DataSet. Add, update, and remove data, and listen for changes in the data.
+ *
+ * @version 6.5.1
+ * @date    2020-03-27T15:50:07.060Z
+ *
+ * @copyright (c) 2011-2017 Almende B.V, http://almende.com
+ * @copyright (c) 2017-2019 visjs contributors, https://github.com/visjs
+ *
+ * @license
+ * vis.js is dual licensed under both
+ *
+ *   1. The Apache 2.0 License
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   and
+ *
+ *   2. The MIT License
+ *      http://opensource.org/licenses/MIT
+ *
+ * vis.js may be distributed under either license.
+ */
+
+/**
+ * vis-network
+ * https://visjs.github.io/vis-network/
+ *
+ * A dynamic, browser-based visualization library.
+ *
+ * @version 7.5.1
+ * @date    2020-03-31T15:01:18.298Z
+ *
+ * @copyright (c) 2011-2017 Almende B.V, http://almende.com
+ * @copyright (c) 2017-2019 visjs contributors, https://github.com/visjs
+ *
+ * @license
+ * vis.js is dual licensed under both
+ *
+ *   1. The Apache 2.0 License
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   and
+ *
+ *   2. The MIT License
+ *      http://opensource.org/licenses/MIT
+ *
+ * vis.js may be distributed under either license.
+ */
+
+/**
+ * vis-util
+ * https://github.com/visjs/vis-util
+ *
+ * utilitie collection for visjs
+ *
+ * @version 4.0.0
+ * @date    2020-02-29T15:35:13.178Z
+ *
+ * @copyright (c) 2011-2017 Almende B.V, http://almende.com
+ * @copyright (c) 2017-2019 visjs contributors, https://github.com/visjs
+ *
+ * @license
+ * vis.js is dual licensed under both
+ *
+ *   1. The Apache 2.0 License
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   and
+ *
+ *   2. The MIT License
+ *      http://opensource.org/licenses/MIT
+ *
+ * vis.js may be distributed under either license.
+ */
+
+/** @license React v0.19.1
+ * scheduler.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/** @license React v16.13.1
+ * react-dom.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/** @license React v16.13.1
+ * react-is.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/** @license React v16.13.1
+ * react.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**!
+ * @fileOverview Kickass library to create and place poppers near their reference elements.
+ * @version 1.16.1
+ * @license
+ * Copyright (c) 2016 Federico Zivolo and contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
