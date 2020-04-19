@@ -18,7 +18,7 @@ const styles = {
 class TemporaryDrawer extends Component {
   state = {
     open: false,
-    selectedModeKey: 0,
+    selectedModeKey: 1,
     selectedLinkKey: null
   };
 
@@ -27,6 +27,7 @@ class TemporaryDrawer extends Component {
   };
 
   handleModeListItemClick = (event, key) => {
+    if (key !== 1) return;
     this.setState({ selectedModeKey: key, selectedLinkKey: null });
   };
 
@@ -37,7 +38,6 @@ class TemporaryDrawer extends Component {
   render() {
     const { classes } = this.props;
     const { open, selectedModeKey, selectedLinkKey } = this.state;
-
     const sideList = (
       <div className={classes.list}>
         <List>
@@ -55,7 +55,11 @@ class TemporaryDrawer extends Component {
                 selected={selectedModeKey === key}
                 onClick={event => this.handleModeListItemClick(event, key)}
               >
-                <ListItemText primary={value} secondary="*coming soon*" />
+                {key === 1 ? (
+                  <ListItemText primary={value} />
+                ) : (
+                  <ListItemText primary={value} secondary="*coming soon*" />
+                )}
               </ListItem>
             );
           })}
