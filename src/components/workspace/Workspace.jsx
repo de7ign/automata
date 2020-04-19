@@ -81,6 +81,7 @@ const Workspace = props => {
   const [disableEditLabel, setDisableEditLabel] = useState(true);
   const editLabelTextBoxRef = useRef();
 
+  // eslint-disable-next-line no-unused-vars
   const isEdgePresent = edge => {
     const edgesList = EDGES.get();
     const { length } = edgesList;
@@ -89,6 +90,22 @@ const Workspace = props => {
         return true;
     }
     return false;
+  };
+
+  /**
+   * It checks if there's already a edge with same "from" and "to"
+   *
+   * @param edge
+   * @return {Object|null} - if edge is found returns the the edge object, null otherwise
+   */
+  const getEdge = edge => {
+    const edgesList = EDGES.get();
+    const { length } = edgesList;
+    for (let i = 0; i < length; i += 1) {
+      if (edgesList[i].from === edge.from && edgesList[i].to === edge.to)
+        return edgesList[i];
+    }
+    return null;
   };
 
   /**
@@ -255,7 +272,18 @@ const Workspace = props => {
     }
 
     if (edgeObject.current.id !== "") {
-      EDGES.update({ id: edgeObject.current.id, label: newLabel });
+      const labels = newLabel.split(",").map(item => item.trim());
+      for (let labelsIndex = 0; labelsIndex < labels.length; ) {
+        if (labels[labelsIndex] === "") {
+          labels.splice(labelsIndex, 1);
+        } else {
+          labelsIndex += 1;
+        }
+      }
+
+      const edgeLabel = labels.join(", ");
+
+      EDGES.update({ id: edgeObject.current.id, label: edgeLabel });
       edgeObject.current = {
         id: "",
         from: "",
@@ -332,15 +360,13 @@ const Workspace = props => {
       enabled: false,
       addEdge: (edgeData, callback) => {
         edgeObject.current = edgeData;
-        if (!isEdgePresent(edgeData)) {
-          // TODO: by default edge will be straight, I don't know how I should create a edge
-          // if(edgeData.to !== edgeData.from)
-          //   edgeData.smooth = { type: "curvedCW", roundness: 0.2 }
+        const edge = getEdge(edgeData);
+        if (edge == null) {
           callback(edgeData);
-          setViewEdgeDialog(true);
         } else {
-          notification("error", "There's already a edge");
+          edgeObject.current = edge;
         }
+        setViewEdgeDialog(true);
       }
     },
     interaction: {
@@ -499,7 +525,9 @@ const Workspace = props => {
    */
   const closeEdgeDialogBox = () => {
     const edge = edgeObject.current;
-    EDGES.remove(edge.id);
+    if (edge.label === undefined) {
+      EDGES.remove(edge.id);
+    }
     setViewEdgeDialog(false);
   };
 
@@ -511,8 +539,18 @@ const Workspace = props => {
   const submitEdgeDialogBox = value => {
     setViewEdgeDialog(false);
     if (value === "") return;
+    if (value.includes(",")) {
+      notification("warning", "Edge label cannot contain comma");
+      return;
+    }
     const edge = edgeObject.current;
-    EDGES.update({ id: edge.id, label: value });
+    const existingEdge = EDGES.get(edge.id);
+    let edgeLabel = value;
+    console.log(existingEdge.label);
+    if (existingEdge.label !== undefined) {
+      edgeLabel = `${existingEdge.label}, ${value}`;
+    }
+    EDGES.update({ id: edge.id, label: edgeLabel });
   };
 
   /**
