@@ -14,6 +14,31 @@
     },
     "extends": ["airbnb", "prettier"],
     "rules": {
-        "indent": [2, 2, {"SwitchCase": 1}]
-    }
+        "indent": [2, 2, {"SwitchCase": 1}],
+        "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+                "js": "never",
+                "jsx": "never",
+                "ts": "never",
+                "tsx": "never"
+            }
+        ]
+    },
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "paths": ["src/**/*"],
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
+    },
+    "overrides": [{
+        "files": ["*.ts"],
+        "parser": "@typescript-eslint/parser",
+        "plugins":  [
+            "@typescript-eslint"
+        ]
+    }]
 }
