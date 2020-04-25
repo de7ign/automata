@@ -153,22 +153,6 @@ const ToolBar = props => {
   };
 
   /**
-   * Displays the snackbar notification
-   *
-   * @param {String} variant - error, warning, info, success
-   * @param {String} message - The notification message
-   */
-  const notification = (variant, message) => {
-    try {
-      snackbar(variant, message);
-    } catch (e) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(e);
-      }
-    }
-  };
-
-  /**
    * Handles when test button is clicked
    */
   const handleTestOnClick = () => {
@@ -176,27 +160,21 @@ const ToolBar = props => {
     const data = getNetworkDataSet();
     if (testInput !== "") {
       if (testInput.includes(",")) {
-        notification("warning", "Test Input cannot contain comma");
+        snackbar("warning", "Test Input cannot contain comma");
         return;
       }
-      try {
-        const { valid, accepted, acceptedNodeLabel } = computeDFA(
-          testInput,
-          data
-        );
-        if (valid) {
-          if (accepted) {
-            notification("success", `Accepted! on state ${acceptedNodeLabel}`);
-          } else {
-            notification("error", "Rejected!");
-          }
+      const { valid, accepted, acceptedNodeLabel } = computeDFA(
+        testInput,
+        data
+      );
+      if (valid) {
+        if (accepted) {
+          snackbar("success", `Accepted! on state ${acceptedNodeLabel}`);
         } else {
-          notification("error", "Oops! This doesn't look like a DFA");
+          snackbar("error", "Rejected!");
         }
-      } catch (e) {
-        if (process.env.NODE_ENV === "development") {
-          console.log(`${e.name} : ${e.message}`);
-        }
+      } else {
+        snackbar("error", "Oops! This doesn't look like a DFA");
       }
     }
   };
