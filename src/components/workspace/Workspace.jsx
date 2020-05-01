@@ -109,22 +109,6 @@ const Workspace = props => {
   };
 
   /**
-   * Displays the snackbar notification
-   *
-   * @param {String} variant - error, warning, info, success
-   * @param {String} message - The notification message
-   */
-  const notification = (variant, message) => {
-    try {
-      snackbar(variant, message);
-    } catch (e) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(e);
-      }
-    }
-  };
-
-  /**
    * add a new node to network
    *
    * @param {String} nodeLabel - label of node
@@ -221,7 +205,7 @@ const Workspace = props => {
 
     if (nodesSelected.length) {
       if (nodesSelected[0] === "1") {
-        notification("error", "cannot delete start node");
+        snackbar("error", "cannot delete start node");
         return;
       }
       const connectedEdges = automataNetwork.getConnectedEdges(
@@ -257,7 +241,7 @@ const Workspace = props => {
   const handleEditLabelTextBoxOnBlur = () => {
     const newLabel = editLabelTextBoxRef.current.value;
     if (newLabel.trim() === "") {
-      notification("warning", "label can't be empty");
+      snackbar("warning", "label can't be empty");
       return;
     }
 
@@ -544,13 +528,12 @@ const Workspace = props => {
     setViewEdgeDialog(false);
     if (value === "") return;
     if (value.includes(",")) {
-      notification("warning", "Edge label cannot contain comma");
+      snackbar("warning", "Edge label cannot contain comma");
       return;
     }
     const edge = edgeObject.current;
     const existingEdge = EDGES.get(edge.id);
     let edgeLabel = value;
-    console.log(existingEdge.label);
     if (existingEdge.label !== undefined) {
       edgeLabel = `${existingEdge.label}, ${value}`;
     }
