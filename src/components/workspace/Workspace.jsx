@@ -256,16 +256,17 @@ const Workspace = props => {
     }
 
     if (edgeObject.current.id !== "") {
-      const labels = newLabel.split(",").map(item => item.trim());
-      for (let labelsIndex = 0; labelsIndex < labels.length; ) {
-        if (labels[labelsIndex] === "") {
-          labels.splice(labelsIndex, 1);
+      let labelArr = newLabel.split(",").map(item => item.trim());
+      for (let labelArrIndex = 0; labelArrIndex < labelArr.length; ) {
+        if (labelArr[labelArrIndex] === "") {
+          labelArr.splice(labelArrIndex, 1);
         } else {
-          labelsIndex += 1;
+          labelArrIndex += 1;
         }
       }
 
-      const edgeLabel = labels.join(", ");
+      labelArr = [...new Set(labelArr)];
+      const edgeLabel = labelArr.join(", ");
 
       EDGES.update({ id: edgeObject.current.id, label: edgeLabel });
       edgeObject.current = {
@@ -536,6 +537,9 @@ const Workspace = props => {
     let edgeLabel = value;
     if (existingEdge.label !== undefined) {
       edgeLabel = `${existingEdge.label}, ${value}`;
+      let edgeLabelArr = edgeLabel.split(",").map(item => item.trim());
+      edgeLabelArr = [...new Set(edgeLabelArr)];
+      edgeLabel = edgeLabelArr.join(", ");
     }
     EDGES.update({ id: edge.id, label: edgeLabel });
   };
