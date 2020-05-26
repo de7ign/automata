@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import keycharm from "keycharm";
 import { Network } from "vis-network/peer/esm/vis-network";
 import { DataSet } from "vis-data/peer/esm/vis-data";
@@ -194,10 +194,10 @@ const Workspace = props => {
   /**
    * Disable the node/edge label edit box
    */
-  const disableEditLabelTextBox = () => {
+  const disableEditLabelTextBox = useCallback(() => {
     setEditLabelTextBoxRef("");
     setDisableEditLabel(true);
-  };
+  }, []);
 
   /**
    * Handles onBlur event of edit label text box
@@ -622,8 +622,10 @@ const Workspace = props => {
   useEffect(() => {
     if (!viewEdgeDialog) {
       setEdgeObject({});
+      setNodeObject({});
+      disableEditLabelTextBox();
     }
-  }, [viewEdgeDialog]);
+  }, [viewEdgeDialog, disableEditLabelTextBox]);
   /**
    * Removes all the nodes and edges except the start node
    */
