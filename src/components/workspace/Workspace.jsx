@@ -1,5 +1,6 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
-import React, { useRef, useState, useLayoutEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import keycharm from "keycharm";
 import { Network } from "vis-network/peer/esm/vis-network";
 import { DataSet } from "vis-data/peer/esm/vis-data";
@@ -53,7 +54,11 @@ const LABEL_INPUT_EMPTY_WARNING = "Label can't be empty";
 const Workspace = props => {
   const { snackbar } = props;
 
-  const networkRef = useRef(null);
+  const _networkRef = useRef(null);
+  const getNetworkRef = () => {
+    return _networkRef.current;
+  };
+
   const [viewNodeDialog, setViewNodeDialog] = useState(false);
   const [viewEdgeDialog, setViewEdgeDialog] = useState(false);
   const nodeDialogTexts = {
@@ -66,20 +71,74 @@ const Workspace = props => {
     dialogContentText: EDGE_CONTENT_TEXT,
     warningText: LABEL_INPUT_EMPTY_WARNING
   };
-  let automataNetwork = null;
-  let automataNetworkKeyCharm = null;
 
-  const nodeObject = useRef({
+  const _automataNetwork = useRef(null);
+  const getAutomataNetwork = () => {
+    return _automataNetwork.current;
+  };
+  const setAutomataNetwork = automataNetwork => {
+    _automataNetwork.current = automataNetwork;
+  };
+
+  const _automataNetworkKeyCharm = useRef(null);
+  const getAutomataNetworkKeyCharm = () => {
+    return _automataNetworkKeyCharm.current;
+  };
+  const setAutomataNetworkKeyCharm = automataNetworkKeyCharm => {
+    _automataNetworkKeyCharm.current = automataNetworkKeyCharm;
+  };
+
+  const _nodeObject = useRef({
     id: "",
     label: "",
     x: "",
     y: ""
   });
+  const getNodeObject = () => {
+    return _nodeObject.current;
+  };
+  const setNodeObject = nodeObject => {
+    if (
+      /* checking for {} */ Object.keys(nodeObject).length === 0 ||
+      nodeObject === null ||
+      nodeObject === undefined
+    ) {
+      _nodeObject.current = {
+        id: "",
+        label: "",
+        x: "",
+        y: ""
+      };
+    } else {
+      _nodeObject.current = nodeObject;
+    }
+  };
 
-  const edgeObject = useRef({ id: "", from: "", to: "", label: "" });
+  const _edgeObject = useRef({ id: "", from: "", to: "", label: "" });
+  const getEdgeObject = () => {
+    return _edgeObject.current;
+  };
+  const setEdgeObject = edgeObject => {
+    if (
+      /* checking for {} */ Object.keys(edgeObject).length === 0 ||
+      edgeObject === null ||
+      edgeObject === undefined
+    ) {
+      _edgeObject.current = { id: "", from: "", to: "", label: "" };
+    } else {
+      _edgeObject.current = edgeObject;
+    }
+  };
 
   const [disableEditLabel, setDisableEditLabel] = useState(true);
-  const editLabelTextBoxRef = useRef();
+
+  const _editLabelTextBoxRef = useRef();
+  const getEditLabelTextBoxRef = () => {
+    return _editLabelTextBoxRef.current.value;
+  };
+  const setEditLabelTextBoxRef = editLabelTextBoxRef => {
+    _editLabelTextBoxRef.current.value = editLabelTextBoxRef;
+  };
 
   // eslint-disable-next-line no-unused-vars
   const isEdgePresent = edge => {
@@ -116,17 +175,106 @@ const Workspace = props => {
    * @param {Number} yCoOrdinate - y coordinate of number w/ respect to canvas
    */
   const addNode = (nodeLabel, xCoOrdinate, yCoOrdinate) => {
-    nodeObject.current.id = randomUUID();
-    nodeObject.current.label = nodeLabel || "nodeObject";
-    nodeObject.current.x = xCoOrdinate;
-    nodeObject.current.y = yCoOrdinate;
+    const nodeObject = {
+      id: randomUUID(),
+      label: nodeLabel || "nodeObject",
+      x: xCoOrdinate,
+      y: yCoOrdinate
+    };
 
+    setNodeObject(nodeObject);
     NODES.add({
-      id: nodeObject.current.id,
+      id: nodeObject.id,
       label: nodeLabel,
       x: xCoOrdinate,
       y: yCoOrdinate
     });
+  };
+
+  /**
+   * Disable the node/edge label edit box
+   */
+  const disableEditLabelTextBox = () => {
+    setEditLabelTextBoxRef("");
+    setDisableEditLabel(true);
+  };
+
+  /**
+   * Handles onBlur event of edit label text box
+   */
+  const handleEditLabelTextBoxOnBlur = () => {
+    const nodeObject = getNodeObject();
+    const edgeObject = getEdgeObject();
+    const newLabel = getEditLabelTextBoxRef();
+    if (newLabel.trim() === "") {
+      snackbar("warning", "label can't be empty");
+      return;
+    }
+
+    if (nodeObject.id !== "") {
+      NODES.update({ id: nodeObject.id, label: newLabel });
+      setNodeObject({});
+    }
+
+    if (edgeObject.id !== "") {
+      let labelArr = newLabel.split(",").map(item => item.trim());
+      for (let labelArrIndex = 0; labelArrIndex < labelArr.length; ) {
+        if (labelArr[labelArrIndex] === "") {
+          labelArr.splice(labelArrIndex, 1);
+        } else {
+          labelArrIndex += 1;
+        }
+      }
+
+      labelArr = [...new Set(labelArr)];
+      const edgeLabel = labelArr.join(", ");
+
+      EDGES.update({ id: edgeObject.id, label: edgeLabel });
+      setEdgeObject({});
+    }
+
+    disableEditLabelTextBox();
+  };
+
+  const OPTIONS = {
+    nodes: {
+      shape: "circle",
+      heightConstraint: {
+        minimum: 50
+      },
+      widthConstraint: {
+        minimum: 50,
+        maximum: 50
+      }
+    },
+    edges: {
+      arrows: {
+        to: { enabled: true, scaleFactor: 1, type: "arrow" }
+      },
+      // by default all edges property should be this
+      smooth: { type: "curvedCW", roundness: 0.5 }
+    },
+    physics: {
+      enabled: false // should I enable it or add a functionality user can enable/disable physics ?
+    },
+    manipulation: {
+      enabled: false,
+      addEdge: (edgeData, callback) => {
+        // eslint-disable-next-line no-param-reassign
+        edgeData.smooth = { type: "curvedCW", roundness: 0.2 };
+        const edge = getEdge(edgeData);
+        if (edge == null) {
+          setEdgeObject(edgeData);
+          callback(edgeData);
+        } else {
+          setEdgeObject(edge);
+        }
+        setViewEdgeDialog(true);
+      }
+    },
+    interaction: {
+      selectConnectedEdges: false
+    }
   };
 
   /**
@@ -146,16 +294,14 @@ const Workspace = props => {
     if (nodeID) {
       const nodeSelected = NODES.get(nodeID);
       NODES.update({ id: nodeID, final: !nodeSelected.final });
-      return;
+    } else {
+      /*
+        FIXME: wasted re-render
+        if dialogTexts is not updated, then don't set Dialog Text once again
+      */
+      setViewNodeDialog(true);
+      addNode("", x, y);
     }
-
-    // create node
-    /*
-      FIXME: wasted re-render
-      if dialogTexts is not updated, then don't set Dialog Text once again
-    */
-    setViewNodeDialog(true);
-    addNode("", x, y);
   };
 
   /**
@@ -167,9 +313,10 @@ const Workspace = props => {
     const { nodes } = params;
 
     const nodeID = nodes[0];
-    nodeObject.current = NODES.get(nodeID);
+    const nodeObject = NODES.get(nodeID);
     setDisableEditLabel(false);
-    editLabelTextBoxRef.current.value = nodeObject.current.label;
+    setEditLabelTextBoxRef(nodeObject.label);
+    setNodeObject(nodeObject);
   };
 
   /**
@@ -181,103 +328,10 @@ const Workspace = props => {
     const { edges } = params;
 
     const edgeID = edges[0];
-    edgeObject.current = EDGES.get(edgeID);
+    const edgeObject = EDGES.get(edgeID);
     setDisableEditLabel(false);
-    editLabelTextBoxRef.current.value = edgeObject.current.label;
-  };
-
-  /**
-   * Disable the node/edge label edit box
-   */
-  const disableEditLabelTextBox = () => {
-    editLabelTextBoxRef.current.value = "";
-    setDisableEditLabel(true);
-  };
-
-  /**
-   * Deletes the selected node/edge
-   */
-  const networkDeleteSelected = () => {
-    const {
-      nodes: nodesSelected,
-      edges: edgesSelected
-    } = automataNetwork.getSelection();
-
-    if (nodesSelected.length) {
-      if (nodesSelected[0] === "1") {
-        snackbar("error", "cannot delete start node");
-        return;
-      }
-      const connectedEdges = automataNetwork.getConnectedEdges(
-        nodesSelected[0]
-      );
-      EDGES.remove(connectedEdges);
-      automataNetwork.deleteSelected();
-      disableEditLabelTextBox();
-      nodeObject.current = {
-        id: "",
-        label: "",
-        x: "",
-        y: ""
-      };
-      return;
-    }
-
-    if (edgesSelected.length) {
-      automataNetwork.deleteSelected();
-      disableEditLabelTextBox();
-      edgeObject.current = {
-        id: "",
-        from: "",
-        to: "",
-        label: ""
-      };
-    }
-  };
-
-  /**
-   * Handles onBlur event of edit label text box
-   */
-  const handleEditLabelTextBoxOnBlur = () => {
-    const newLabel = editLabelTextBoxRef.current.value;
-    if (newLabel.trim() === "") {
-      snackbar("warning", "label can't be empty");
-      return;
-    }
-
-    if (nodeObject.current.id !== "") {
-      NODES.update({ id: nodeObject.current.id, label: newLabel });
-      nodeObject.current = {
-        id: "",
-        label: "",
-        x: "",
-        y: ""
-      };
-    }
-
-    if (edgeObject.current.id !== "") {
-      let labelArr = newLabel.split(",").map(item => item.trim());
-      for (let labelArrIndex = 0; labelArrIndex < labelArr.length; ) {
-        if (labelArr[labelArrIndex] === "") {
-          labelArr.splice(labelArrIndex, 1);
-        } else {
-          labelArrIndex += 1;
-        }
-      }
-
-      labelArr = [...new Set(labelArr)];
-      const edgeLabel = labelArr.join(", ");
-
-      EDGES.update({ id: edgeObject.current.id, label: edgeLabel });
-      edgeObject.current = {
-        id: "",
-        from: "",
-        to: "",
-        label: ""
-      };
-    }
-
-    disableEditLabelTextBox();
+    setEditLabelTextBoxRef(edgeObject.label);
+    setEdgeObject(edgeObject);
   };
 
   /**
@@ -285,12 +339,7 @@ const Workspace = props => {
    */
   const onNetworkNodeDeselect = () => {
     disableEditLabelTextBox();
-    nodeObject.current = {
-      id: "",
-      label: "",
-      x: "",
-      y: ""
-    };
+    setNodeObject({});
   };
 
   /**
@@ -298,12 +347,7 @@ const Workspace = props => {
    */
   const onNetworkEdgeDeselect = () => {
     disableEditLabelTextBox();
-    edgeObject.current = {
-      id: "",
-      from: "",
-      to: "",
-      label: ""
-    };
+    setEdgeObject({});
   };
 
   /**
@@ -320,48 +364,39 @@ const Workspace = props => {
     }
   };
 
-  const OPTIONS = {
-    nodes: {
-      shape: "circle",
-      heightConstraint: {
-        minimum: 50
-      },
-      widthConstraint: {
-        minimum: 50,
-        maximum: 50
+  /**
+   * Deletes the selected node/edge
+   */
+  const networkDeleteSelected = () => {
+    const automataNetwork = getAutomataNetwork();
+    const {
+      nodes: nodesSelected,
+      edges: edgesSelected
+    } = automataNetwork.getSelection();
+
+    if (nodesSelected.length) {
+      if (nodesSelected[0] === "1") {
+        snackbar("error", "cannot delete start node");
+        return;
       }
-    },
-    edges: {
-      arrows: {
-        to: { enabled: true, scaleFactor: 1, type: "arrow" }
-      },
-      // by default all edges property should be this
-      smooth: { type: "curvedCW", roundness: 0.0 }
-    },
-    physics: {
-      enabled: false // should I enable it or add a functionality user can enable/disable physics ?
-    },
-    manipulation: {
-      enabled: false,
-      addEdge: (edgeData, callback) => {
-        // eslint-disable-next-line no-param-reassign
-        edgeData.smooth = { type: "curvedCW", roundness: 0.2 };
-        edgeObject.current = edgeData;
-        const edge = getEdge(edgeData);
-        if (edge == null) {
-          callback(edgeData);
-        } else {
-          edgeObject.current = edge;
-        }
-        setViewEdgeDialog(true);
-      }
-    },
-    interaction: {
-      selectConnectedEdges: false
+      const connectedEdges = automataNetwork.getConnectedEdges(
+        nodesSelected[0]
+      );
+      EDGES.remove(connectedEdges);
+      automataNetwork.deleteSelected();
+      disableEditLabelTextBox();
+      setNodeObject({});
+      return;
+    }
+
+    if (edgesSelected.length) {
+      automataNetwork.deleteSelected();
+      disableEditLabelTextBox();
+      setEdgeObject({});
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // for Dev environment
     if (process.env.NODE_ENV === "development") {
       createTestData(NODES, EDGES, "TD1");
@@ -369,14 +404,21 @@ const Workspace = props => {
       createTestData(NODES, EDGES, "TD2");
     }
 
+    const networkRef = getNetworkRef();
+
     // create network
-    automataNetwork = new Network(networkRef.current, data, OPTIONS);
+    setAutomataNetwork(new Network(networkRef, data, OPTIONS));
 
     // create key binding
-    automataNetworkKeyCharm = keycharm({
-      container: networkRef.current,
-      preventDefault: true
-    });
+    setAutomataNetworkKeyCharm(
+      keycharm({
+        container: networkRef,
+        preventDefault: true
+      })
+    );
+
+    const automataNetwork = getAutomataNetwork();
+    const automataNetworkKeyCharm = getAutomataNetworkKeyCharm();
 
     // add double click event to network
     automataNetwork.on("doubleClick", params => {
@@ -486,13 +528,38 @@ const Workspace = props => {
       },
       "keyup"
     );
+
+    /**
+     * Ah, this useEffect and ESLint rules are shit
+     * It asks for adding all the dependencies in the dependency array.
+     *
+     * Adding the methods in dependency array will lead to recurring useCallback till the bottom level methods
+     *
+     * Even if I add useCallback to every required methods.
+     * However it can be very misleading because if I'm using this useEffect to run once when component is mounted
+     * so keeping an empty dependency array makes sense. Now If I put all the dependencies in the array.
+     * In future, if someone give it a read, It will look like this useEffect reruns every time this
+     * functions(dependencies) are changed. :/
+     *
+     * There are several solutions to this
+     * 1. Disable the warning (undesirable)
+     * 2. Bring all the dependency method inside useEffect (what if method is also used somewhere else, it will
+     *    be out of scope)
+     * 3. Memoize the methods using useCallback
+     *
+     *
+     * So I'll be suppressing the warning for now, but it's temporary. It will be like this until a proper solution
+     * is revised for this kind of use case.
+     *
+     */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
    * Handles when Node DialogBox components is closed
    */
   const closeNodeDialogBox = () => {
-    const node = nodeObject.current;
+    const node = getNodeObject();
     NODES.remove(node.id);
     setViewNodeDialog(false);
   };
@@ -505,7 +572,7 @@ const Workspace = props => {
   const submitNodeDialogBox = value => {
     setViewNodeDialog(false);
     if (value === "") return;
-    const node = nodeObject.current;
+    const node = getNodeObject();
     NODES.update({ id: node.id, label: value });
   };
 
@@ -513,7 +580,7 @@ const Workspace = props => {
    * Handles when Edge DialogBox is closed
    */
   const closeEdgeDialogBox = () => {
-    const edge = edgeObject.current;
+    const edge = getEdgeObject();
     if (edge.label === undefined) {
       EDGES.remove(edge.id);
     }
@@ -532,7 +599,7 @@ const Workspace = props => {
       snackbar("warning", "Edge label cannot contain comma");
       return;
     }
-    const edge = edgeObject.current;
+    const edge = getEdgeObject();
     const existingEdge = EDGES.get(edge.id);
     let edgeLabel = value;
     if (existingEdge.label !== undefined) {
@@ -581,6 +648,7 @@ const Workspace = props => {
    * @return string
    */
   const getImageBlob = () => {
+    const automataNetwork = getAutomataNetwork();
     let imgBlob = null;
     automataNetwork.on("afterDrawing", ctx => {
       imgBlob = ctx.canvas.toDataURL();
@@ -609,11 +677,11 @@ const Workspace = props => {
               InputLabelProps={{
                 shrink: true
               }}
-              inputRef={editLabelTextBoxRef}
+              inputRef={_editLabelTextBoxRef}
               disabled={disableEditLabel}
               onBlur={handleEditLabelTextBoxOnBlur}
             />
-            <div tabIndex={0} ref={networkRef} className={classes.canvas} />
+            <div tabIndex={0} ref={_networkRef} className={classes.canvas} />
           </Paper>
         </Grid>
         <Grid item xs>
