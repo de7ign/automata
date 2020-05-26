@@ -570,10 +570,10 @@ const Workspace = props => {
    * @param value - Label for the node
    */
   const submitNodeDialogBox = value => {
-    setViewNodeDialog(false);
     if (value === "") return;
     const node = getNodeObject();
     NODES.update({ id: node.id, label: value });
+    setViewNodeDialog(false);
   };
 
   /**
@@ -593,7 +593,6 @@ const Workspace = props => {
    * @param value - Label for the edge
    */
   const submitEdgeDialogBox = value => {
-    setViewEdgeDialog(false);
     if (value === "") return;
     if (value.includes(",")) {
       snackbar("warning", "Edge label cannot contain comma");
@@ -609,8 +608,22 @@ const Workspace = props => {
       edgeLabel = edgeLabelArr.join(", ");
     }
     EDGES.update({ id: edge.id, label: edgeLabel });
+    setViewEdgeDialog(false);
   };
 
+  // clear node object when add node dialog box is closed
+  useEffect(() => {
+    if (!viewNodeDialog) {
+      setNodeObject({});
+    }
+  }, [viewNodeDialog]);
+
+  // clear edge object when add edge dialog box is closed
+  useEffect(() => {
+    if (!viewEdgeDialog) {
+      setEdgeObject({});
+    }
+  }, [viewEdgeDialog]);
   /**
    * Removes all the nodes and edges except the start node
    */
