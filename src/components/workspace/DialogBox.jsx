@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useRef, useState } from "react";
 import {
   Button,
@@ -18,11 +19,14 @@ const DialogBox = props => {
     close
   } = props;
 
-  const inputRef = useRef(null);
+  const _inputRef = useRef(null);
+  const getInputRef = () => {
+    return _inputRef.current.value;
+  };
   const [inputError, setInputError] = useState(false);
 
   const handleEnterButton = () => {
-    const textInput = inputRef.current.value.trim();
+    const textInput = getInputRef().trim();
     if (textInput === "") {
       setInputError(true);
       return;
@@ -53,7 +57,7 @@ const DialogBox = props => {
           autoComplete="off"
           margin="dense"
           id="label"
-          inputRef={inputRef}
+          inputRef={_inputRef}
           fullWidth
         />
       </DialogContent>

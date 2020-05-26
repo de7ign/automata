@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useRef, useState } from "react";
 import {
   Paper,
@@ -66,8 +67,13 @@ const ToolBar = props => {
      */
     snackbar
   } = props;
+
   const [isExportDialogOpen, setExportDialogOpen] = useState(false);
-  const testInputRef = useRef();
+
+  const _testInputRef = useRef(null);
+  const getTestInputRef = () => {
+    return _testInputRef.current.value;
+  };
 
   /**
    * Handles when clear button is clicked
@@ -156,7 +162,7 @@ const ToolBar = props => {
    * Handles when test button is clicked
    */
   const handleTestOnClick = () => {
-    const testInput = testInputRef.current.value.trim();
+    const testInput = getTestInputRef().trim();
     const data = getNetworkDataSet();
     if (testInput !== "") {
       if (testInput.includes(",")) {
@@ -207,7 +213,7 @@ const ToolBar = props => {
             InputLabelProps={{
               shrink: true
             }}
-            inputRef={testInputRef}
+            inputRef={_testInputRef}
           />
           <Button
             variant="outlined"
