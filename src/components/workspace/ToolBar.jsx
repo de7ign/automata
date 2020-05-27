@@ -165,10 +165,6 @@ const ToolBar = props => {
     const testInput = getTestInputRef().trim();
     const data = getNetworkDataSet();
     if (testInput !== "") {
-      if (testInput.includes(",")) {
-        snackbar("warning", "Test Input cannot contain comma");
-        return;
-      }
       const { valid, accepted, acceptedNodeLabel } = computeDFA(
         testInput,
         data

@@ -50,6 +50,9 @@ const EDGE_TITLE = "Edge";
 const EDGE_CONTENT_TEXT = "Please enter a label for your new edge";
 
 const LABEL_INPUT_EMPTY_WARNING = "Label can't be empty";
+const LABEL_INPUT_COMMA_WARNING = "Label can't have a comma";
+const LABEL_INPUT_BACKSLASH_WARNING = "Label can't have a backslash";
+const LABEL_INPUT_SPECIAL_CHARACTERS_WARNING = "Label can't have a , or \\";
 
 const Workspace = props => {
   const { snackbar } = props;
@@ -64,12 +67,18 @@ const Workspace = props => {
   const nodeDialogTexts = {
     dialogTitle: NODE_TITLE,
     dialogContentText: NODE_CONTENT_TEXT,
-    warningText: LABEL_INPUT_EMPTY_WARNING
+    warningText: {
+      emptyStringWarning: LABEL_INPUT_EMPTY_WARNING,
+      specialCharacterWarning: LABEL_INPUT_SPECIAL_CHARACTERS_WARNING
+    }
   };
   const edgeDialogTexts = {
     dialogTitle: EDGE_TITLE,
     dialogContentText: EDGE_CONTENT_TEXT,
-    warningText: LABEL_INPUT_EMPTY_WARNING
+    warningText: {
+      emptyStringWarning: LABEL_INPUT_EMPTY_WARNING,
+      specialCharacterWarning: LABEL_INPUT_SPECIAL_CHARACTERS_WARNING
+    }
   };
 
   const _automataNetwork = useRef(null);
@@ -205,13 +214,23 @@ const Workspace = props => {
   const handleEditLabelTextBoxOnBlur = () => {
     const nodeObject = getNodeObject();
     const edgeObject = getEdgeObject();
-    const newLabel = getEditLabelTextBoxRef();
-    if (newLabel.trim() === "") {
-      snackbar("warning", "label can't be empty");
+    const newLabel = getEditLabelTextBoxRef().trim();
+
+    if (newLabel === "") {
+      snackbar("warning", LABEL_INPUT_EMPTY_WARNING);
+      return;
+    }
+
+    if (newLabel.includes("\\")) {
+      snackbar("warning", LABEL_INPUT_BACKSLASH_WARNING);
       return;
     }
 
     if (nodeObject.id !== "") {
+      if (newLabel.includes(",")) {
+        snackbar("warning", LABEL_INPUT_COMMA_WARNING);
+        return;
+      }
       NODES.update({ id: nodeObject.id, label: newLabel });
       setNodeObject({});
     }
@@ -570,7 +589,6 @@ const Workspace = props => {
    * @param value - Label for the node
    */
   const submitNodeDialogBox = value => {
-    if (value === "") return;
     const node = getNodeObject();
     NODES.update({ id: node.id, label: value });
     setViewNodeDialog(false);
@@ -593,11 +611,6 @@ const Workspace = props => {
    * @param value - Label for the edge
    */
   const submitEdgeDialogBox = value => {
-    if (value === "") return;
-    if (value.includes(",")) {
-      snackbar("warning", "Edge label cannot contain comma");
-      return;
-    }
     const edge = getEdgeObject();
     const existingEdge = EDGES.get(edge.id);
     let edgeLabel = value;
@@ -611,14 +624,18 @@ const Workspace = props => {
     setViewEdgeDialog(false);
   };
 
-  // clear node object when add node dialog box is closed
+  /**
+   * clear node object when add node dialog box is closed
+   */
   useEffect(() => {
     if (!viewNodeDialog) {
       setNodeObject({});
     }
   }, [viewNodeDialog]);
 
-  // clear edge object when add edge dialog box is closed
+  /**
+   * clear edge object when add edge dialog box is closed
+   */
   useEffect(() => {
     if (!viewEdgeDialog) {
       setEdgeObject({});
@@ -626,6 +643,7 @@ const Workspace = props => {
       disableEditLabelTextBox();
     }
   }, [viewEdgeDialog, disableEditLabelTextBox]);
+
   /**
    * Removes all the nodes and edges except the start node
    */
