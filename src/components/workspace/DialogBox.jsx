@@ -13,7 +13,11 @@ import PropTypes from "prop-types";
 
 const DialogBox = props => {
   const {
-    dialogTexts: { dialogTitle, dialogContentText, warningText },
+    dialogTexts: {
+      dialogTitle,
+      dialogContentText,
+      warningText: { emptyStringWarning, specialCharacterWarning }
+    },
     open,
     submit,
     close
@@ -23,20 +27,25 @@ const DialogBox = props => {
   const getInputRef = () => {
     return _inputRef.current.value;
   };
-  const [inputError, setInputError] = useState(false);
+
+  const [errorString, setErrorString] = useState(null);
 
   const handleEnterButton = () => {
     const textInput = getInputRef().trim();
     if (textInput === "") {
-      setInputError(true);
+      setErrorString(emptyStringWarning);
       return;
     }
-    setInputError(false);
+    if (textInput.includes(",") || textInput.includes("\\")) {
+      setErrorString(specialCharacterWarning);
+      return;
+    }
+    setErrorString(null);
     submit(textInput);
   };
 
   const handleCancelButton = () => {
-    setInputError(false);
+    setErrorString(null);
     close();
   };
 
@@ -45,9 +54,9 @@ const DialogBox = props => {
       <DialogTitle id="form-dialog-title">{dialogTitle}</DialogTitle>
       <DialogContent>
         <DialogContentText>{dialogContentText}</DialogContentText>
-        {inputError ? (
+        {errorString !== null ? (
           <DialogContentText style={{ color: "red" }}>
-            {warningText}
+            {errorString}
           </DialogContentText>
         ) : (
           ""
