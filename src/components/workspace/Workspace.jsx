@@ -575,6 +575,59 @@ const Workspace = props => {
   }, []);
 
   /**
+   * Hook to detect if the tab is changed.
+   * If user changes tab with ctrl + shift + tab, shift key press triggers the add Edge mode.
+   * However add Edge mode stays ON after user come back to the tab.
+   */
+  useEffect(() => {
+    // eslint-disable-next-line consistent-return
+    const getBrowserVisibilityProp = () => {
+      if (typeof document.hidden !== "undefined") {
+        // Opera 12.10 and Firefox 18 and later support
+        return "visibilitychange";
+      }
+      if (typeof document.msHidden !== "undefined") {
+        return "msvisibilitychange";
+      }
+      if (typeof document.webkitHidden !== "undefined") {
+        return "webkitvisibilitychange";
+      }
+    };
+
+    // eslint-disable-next-line consistent-return
+    const getBrowserDocumentHiddenProp = () => {
+      if (typeof document.hidden !== "undefined") {
+        return "hidden";
+      }
+      if (typeof document.msHidden !== "undefined") {
+        return "msHidden";
+      }
+      if (typeof document.webkitHidden !== "undefined") {
+        return "webkitHidden";
+      }
+    };
+
+    const getIsDocumentHidden = () => {
+      return document[getBrowserDocumentHiddenProp()];
+    };
+
+    const onVisibilityChange = () => {
+      if (getIsDocumentHidden()) {
+        getAutomataNetwork().disableEditMode();
+      }
+    };
+
+    window.addEventListener(getBrowserVisibilityProp(), onVisibilityChange);
+
+    return () => {
+      window.removeEventListener(
+        getBrowserVisibilityProp(),
+        onVisibilityChange
+      );
+    };
+  }, []);
+
+  /**
    * Handles when Node DialogBox components is closed
    */
   const closeNodeDialogBox = () => {
