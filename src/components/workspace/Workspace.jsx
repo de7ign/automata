@@ -6,13 +6,23 @@ import { Network } from "vis-network/peer/esm/vis-network";
 import { DataSet } from "vis-data/peer/esm/vis-data";
 import { v4 as randomUUID } from "uuid";
 import PropTypes from "prop-types";
-import { Paper, TextField, Typography } from "@material-ui/core";
+import { Grid, Paper, TextField, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
 import { Warning } from "@material-ui/icons";
+
 import DialogBox from "./DialogBox";
 import createTestData from "./prepareDevNetwork";
 import ToolBar from "./ToolBar";
+import {
+  NODE_TITLE,
+  NODE_CONTENT_TEXT,
+  EDGE_TITLE,
+  EDGE_CONTENT_TEXT,
+  LABEL_INPUT_EMPTY_WARNING,
+  LABEL_INPUT_COMMA_WARNING,
+  LABEL_INPUT_BACKSLASH_WARNING,
+  LABEL_INPUT_SPECIAL_CHARACTERS_WARNING
+} from "../../constants";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -42,17 +52,6 @@ const data = {
   nodes: NODES,
   edges: EDGES
 };
-
-const NODE_TITLE = "Node";
-const NODE_CONTENT_TEXT = "Please enter a label for your new node";
-
-const EDGE_TITLE = "Edge";
-const EDGE_CONTENT_TEXT = "Please enter a label for your new edge";
-
-const LABEL_INPUT_EMPTY_WARNING = "Label can't be empty";
-const LABEL_INPUT_COMMA_WARNING = "Label can't have a comma";
-const LABEL_INPUT_BACKSLASH_WARNING = "Label can't have a backslash";
-const LABEL_INPUT_SPECIAL_CHARACTERS_WARNING = "Label can't have a , or \\";
 
 const Workspace = props => {
   const { snackbar } = props;
