@@ -1,6 +1,8 @@
 import { DataSet } from "vis-data/peer/esm/vis-data";
 import { v4 as randomUUID } from "uuid";
 
+import { LAMBDA } from "../../constants";
+
 /*
 NODE Data Model
     {
@@ -26,10 +28,10 @@ export interface automataData {
   edges: DataSet<any, any>;
 }
 
-export interface dfaResponse {
+export interface nfaResponse {
   valid: boolean;
   accepted?: boolean;
-  acceptedNodeLabel?: string;
+  acceptedNodeLabels?: Array<string>;
 }
 
 /**
@@ -131,72 +133,33 @@ function preProcess(nodes: Array<any>, edges: Array<any>) {
   }
 }
 
-/**
- * returns true if all edges are unique i.e unique from and label combination
- *
- * @param edges
- * @return boolean
- */
-function isUniqueEdges(edges: Array<any>): boolean {
-  const edgesLength = edges.length;
-  for (let edgeIndex = 0; edgeIndex < edgesLength; edgeIndex += 1) {
-    const edge = edges[edgeIndex];
-    for (
-      let searchIndex = edgeIndex + 1;
-      searchIndex < edgesLength;
-      searchIndex += 1
-    ) {
-      const searchEdge = edges[searchIndex];
-      if (edge.from === searchEdge.from && edge.label === searchEdge.label) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-/**
- * checks if the network is a valid DFA
- *
- * @param nodes
- * @param edges
- * @return boolean
- */
-function isValidDFA(nodes: Array<any>, edges: Array<any>): boolean {
-  /**
-   * DFA edges should be deterministic.
-   * For a given state and a given input alphabet there should be only one edge
-   */
-  return isUniqueEdges(edges);
-}
-
-function generateResponse(valid: boolean): dfaResponse;
-function generateResponse(valid: boolean, accepted: boolean): dfaResponse;
+function generateResponse(valid: boolean): nfaResponse;
+function generateResponse(valid: boolean, accepted: boolean): nfaResponse;
 function generateResponse(
   valid: boolean,
   accepted: boolean,
-  acceptedNodeLabel: string
-): dfaResponse;
+  acceptedNodeLabel: Array<string>
+): nfaResponse;
 
 /**
  * Generate response object
  *
  * @param valid
  * @param accepted
- * @param acceptedNodeLabel
+ * @param acceptedNodeLabels
  */
 function generateResponse(
   valid: boolean,
   accepted?: boolean,
-  acceptedNodeLabel?: string
-): dfaResponse {
-  if (accepted === undefined && acceptedNodeLabel === undefined) {
+  acceptedNodeLabels?: Array<string>
+): nfaResponse {
+  if (accepted === undefined && acceptedNodeLabels === undefined) {
     return {
       valid
     };
   }
 
-  if (acceptedNodeLabel === undefined) {
+  if (acceptedNodeLabels === undefined) {
     return {
       valid,
       accepted
@@ -206,7 +169,7 @@ function generateResponse(
   return {
     valid,
     accepted,
-    acceptedNodeLabel
+    acceptedNodeLabels
   };
 }
 
@@ -215,18 +178,18 @@ function generateResponse(
  *
  * Returns an object with following keys
  *
- * valid : key denotes if the given network is a valid DFA
+ * valid : key denotes if the given network is a valid NFA
  *
- * accepted : key denotes if for the given input the network(DFA) accepts it
+ * accepted : key denotes if for the given input string the network(NFA) accepts it
  *
- * acceptedNodeLabels : the label of final nodes which accepted the input string
+ * acceptedNodeLabels : array of labels of final nodes which accepted the input string
  *
  * @param inputString - string to check if it's a valid string
  * @param data - The automaton details. It should be in the form of <pre>{ "nodes": nodes; "edges": edges }</pre>
- * @return dfaResponse - <pre>{valid: boolean, accepted: boolean}</pre>
+ * @return dfaResponse - <pre>{valid: boolean, accepted: boolean, acceptedNodeLabels: Array<string>}</pre>
  * @throws TypeError
  */
-function computeDFA(inputString: string, data: automataData): dfaResponse {
+function computeNFA(inputString: string, data: automataData): nfaResponse {
   if (isAutomataData(data)) {
     /**
      * TODO:
@@ -241,44 +204,50 @@ function computeDFA(inputString: string, data: automataData): dfaResponse {
     const nodesLength = nodes.length;
     const edgesLength = edges.length;
 
-    const isValid = isValidDFA(nodes, edges);
+    const isValid = true;
     if (!isValid) return generateResponse(isValid);
 
     const inputStringLength = inputString.length;
-    let currentNode = "1";
+    let currentNodes = ["1"];
+    let proxyNodes = [];
 
     for (let inputIndex = 0; inputIndex < inputStringLength; inputIndex += 1) {
       const inputChar = inputString[inputIndex];
-      /**
-       *  let suppose for the given input alphabet we don't have a valid edge with the given node.
-       *  we shouldn't be traversing further
-       */
-      let toContinueSearch = false;
       for (let edgeIndex = 0; edgeIndex < edgesLength; edgeIndex += 1) {
         const edge = edges[edgeIndex];
-        if (edge.from === currentNode && edge.label === inputChar) {
-          currentNode = edge.to;
-          toContinueSearch = true;
-          break;
+
+        if (
+          currentNodes.indexOf(edge.from) !== -1 &&
+          (edge.label === LAMBDA || edge.label === inputChar)
+        ) {
+          proxyNodes.push(edge.to);
         }
       }
-      if (!toContinueSearch) {
+      if (!proxyNodes.length) {
         return generateResponse(isValid, false);
       }
+      currentNodes = proxyNodes;
+      proxyNodes = [];
     }
 
     /**
-     * traverse the nodes to check if the node we end up on is final node or not
+     * traverse the nodes to check if the nodes we end up on after processing the input are final nodes or not
      */
-    for (let index = 0; index < nodesLength; index += 1) {
-      const node = nodes[index];
-      if (node.id === currentNode && node.final) {
-        return generateResponse(isValid, true, node.label);
+    const acceptedNodes: Array<string> = [];
+    for (let nodeIndex = 0; nodeIndex < nodesLength; nodeIndex += 1) {
+      const node = nodes[nodeIndex];
+      if (currentNodes.indexOf(node.id) !== -1 && node.final) {
+        acceptedNodes.push(node.label);
       }
     }
+
+    if (acceptedNodes.length) {
+      return generateResponse(isValid, true, acceptedNodes);
+    }
+
     return generateResponse(isValid, false);
   }
   throw new TypeError("function only accepts Dataset");
 }
 
-export default computeDFA;
+export default computeNFA;

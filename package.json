@@ -25,8 +25,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "yarn run eslint src/**/*.jsx src/**/*.js src/**/*.ts --fix",
-    "pretty": "yarn run prettier --write src/**/*.jsx src/**/*.js src/**/*.ts",
+    "lint": "yarn run eslint src/**/*.jsx src/**/*.js src/**/*.ts src/**/**/*.ts --fix",
+    "pretty": "yarn run prettier --write src/**/*.jsx src/**/*.js src/**/*.ts src/**/**/*.ts",
     "pretty-lint": "yarn run pretty && yarn run lint",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build"
