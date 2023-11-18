@@ -1,66 +1,36 @@
-# Automata 
-![Website](https://img.shields.io/website/https/nihalmurmu.me/automata.svg?down_message=offline&up_message=online)
-![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/nihalmurmu/automata.svg)
-![Snyk Vulnerabilities for GitHub Repo (Specific Manifest)](https://img.shields.io/snyk/vulnerabilities/github/nihalmurmu/automata/package.json.svg)
-![GitHub issues](https://img.shields.io/github/issues-raw/nihalmurmu/automata.svg)
-![GitHub](https://img.shields.io/github/license/nihalmurmu/automata.svg)
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-> [Automata playground](http://nihalmurmu.github.io/automata) is a web application built for playing and interacting with state machines with complete hackability and visualization of state machines algorithms.
+## Getting Started
 
-## TOC
-  * [About](#about)
-  * [Installation](#installation)
-  * [Contribute](#contribute)
-  * [Code of Conduct](#code-of-conduct)
-  * [License](#license)
-  * [Contact](#contact)
+First, run the development server:
 
-
-## About
-Automata playground aims to simulate the creation of finite state machines and interact with the FSM with various algorithms.
-
-It's still in early stage, lot of basic and core functionality is still incomplete, basic UI/UX is complete although. It has some quirks and many parts are not yet available.
-
-However feel free to visit the [playground](https://nihalmurmu.me/automata) and if you want to start a discussion, report bugs or propose a awesome feature, you're welcome to open a [issue](https://github.com/nihalmurmu/automata/issues)
-
-My future view of this project is :
-* User can draw finite state machines and import and export in various formats (dot, json, svg, jpg, latex)
-* User can use automata algorithms over the finite state model.
-* This will help students to understand better through visualization and faculties can use this to avoid wasting time in drawing and going step-by-step explanation. The application will handle most of it.
-
----
-
-## Installation
-If you want to take a tour of the web application, application is deployed for you in the [playground](http://nihalmurmu.github.io/automata)
-
-if you still want to run this project locally clone this repo on your local machine and run
-```
-$ cd cloned-repo/
-$ npm install   // It will install all the dependencies
-$ npm start     // It will launch the application on `http://localhost:3000`
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-If you're interested in contributing to this project please read the [contribute](#contribute) section
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
----
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Contribute
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-Please read [CONTRIBUTING.md](https://github.com/nihalmurmu/automata/blob/master/CONTRIBUTING.md) for details on how to contribute, and the process for submitting pull requests to us.
+## Learn More
 
----
+To learn more about Next.js, take a look at the following resources:
 
-## Code of Conduct
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-Please read [CODE_OF_CONDUCT.md](https://github.com/nihalmurmu/automata/blob/master/CODE_OF_CONDUCT.md) for details on our code of conduct and all contributors must adhere to code-of-conduct.
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
----
+## Deploy on Vercel
 
-## License
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/nihalmurmu/automata/blob/master/LICENSE) file for details
-
----
-
-## Contact
-created and maintained by [@nihalmurmu](http://nihalmurmu.github.io) - feel free to contact me!
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
