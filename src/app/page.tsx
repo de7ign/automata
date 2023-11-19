@@ -1,10 +1,12 @@
+import AutomataWorkspace from '@/components/workspace'
 import AutomataWorkspaceCanvas from '@/components/workspace-canvas'
 import Image from 'next/image'
 
 export default function Home() {
   return (
 
-    <AutomataWorkspaceCanvas />
+    // <AutomataWorkspaceCanvas />
+    <AutomataWorkspace />
 
 
     // <main className="flex min-h-screen flex-col items-center justify-between p-24">
