@@ -6,7 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import AutomataWorkspaceCanvas from "./workspace-canvas"
+
+import AutomataWorkspaceCanvas from "@/components/worspace-canvas"
+import { PAGE_LABELS } from "./constants"
 
 export default function AutomataWorkspace() {
   return (
@@ -16,8 +18,8 @@ export default function AutomataWorkspace() {
 
       <Card className="lg:h-[800px] w-3/12">
         <CardHeader>
-          <CardTitle>Operator</CardTitle>
-          <CardDescription>Toolbar to interact with state machine</CardDescription>
+          <CardTitle>{PAGE_LABELS.title}</CardTitle>
+          <CardDescription>{PAGE_LABELS.description}</CardDescription>
         </CardHeader>
         <CardContent className="h-full">
           Some content
