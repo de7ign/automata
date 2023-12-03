@@ -157,6 +157,14 @@ export default function AutomataWorkspaceCanvas() {
   }
 
 
+  function deleteNode(): void {
+    const networkNodes = getNetworkNodes();
+    if(contextMenuMode === "updateNode" && contextMenuData.current?.nodeId) {
+      networkNodes.remove(contextMenuData.current.nodeId);
+    }
+  }
+
+
   return (
     <Card className="lg:h-[800px] w-9/12">
       <CardContent className="h-full p-0">
@@ -183,7 +191,7 @@ export default function AutomataWorkspaceCanvas() {
 
           {contextMenuMode === 'updateNode' && (<ContextMenuContent className="w-52">
             <ContextMenuItem>Edit state label</ContextMenuItem>
-            <ContextMenuItem>Delete node</ContextMenuItem>
+            <ContextMenuItem onSelect={deleteNode}>Delete node</ContextMenuItem>
           </ContextMenuContent>
           )}
         </ContextMenu>
