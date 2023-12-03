@@ -1,28 +1,28 @@
 import { Position, IdType, Node } from "vis-network";
 
 
+export type ContextMenuMode = 'addNode' | 'updateNode' | null;
+
 interface AddNodeContextMenu {
-    mode: 'addNode';
-    position: Position;
+  position: Position;
 }
 interface UpdateNodeContextMenu {
-    mode: 'updateNode';
-    nodeId: IdType;
+  nodeId: IdType;
 }
 
-export type ContextMenuData = AddNodeContextMenu | UpdateNodeContextMenu | null;
+export type ContextMenuData = Partial<AddNodeContextMenu> & Partial<UpdateNodeContextMenu> | null;
 
 export interface NetworkEventParams {
-    edges: string[];
-    event: PointerEvent;
-    nodes: string[];
-    pointer: {
-        DOM: Position;
-        canvas: Position;
-    };
+  edges: string[];
+  event: PointerEvent;
+  nodes: string[];
+  pointer: {
+    DOM: Position;
+    canvas: Position;
+  };
 }
 
 export interface NetworkNodes extends Node {
-    isFinal?: boolean;
-    isStart?: boolean;
+  isFinal?: boolean;
+  isStart?: boolean;
 }

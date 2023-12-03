@@ -14,7 +14,7 @@ export default function AutomataWorkspace() {
   return (
     <div className="flex gap-8">
 
-      <AutomataWorkspaceCanvas/>
+      <AutomataWorkspaceCanvas />
 
       <Card className="lg:h-[800px] w-3/12">
         <CardHeader>
