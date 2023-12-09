@@ -3,14 +3,15 @@ import { Position, IdType, Node } from "vis-network";
 
 export type ContextMenuMode = 'addNode' | 'updateNode' | null;
 
-interface AddNodeContextMenu {
+export interface AddNodeContextData {
   position: Position;
 }
-interface UpdateNodeContextMenu {
+export interface UpdateNodeContextData {
   nodeId: IdType;
+  label: string;
 }
 
-export type ContextMenuData = Partial<AddNodeContextMenu> & Partial<UpdateNodeContextMenu> | null;
+export type ContextMenuData = AddNodeContextData | UpdateNodeContextData | null;
 
 export interface NetworkEventParams {
   edges: string[];

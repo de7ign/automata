@@ -1,15 +1,15 @@
 'use client'
 
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DataSet } from "vis-data/peer"
-import { DataSetEdges, IdType, Network, Options } from "vis-network/peer"
+import { DataSetEdges, IdType, Network } from "vis-network/peer"
 import {
   Card,
   CardContent
 } from "@/components/ui/card"
 import keycharm, { Keycharm } from "keycharm";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode } from "./types";
+import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData } from "./types";
 import { NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -64,6 +64,10 @@ export default function AutomataWorkspaceCanvas() {
     return networkEdges.current;
   }
 
+  function getContextData<T>(): T {
+    return contextMenuData.current as T;
+  }
+
   useEffect(() => {
     if (networkContainer.current) {
 
@@ -84,8 +88,10 @@ export default function AutomataWorkspaceCanvas() {
 
 
       // provide the data in the vis format
+      const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
+
       const data = {
-        nodes: getNetworkNodes(),
+        nodes: networkNodes,
         edges: getNetworkEdges()
       };
 
@@ -93,16 +99,13 @@ export default function AutomataWorkspaceCanvas() {
 
       const network: Network = getNetwork();
 
-      network.on("doubleClick", (params: NetworkEventParams) => {
-        addNode(params);
-      });
-
       network.on('oncontext', (params: NetworkEventParams) => {
         const nodeId: IdType = network.getNodeAt(params.pointer.DOM)
         if (nodeId) {
           network.selectNodes([nodeId], false);
           contextMenuData.current = {
-            nodeId: nodeId
+            nodeId: nodeId,
+            label: networkNodes.get(nodeId)?.label || ''
           }
           setContextMenuMode("updateNode")
         } else {
@@ -127,10 +130,6 @@ export default function AutomataWorkspaceCanvas() {
   }, [networkContainer])
 
 
-  function addNode(params: any): void {
-    alert('double clicked')
-  }
-
   // initialize your network!
 
   function onContextMenuOpenChange(open: boolean): void {
@@ -146,12 +145,25 @@ export default function AutomataWorkspaceCanvas() {
 
   function addState(label: string): void {
     const networkNodes = getNetworkNodes();
-    if (contextMenuMode === "addNode" && contextMenuData.current?.position) {
+    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
+    if (contextMenuMode === "addNode" && contextData?.position) {
       networkNodes.add({
         id: uuidv4(),
         label: label,
-        x: contextMenuData.current.position.x,
-        y: contextMenuData.current.position.y
+        x: contextData.position.x,
+        y: contextData.position.y
+      })
+    }
+  }
+
+
+  function editState(label: string): void {
+    const networkNodes = getNetworkNodes();
+    const contextData: UpdateNodeContextData = getContextData<UpdateNodeContextData>();
+    if (contextMenuMode === "updateNode" && contextData?.nodeId) {
+      networkNodes.update({
+        ...networkNodes.get(contextData.nodeId),
+        label: label
       })
     }
   }
@@ -159,8 +171,9 @@ export default function AutomataWorkspaceCanvas() {
 
   function deleteNode(): void {
     const networkNodes = getNetworkNodes();
-    if(contextMenuMode === "updateNode" && contextMenuData.current?.nodeId) {
-      networkNodes.remove(contextMenuData.current.nodeId);
+    const contextData: UpdateNodeContextData = getContextData<UpdateNodeContextData>();
+    if (contextMenuMode === "updateNode" && contextData?.nodeId) {
+      networkNodes.remove(contextData.nodeId);
     }
   }
 
@@ -176,7 +189,7 @@ export default function AutomataWorkspaceCanvas() {
           {contextMenuMode === 'addNode' && (
             <ContextMenuContent className="w-52" hidden={hasOpenDialog}>
 
-              <AddDialogItem
+              <NodeLabelDialogItem
                 itemTitle='Add state'
                 description='Give your new state a name'
                 onOpenChange={handleDialogItemOpenChange}
@@ -190,7 +203,13 @@ export default function AutomataWorkspaceCanvas() {
           )}
 
           {contextMenuMode === 'updateNode' && (<ContextMenuContent className="w-52">
-            <ContextMenuItem>Edit state label</ContextMenuItem>
+            <NodeLabelDialogItem
+              itemTitle='Edit state label'
+              description='Provide a updated name'
+              defaultLabel={getContextData<UpdateNodeContextData>().label}
+              onOpenChange={handleDialogItemOpenChange}
+              onSubmit={editState}
+            />
             <ContextMenuItem onSelect={deleteNode}>Delete node</ContextMenuItem>
           </ContextMenuContent>
           )}
@@ -205,13 +224,14 @@ export default function AutomataWorkspaceCanvas() {
 interface DialogItemProps {
   itemTitle: string;
   description: string;
+  defaultLabel?: string;
   onOpenChange: (open: boolean) => void;
   onSubmit: (label: string) => void;
 }
 
 
-function AddDialogItem(props: DialogItemProps) {
-  const { itemTitle, description, onOpenChange, onSubmit } = props;
+function NodeLabelDialogItem(props: DialogItemProps) {
+  const { itemTitle, description, defaultLabel, onOpenChange, onSubmit } = props;
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -223,10 +243,12 @@ function AddDialogItem(props: DialogItemProps) {
     }),
   })
 
+  const _defaultLabel: string = defaultLabel || '';
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      label: ''
+      label: _defaultLabel
     },
   })
 
