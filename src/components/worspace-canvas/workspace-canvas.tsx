@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DataSet } from "vis-data/peer"
-import { DataSetEdges, IdType, Network } from "vis-network/peer"
+import { DataSetEdges, IdType, Network, Position } from "vis-network/peer"
 import {
   Card,
   CardContent
@@ -37,8 +37,8 @@ export default function AutomataWorkspaceCanvas() {
   let keyBinding: Keycharm
 
   const [contextMenuMode, setContextMenuMode] = useState<ContextMenuMode>(null);
-  // const [openAddNodeDialog, setOpenAddNodeDialog] = useState<boolean>(false);
   const [hasOpenDialog, setHasOpenDialog] = useState<boolean>(false);
+  const [hasStartState, setHasStartState] = useState<boolean>(false);
 
   function getNetwork(): Network {
     return network.current
@@ -68,6 +68,7 @@ export default function AutomataWorkspaceCanvas() {
     return contextMenuData.current as T;
   }
 
+  // initialize your network!
   useEffect(() => {
     if (networkContainer.current) {
 
@@ -90,12 +91,36 @@ export default function AutomataWorkspaceCanvas() {
       // provide the data in the vis format
       const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
 
+      networkNodes.on('add', function (event, properties, senderId) {
+        console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
+
+        // Check if start state is added then set the state variable to true
+        markHasStartStateIfStartStateIsPresent();
+
+      });
+
+      networkNodes.on('remove', function (event, properties, senderId) {
+        console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
+
+        // Check if star state is removed then set the state variable to false
+        const isStartStateRemoved = properties?.oldData.some((item: NetworkNodes) => item.isStart);
+
+        if (isStartStateRemoved) {
+          setHasStartState(false);
+        }
+
+      });
+
       const data = {
         nodes: networkNodes,
         edges: getNetworkEdges()
       };
 
       setNetwork(new Network(networkContainer.current, data, NETWORK_DEFAULT_OPTION));
+
+      // TODO: Similar is used in beforeDrawing, prolly we can extract as method
+      // Check while initializing if we have the a start state, then make the hasStartState as true
+      markHasStartStateIfStartStateIsPresent(); 
 
       const network: Network = getNetwork();
 
@@ -116,6 +141,16 @@ export default function AutomataWorkspaceCanvas() {
         }
       })
 
+      network.on('beforeDrawing', (ctx) => {
+        console.log(ctx);
+        const startStateItem = getStartState();
+
+        if(startStateItem) {
+          drawArrowToLeftOfCircle(ctx, network.getPosition(startStateItem));
+        }
+
+      })
+
       keyBinding = keycharm({
         container: networkContainer.current,
         preventDefault: true
@@ -130,7 +165,30 @@ export default function AutomataWorkspaceCanvas() {
   }, [networkContainer])
 
 
-  // initialize your network!
+  function getStartState(): IdType | undefined {
+    const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
+
+    const item: IdType[] = networkNodes.getIds({
+      filter: function(item: NetworkNodes) {
+        return item.isStart == true;
+      }
+    })
+    if(item.length === 1) {
+      return item[0];
+    } 
+    return undefined;
+  }
+
+  function isStartStatePresent(): boolean {
+    return !!getStartState();
+  }
+
+  function markHasStartStateIfStartStateIsPresent() {
+    if (isStartStatePresent()) {
+      setHasStartState(true);
+    }
+  }
+
 
   function onContextMenuOpenChange(open: boolean): void {
     if (!open) {
@@ -152,6 +210,22 @@ export default function AutomataWorkspaceCanvas() {
         label: label,
         x: contextData.position.x,
         y: contextData.position.y
+      })
+    }
+  }
+
+
+  function addStartState(label: string): void {
+    const networkNodes = getNetworkNodes();
+    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
+
+    if (contextMenuMode === 'addNode' && contextData?.position) {
+      networkNodes.add({
+        id: uuidv4(),
+        label: label,
+        x: contextData.position.x,
+        y: contextData.position.y,
+        isStart: true
       })
     }
   }
@@ -191,12 +265,20 @@ export default function AutomataWorkspaceCanvas() {
 
               <NodeLabelDialogItem
                 itemTitle='Add state'
-                description='Give your new state a name'
+                dialogTitle='Add state'
+                dialogDescription='Give your new state a name'
                 onOpenChange={handleDialogItemOpenChange}
                 onSubmit={addState}
               />
 
-              <ContextMenuItem>Add start state</ContextMenuItem>
+              <NodeLabelDialogItem
+                itemTitle='Add start state'
+                dialogTitle='Add start state'
+                disabled={hasStartState}
+                dialogDescription='Give your new state a name'
+                onOpenChange={handleDialogItemOpenChange}
+                onSubmit={addStartState}
+              />
 
               <ContextMenuItem>Add final state</ContextMenuItem>
             </ContextMenuContent>
@@ -205,7 +287,8 @@ export default function AutomataWorkspaceCanvas() {
           {contextMenuMode === 'updateNode' && (<ContextMenuContent className="w-52">
             <NodeLabelDialogItem
               itemTitle='Edit state label'
-              description='Provide a updated name'
+              dialogTitle='Edit state label'
+              dialogDescription='Provide a updated name'
               defaultLabel={getContextData<UpdateNodeContextData>().label}
               onOpenChange={handleDialogItemOpenChange}
               onSubmit={editState}
@@ -221,17 +304,53 @@ export default function AutomataWorkspaceCanvas() {
 }
 
 
-interface DialogItemProps {
+function drawArrowToLeftOfCircle(ctx: CanvasRenderingContext2D, position: Position) {
+  // creating arrow for start state
+
+  // arrow is drawn from left to right, pointing to right
+  const x1 = position.x - 30; // moving the tip of the arrow to meet the border
+  const y1 = position.y;
+  const x2 = position.x - 90; // dx for starting point of non pointing end of arrow
+  const y2 = position.y;
+
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.strokeStyle = "#2B7CE9";
+  ctx.stroke();
+
+  const startRadians =
+    Math.atan((y2 - y1) / (x2 - x1)) +
+    ((x2 >= x1 ? -90 : 90) * Math.PI) / 180;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.translate(x1, y1);
+  ctx.rotate(startRadians);
+  ctx.moveTo(0, 0);
+  ctx.lineTo(5, 18);
+  ctx.lineTo(0, 16);
+  ctx.lineTo(-5, 18);
+  ctx.closePath();
+  ctx.restore();
+  ctx.fillStyle = "#2B7CE9";
+  ctx.fill();
+}
+
+
+interface NodeLabelDialogItemProps {
   itemTitle: string;
-  description: string;
+  dialogTitle: string;
+  dialogDescription: string;
   defaultLabel?: string;
+  disabled?: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (label: string) => void;
 }
 
 
-function NodeLabelDialogItem(props: DialogItemProps) {
-  const { itemTitle, description, defaultLabel, onOpenChange, onSubmit } = props;
+function NodeLabelDialogItem(props: NodeLabelDialogItemProps) {
+  const { itemTitle, dialogTitle, dialogDescription, defaultLabel, disabled, onOpenChange, onSubmit } = props;
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -265,16 +384,16 @@ function NodeLabelDialogItem(props: DialogItemProps) {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <ContextMenuItem onSelect={(e) => {
+        <ContextMenuItem disabled={disabled} onSelect={(e) => {
           e.preventDefault();
           openDialog()
         }}>{itemTitle}</ContextMenuItem>
       </DialogTrigger>
       <DialogContent className="max-w-[325px]">
         <DialogHeader>
-          <DialogTitle>Add State</DialogTitle>
+          <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>
-            {description}
+            {dialogDescription}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

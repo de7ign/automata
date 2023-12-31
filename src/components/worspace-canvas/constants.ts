@@ -3,9 +3,6 @@ import { Options } from "vis-network/peer";
 export const NETWORK_DEFAULT_OPTION: Options = {
   nodes: {
     shape: "circle",
-    //   heightConstraint: {
-    //     minimum: 50
-    //   },
     widthConstraint: {
       minimum: 50,
       maximum: 50
