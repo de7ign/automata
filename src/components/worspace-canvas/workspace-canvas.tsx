@@ -143,12 +143,8 @@ export default function AutomataWorkspaceCanvas() {
 
       network.on('beforeDrawing', (ctx) => {
         console.log(ctx);
-        const startStateItem = getStartState();
-
-        if(startStateItem) {
-          drawArrowToLeftOfCircle(ctx, network.getPosition(startStateItem));
-        }
-
+        drawArrowForStartState(ctx);
+        drawOuterCircleForFinalStates(ctx);
       })
 
       keyBinding = keycharm({
@@ -170,9 +166,10 @@ export default function AutomataWorkspaceCanvas() {
 
     const item: IdType[] = networkNodes.getIds({
       filter: function(item: NetworkNodes) {
-        return item.isStart == true;
+        return !!item.isStart;
       }
     })
+
     if(item.length === 1) {
       return item[0];
     } 
@@ -186,6 +183,37 @@ export default function AutomataWorkspaceCanvas() {
   function markHasStartStateIfStartStateIsPresent() {
     if (isStartStatePresent()) {
       setHasStartState(true);
+    }
+  }
+
+  function drawArrowForStartState(ctx: CanvasRenderingContext2D) {
+    const network: Network = getNetwork();
+
+    const startStateItem = getStartState();
+
+    if(startStateItem) {
+      drawArrowToLeftOfCircle(ctx, network.getPosition(startStateItem));
+    }
+  }
+
+  function drawOuterCircleForFinalStates(ctx: CanvasRenderingContext2D) {
+    const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
+
+    const items: IdType[] = networkNodes.getIds({
+      filter: function(item: NetworkNodes) {
+        return !!item.isFinal;
+      }
+    })
+
+    const nodeIdToPositions = getNetwork().getPositions(items);
+    const positions = [];
+
+    for(let nodeId in nodeIdToPositions) {
+      positions.push(nodeIdToPositions[nodeId])
+    }
+
+    if(positions && Array.isArray(positions)) {
+      drawOuterCircle(ctx, positions);
     }
   }
 
@@ -226,6 +254,21 @@ export default function AutomataWorkspaceCanvas() {
         x: contextData.position.x,
         y: contextData.position.y,
         isStart: true
+      })
+    }
+  }
+
+  function addFinalState(label: string): void {
+    const networkNodes = getNetworkNodes();
+    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
+
+    if (contextMenuMode === 'addNode' && contextData?.position) {
+      networkNodes.add({
+        id: uuidv4(),
+        label: label,
+        x: contextData.position.x,
+        y: contextData.position.y,
+        isFinal: true
       })
     }
   }
@@ -280,7 +323,14 @@ export default function AutomataWorkspaceCanvas() {
                 onSubmit={addStartState}
               />
 
-              <ContextMenuItem>Add final state</ContextMenuItem>
+              <NodeLabelDialogItem
+                itemTitle='Add final state'
+                dialogTitle='Add final state'
+                dialogDescription='Give your new state a name'
+                onOpenChange={handleDialogItemOpenChange}
+                onSubmit={addFinalState}
+              />
+
             </ContextMenuContent>
           )}
 
@@ -335,6 +385,27 @@ function drawArrowToLeftOfCircle(ctx: CanvasRenderingContext2D, position: Positi
   ctx.restore();
   ctx.fillStyle = "#2B7CE9";
   ctx.fill();
+
+  ctx.save();
+}
+
+function drawOuterCircle(ctx: CanvasRenderingContext2D, positions: Position[]) {
+  // create outer circle for final states
+
+  ctx.strokeStyle = "#2B7CE9";
+  positions.forEach(position => {
+    ctx.beginPath();
+    ctx.arc(
+      position.x,
+      position.y,
+      36,
+      0,
+      Math.PI * 2
+    );
+    ctx.stroke();
+  });
+
+  ctx.save();
 }
 
 
