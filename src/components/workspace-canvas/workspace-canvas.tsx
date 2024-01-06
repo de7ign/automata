@@ -26,8 +26,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
 
 export default function AutomataWorkspaceCanvas() {
+
+  const canvasUtil = new WorkSpaceCanvasUtil();
 
   const networkContainer = useRef<HTMLDivElement>(null);
   const network = useRef<any>(null)
@@ -120,7 +123,7 @@ export default function AutomataWorkspaceCanvas() {
 
       // TODO: Similar is used in beforeDrawing, prolly we can extract as method
       // Check while initializing if we have the a start state, then make the hasStartState as true
-      markHasStartStateIfStartStateIsPresent(); 
+      markHasStartStateIfStartStateIsPresent();
 
       const network: Network = getNetwork();
 
@@ -165,14 +168,14 @@ export default function AutomataWorkspaceCanvas() {
     const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
 
     const item: IdType[] = networkNodes.getIds({
-      filter: function(item: NetworkNodes) {
+      filter: function (item: NetworkNodes) {
         return !!item.isStart;
       }
     })
 
-    if(item.length === 1) {
+    if (item.length === 1) {
       return item[0];
-    } 
+    }
     return undefined;
   }
 
@@ -191,8 +194,8 @@ export default function AutomataWorkspaceCanvas() {
 
     const startStateItem = getStartState();
 
-    if(startStateItem) {
-      drawArrowToLeftOfCircle(ctx, network.getPosition(startStateItem));
+    if (startStateItem) {
+      canvasUtil.drawArrowToLeftOfCircle(ctx, network.getPosition(startStateItem));
     }
   }
 
@@ -200,7 +203,7 @@ export default function AutomataWorkspaceCanvas() {
     const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
 
     const items: IdType[] = networkNodes.getIds({
-      filter: function(item: NetworkNodes) {
+      filter: function (item: NetworkNodes) {
         return !!item.isFinal;
       }
     })
@@ -208,12 +211,12 @@ export default function AutomataWorkspaceCanvas() {
     const nodeIdToPositions = getNetwork().getPositions(items);
     const positions = [];
 
-    for(let nodeId in nodeIdToPositions) {
+    for (let nodeId in nodeIdToPositions) {
       positions.push(nodeIdToPositions[nodeId])
     }
 
-    if(positions && Array.isArray(positions)) {
-      drawOuterCircle(ctx, positions);
+    if (positions && Array.isArray(positions)) {
+      canvasUtil.drawOuterCircle(ctx, positions);
     }
   }
 
@@ -352,62 +355,6 @@ export default function AutomataWorkspaceCanvas() {
     </Card>
   )
 }
-
-
-function drawArrowToLeftOfCircle(ctx: CanvasRenderingContext2D, position: Position) {
-  // creating arrow for start state
-
-  // arrow is drawn from left to right, pointing to right
-  const x1 = position.x - 30; // moving the tip of the arrow to meet the border
-  const y1 = position.y;
-  const x2 = position.x - 90; // dx for starting point of non pointing end of arrow
-  const y2 = position.y;
-
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.strokeStyle = "#2B7CE9";
-  ctx.stroke();
-
-  const startRadians =
-    Math.atan((y2 - y1) / (x2 - x1)) +
-    ((x2 >= x1 ? -90 : 90) * Math.PI) / 180;
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.translate(x1, y1);
-  ctx.rotate(startRadians);
-  ctx.moveTo(0, 0);
-  ctx.lineTo(5, 18);
-  ctx.lineTo(0, 16);
-  ctx.lineTo(-5, 18);
-  ctx.closePath();
-  ctx.restore();
-  ctx.fillStyle = "#2B7CE9";
-  ctx.fill();
-
-  ctx.save();
-}
-
-function drawOuterCircle(ctx: CanvasRenderingContext2D, positions: Position[]) {
-  // create outer circle for final states
-
-  ctx.strokeStyle = "#2B7CE9";
-  positions.forEach(position => {
-    ctx.beginPath();
-    ctx.arc(
-      position.x,
-      position.y,
-      36,
-      0,
-      Math.PI * 2
-    );
-    ctx.stroke();
-  });
-
-  ctx.save();
-}
-
 
 interface NodeLabelDialogItemProps {
   itemTitle: string;
