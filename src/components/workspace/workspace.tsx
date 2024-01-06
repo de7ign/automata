@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-import AutomataWorkspaceCanvas from "@/components/worspace-canvas"
+import AutomataWorkspaceCanvas from "@/components/workspace-canvas"
 import { PAGE_LABELS } from "./constants"
 
 export default function AutomataWorkspace() {
