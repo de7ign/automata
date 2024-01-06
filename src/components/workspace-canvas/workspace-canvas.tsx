@@ -12,21 +12,8 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } 
 import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData } from "./types";
 import { NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import * as z from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
 import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
+import NodeLabelDialogItem from "@/components/workspace-canvas-node-label-dialog";
 
 export default function AutomataWorkspaceCanvas() {
 
@@ -353,89 +340,5 @@ export default function AutomataWorkspaceCanvas() {
 
       </CardContent>
     </Card>
-  )
-}
-
-interface NodeLabelDialogItemProps {
-  itemTitle: string;
-  dialogTitle: string;
-  dialogDescription: string;
-  defaultLabel?: string;
-  disabled?: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (label: string) => void;
-}
-
-
-function NodeLabelDialogItem(props: NodeLabelDialogItemProps) {
-  const { itemTitle, dialogTitle, dialogDescription, defaultLabel, disabled, onOpenChange, onSubmit } = props;
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const formSchema = z.object({
-    label: z.string().min(1, {
-      message: 'Label is required'
-    }).max(5, {
-      message: 'Label must be less than 10 characters'
-    }),
-  })
-
-  const _defaultLabel: string = defaultLabel || '';
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      label: _defaultLabel
-    },
-  })
-
-  function handleSubmit(values: z.infer<typeof formSchema>) {
-    onSubmit(values.label);
-    onOpenChange(false);
-  }
-
-  function openDialog(): void {
-    onOpenChange(true);
-    setDialogOpen(true)
-  }
-
-  return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <ContextMenuItem disabled={disabled} onSelect={(e) => {
-          e.preventDefault();
-          openDialog()
-        }}>{itemTitle}</ContextMenuItem>
-      </DialogTrigger>
-      <DialogContent className="max-w-[325px]">
-        <DialogHeader>
-          <DialogTitle>{dialogTitle}</DialogTitle>
-          <DialogDescription>
-            {dialogDescription}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="label"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State Label</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Label" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button variant="secondary" type="button" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit">Save</Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
   )
 }

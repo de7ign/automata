@@ -1,0 +1,1 @@
+export { default } from "./workspace-canvas-node-label-dialog";
