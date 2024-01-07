@@ -4,7 +4,7 @@ import './globals.css'
 import { Inter as FontSans } from "next/font/google"
 
 import { cn } from "../lib/utils"
-import AutomataNavbar from '@/components/navbar'
+import AutomataNavbar from '@/components/navbar/navbar'
 import { ThemeProvider } from '@/components/theme-provider'
 
 export const fontSans = FontSans({
