@@ -284,6 +284,12 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
+  function drawEdge(): void {
+    const network = getNetwork();
+
+    network.addEdgeMode();
+  }
+
 
   return (
     <Card className="lg:h-[800px] w-9/12">
@@ -321,20 +327,26 @@ export default function AutomataWorkspaceCanvas() {
                 onSubmit={addFinalState}
               />
 
+              <ContextMenuItem onSelect={drawEdge}>Draw edge</ContextMenuItem>
+
             </ContextMenuContent>
           )}
 
-          {contextMenuMode === 'updateNode' && (<ContextMenuContent className="w-52">
-            <NodeLabelDialogItem
-              itemTitle='Edit state label'
-              dialogTitle='Edit state label'
-              dialogDescription='Provide a updated name'
-              defaultLabel={getContextData<UpdateNodeContextData>().label}
-              onOpenChange={handleDialogItemOpenChange}
-              onSubmit={editState}
-            />
-            <ContextMenuItem onSelect={deleteNode}>Delete node</ContextMenuItem>
-          </ContextMenuContent>
+          {contextMenuMode === 'updateNode' && (
+            <ContextMenuContent className="w-52">
+
+              <NodeLabelDialogItem
+                itemTitle='Edit state label'
+                dialogTitle='Edit state label'
+                dialogDescription='Provide a updated name'
+                defaultLabel={getContextData<UpdateNodeContextData>().label}
+                onOpenChange={handleDialogItemOpenChange}
+                onSubmit={editState}
+              />
+
+
+              <ContextMenuItem onSelect={deleteNode}>Delete node</ContextMenuItem>
+            </ContextMenuContent>
           )}
         </ContextMenu>
 
