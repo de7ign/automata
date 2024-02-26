@@ -1,17 +1,22 @@
 import { Position, IdType, Node } from "vis-network";
 
 
-export type ContextMenuMode = 'addNode' | 'updateNode' | null;
+export type ContextMenuMode = 'addNodeAndEdge' | 'updateNode' | 'updateEdge' | null;
 
-export interface AddNodeContextData {
+export interface AddNodeAndEdgeContextData {
   position: Position;
 }
+
 export interface UpdateNodeContextData {
   nodeId: IdType;
   label: string;
 }
 
-export type ContextMenuData = AddNodeContextData | UpdateNodeContextData | null;
+export interface UpdateEdgeContextData {
+  edgeId: IdType;
+}
+
+export type ContextMenuData = AddNodeAndEdgeContextData | UpdateNodeContextData | UpdateEdgeContextData | null;
 
 export interface NetworkEventParams {
   edges: string[];

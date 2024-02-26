@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card"
 import keycharm, { Keycharm } from "keycharm";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData } from "./types";
+import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData, UpdateEdgeContextData } from "./types";
 import { NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
 import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
@@ -115,19 +115,32 @@ export default function AutomataWorkspaceCanvas() {
       const network: Network = getNetwork();
 
       network.on('oncontext', (params: NetworkEventParams) => {
-        const nodeId: IdType = network.getNodeAt(params.pointer.DOM)
-        if (nodeId) {
+        const nodeId: IdType = network.getNodeAt(params.pointer.DOM);
+        const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
+        // console.log('edges ', network.getEdgeAt(params.pointer.DOM));
+
+        // if both are undefined then, pointer is in empty canvas
+        // launch context menu for adding node and edges
+        if(!nodeId && !edgeId) {
+          contextMenuData.current = {
+            position: params.pointer.canvas
+          }
+          setContextMenuMode("addNodeAndEdge")
+        } else if (nodeId) {
+          // node found, launch context menu for updating node
           network.selectNodes([nodeId], false);
           contextMenuData.current = {
             nodeId: nodeId,
             label: networkNodes.get(nodeId)?.label || ''
           }
           setContextMenuMode("updateNode")
-        } else {
+        } else if (edgeId) {
+          // edge found, launch context menu for updating edge
+          network.selectEdges([edgeId])
           contextMenuData.current = {
-            position: params.pointer.canvas
+            edgeId: edgeId
           }
-          setContextMenuMode("addNode")
+          setContextMenuMode("updateEdge")
         }
       })
 
@@ -222,7 +235,7 @@ export default function AutomataWorkspaceCanvas() {
   function addState(label: string): void {
     const networkNodes = getNetworkNodes();
     const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
-    if (contextMenuMode === "addNode" && contextData?.position) {
+    if (contextMenuMode === "addNodeAndEdge" && contextData?.position) {
       networkNodes.add({
         id: uuidv4(),
         label: label,
@@ -237,7 +250,7 @@ export default function AutomataWorkspaceCanvas() {
     const networkNodes = getNetworkNodes();
     const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
 
-    if (contextMenuMode === 'addNode' && contextData?.position) {
+    if (contextMenuMode === 'addNodeAndEdge' && contextData?.position) {
       networkNodes.add({
         id: uuidv4(),
         label: label,
@@ -252,7 +265,7 @@ export default function AutomataWorkspaceCanvas() {
     const networkNodes = getNetworkNodes();
     const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
 
-    if (contextMenuMode === 'addNode' && contextData?.position) {
+    if (contextMenuMode === 'addNodeAndEdge' && contextData?.position) {
       networkNodes.add({
         id: uuidv4(),
         label: label,
@@ -290,6 +303,14 @@ export default function AutomataWorkspaceCanvas() {
     network.addEdgeMode();
   }
 
+  function deleteEdge(): void {
+    const networkEdges = getNetworkEdges();
+    const contextData: UpdateEdgeContextData = getContextData<UpdateEdgeContextData>();
+    if(contextMenuMode === "updateEdge" && contextData?.edgeId) {
+      networkEdges.remove(contextData.edgeId);
+    }
+  }
+
 
   return (
     <Card className="lg:h-[800px] w-9/12">
@@ -299,7 +320,7 @@ export default function AutomataWorkspaceCanvas() {
             <div ref={networkContainer} className="h-full"></div>
           </ContextMenuTrigger>
 
-          {contextMenuMode === 'addNode' && (
+          {contextMenuMode === 'addNodeAndEdge' && (
             <ContextMenuContent className="w-52" hidden={hasOpenDialog}>
 
               <NodeLabelDialogItem
@@ -348,6 +369,15 @@ export default function AutomataWorkspaceCanvas() {
               <ContextMenuItem onSelect={deleteNode}>Delete node</ContextMenuItem>
             </ContextMenuContent>
           )}
+
+          {contextMenuMode === 'updateEdge' && (
+            <ContextMenuContent className="w-52">
+
+              <ContextMenuItem onSelect={deleteEdge}>Delete edge</ContextMenuItem>
+
+            </ContextMenuContent>
+          )}
+
         </ContextMenu>
 
       </CardContent>
