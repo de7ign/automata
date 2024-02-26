@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card"
 import keycharm, { Keycharm } from "keycharm";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData, UpdateEdgeContextData } from "./types";
+import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeAndEdgeContextData, UpdateNodeContextData, UpdateEdgeContextData } from "./types";
 import { NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
 import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
@@ -234,7 +234,7 @@ export default function AutomataWorkspaceCanvas() {
 
   function addState(label: string): void {
     const networkNodes = getNetworkNodes();
-    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
+    const contextData: AddNodeAndEdgeContextData = getContextData<AddNodeAndEdgeContextData>();
     if (contextMenuMode === "addNodeAndEdge" && contextData?.position) {
       networkNodes.add({
         id: uuidv4(),
@@ -248,7 +248,7 @@ export default function AutomataWorkspaceCanvas() {
 
   function addStartState(label: string): void {
     const networkNodes = getNetworkNodes();
-    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
+    const contextData: AddNodeAndEdgeContextData = getContextData<AddNodeAndEdgeContextData>();
 
     if (contextMenuMode === 'addNodeAndEdge' && contextData?.position) {
       networkNodes.add({
@@ -263,7 +263,7 @@ export default function AutomataWorkspaceCanvas() {
 
   function addFinalState(label: string): void {
     const networkNodes = getNetworkNodes();
-    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
+    const contextData: AddNodeAndEdgeContextData = getContextData<AddNodeAndEdgeContextData>();
 
     if (contextMenuMode === 'addNodeAndEdge' && contextData?.position) {
       networkNodes.add({
