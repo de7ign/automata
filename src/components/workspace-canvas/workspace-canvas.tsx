@@ -2,18 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DataSet } from "vis-data/peer"
-import { DataSetEdges, IdType, Network, Position } from "vis-network/peer"
+import { DataSetEdges, IdType, Network, Options, Position } from "vis-network/peer"
 import {
   Card,
   CardContent
 } from "@/components/ui/card"
 import keycharm, { Keycharm } from "keycharm";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeAndEdgeContextData, UpdateNodeContextData, UpdateEdgeContextData } from "./types";
+import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData, UpdateEdgeContextData, AddEdgeContextData } from "./types";
 import { NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
 import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
 import NodeLabelDialogItem from "@/components/workspace-canvas-node-label-dialog";
+import EdgeLabelDialogItem from "../workspace-canvas-edge-label-dialog/workspace-canvas-edge-label-dialog";
 
 export default function AutomataWorkspaceCanvas() {
 
@@ -28,6 +29,7 @@ export default function AutomataWorkspaceCanvas() {
 
   const [contextMenuMode, setContextMenuMode] = useState<ContextMenuMode>(null);
   const [hasOpenDialog, setHasOpenDialog] = useState<boolean>(false);
+  const [hasOpenEdgeDialog, setHasOpenEdgeDialog] = useState<boolean>(false);
   const [hasStartState, setHasStartState] = useState<boolean>(false);
 
   function getNetwork(): Network {
@@ -71,7 +73,7 @@ export default function AutomataWorkspaceCanvas() {
       ], {}))
 
       setNetworkEdges(new DataSet([
-        { id: 1, from: 1, to: 3 },
+        { id: 1, from: 1, to: 3, label: 'asd' },
         { id: 2, from: 1, to: 2 },
         { id: 3, from: 2, to: 4 },
         { id: 4, from: 2, to: 5 }
@@ -106,7 +108,7 @@ export default function AutomataWorkspaceCanvas() {
         edges: getNetworkEdges()
       };
 
-      setNetwork(new Network(networkContainer.current, data, NETWORK_DEFAULT_OPTION));
+      setNetwork(new Network(networkContainer.current, data, customizeNetworkOption(NETWORK_DEFAULT_OPTION)));
 
       // TODO: Similar is used in beforeDrawing, prolly we can extract as method
       // Check while initializing if we have the a start state, then make the hasStartState as true
@@ -121,7 +123,7 @@ export default function AutomataWorkspaceCanvas() {
 
         // if both are undefined then, pointer is in empty canvas
         // launch context menu for adding node and edges
-        if(!nodeId && !edgeId) {
+        if (!nodeId && !edgeId) {
           contextMenuData.current = {
             position: params.pointer.canvas
           }
@@ -162,6 +164,34 @@ export default function AutomataWorkspaceCanvas() {
       network.destroy();
     }
   }, [networkContainer])
+
+
+  function customizeNetworkOption(defaultOption: Options): Options {
+    const options: Options = structuredClone(defaultOption)
+    options.manipulation = {
+      ...options.manipulation,
+      addEdge: function (edgeData: any, callback: (arg0: any) => void) {
+
+        console.log('inside the add edge and the data ', edgeData);
+
+        if (edgeData?.from && edgeData.to) {
+          callback(edgeData)
+          console.log('after callback edgedata ', edgeData);
+
+          contextMenuData.current = {
+            id: edgeData.id,
+            from: edgeData.from,
+            to: edgeData.to
+          }
+          setHasOpenEdgeDialog(true)
+        } else {
+          console.error("Unable to get edge data")
+        }
+      }
+    }
+
+    return options;
+  }
 
 
   function getStartState(): IdType | undefined {
@@ -234,7 +264,7 @@ export default function AutomataWorkspaceCanvas() {
 
   function addState(label: string): void {
     const networkNodes = getNetworkNodes();
-    const contextData: AddNodeAndEdgeContextData = getContextData<AddNodeAndEdgeContextData>();
+    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
     if (contextMenuMode === "addNodeAndEdge" && contextData?.position) {
       networkNodes.add({
         id: uuidv4(),
@@ -248,7 +278,7 @@ export default function AutomataWorkspaceCanvas() {
 
   function addStartState(label: string): void {
     const networkNodes = getNetworkNodes();
-    const contextData: AddNodeAndEdgeContextData = getContextData<AddNodeAndEdgeContextData>();
+    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
 
     if (contextMenuMode === 'addNodeAndEdge' && contextData?.position) {
       networkNodes.add({
@@ -263,7 +293,7 @@ export default function AutomataWorkspaceCanvas() {
 
   function addFinalState(label: string): void {
     const networkNodes = getNetworkNodes();
-    const contextData: AddNodeAndEdgeContextData = getContextData<AddNodeAndEdgeContextData>();
+    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
 
     if (contextMenuMode === 'addNodeAndEdge' && contextData?.position) {
       networkNodes.add({
@@ -297,90 +327,124 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
-  function drawEdge(): void {
+  function handleOpenEdgeDialogChange(open: boolean) {
+    setHasOpenEdgeDialog(open);
+    onContextMenuOpenChange(open);
+  }
+
+  function enableDrawEdgeMode(): void {
     const network = getNetwork();
 
     network.addEdgeMode();
+
+    // setHasOpenEdgeDialog(true)
+  }
+
+  function updateEdgeLabel(label: string): void {
+    const networkEdges = getNetworkEdges();
+
+    const contextData: AddEdgeContextData = getContextData<AddEdgeContextData>();
+    console.log('context data in update edge label ', contextData)
+    if (contextData?.id) {
+      networkEdges.update({
+        ...networkEdges.get(contextData.id),
+        label: label
+      })
+    }
+
   }
 
   function deleteEdge(): void {
     const networkEdges = getNetworkEdges();
     const contextData: UpdateEdgeContextData = getContextData<UpdateEdgeContextData>();
-    if(contextMenuMode === "updateEdge" && contextData?.edgeId) {
+    if (contextMenuMode === "updateEdge" && contextData?.edgeId) {
       networkEdges.remove(contextData.edgeId);
     }
   }
 
 
   return (
-    <Card className="lg:h-[800px] w-9/12">
-      <CardContent className="h-full p-0">
-        <ContextMenu onOpenChange={onContextMenuOpenChange}>
-          <ContextMenuTrigger asChild>
-            <div ref={networkContainer} className="h-full"></div>
-          </ContextMenuTrigger>
+    <>
+      <Card className="lg:h-[800px] w-9/12">
+        <CardContent className="h-full p-0">
+          <ContextMenu onOpenChange={onContextMenuOpenChange}>
+            <ContextMenuTrigger asChild>
+              <div ref={networkContainer} className="h-full"></div>
+            </ContextMenuTrigger>
 
-          {contextMenuMode === 'addNodeAndEdge' && (
-            <ContextMenuContent className="w-52" hidden={hasOpenDialog}>
+            {contextMenuMode === 'addNodeAndEdge' && (
+              <ContextMenuContent className="w-52" hidden={hasOpenDialog}>
 
-              <NodeLabelDialogItem
-                itemTitle='Add state'
-                dialogTitle='Add state'
-                dialogDescription='Give your new state a name'
-                onOpenChange={handleDialogItemOpenChange}
-                onSubmit={addState}
-              />
+                <NodeLabelDialogItem
+                  itemTitle='Add state'
+                  dialogTitle='Add state'
+                  dialogDescription='Give your new state a name'
+                  onOpenChange={handleDialogItemOpenChange}
+                  onSubmit={addState}
+                />
 
-              <NodeLabelDialogItem
-                itemTitle='Add start state'
-                dialogTitle='Add start state'
-                disabled={hasStartState}
-                dialogDescription='Give your new state a name'
-                onOpenChange={handleDialogItemOpenChange}
-                onSubmit={addStartState}
-              />
+                <NodeLabelDialogItem
+                  itemTitle='Add start state'
+                  dialogTitle='Add start state'
+                  disabled={hasStartState}
+                  dialogDescription='Give your new state a name'
+                  onOpenChange={handleDialogItemOpenChange}
+                  onSubmit={addStartState}
+                />
 
-              <NodeLabelDialogItem
-                itemTitle='Add final state'
-                dialogTitle='Add final state'
-                dialogDescription='Give your new state a name'
-                onOpenChange={handleDialogItemOpenChange}
-                onSubmit={addFinalState}
-              />
+                <NodeLabelDialogItem
+                  itemTitle='Add final state'
+                  dialogTitle='Add final state'
+                  dialogDescription='Give your new state a name'
+                  onOpenChange={handleDialogItemOpenChange}
+                  onSubmit={addFinalState}
+                />
 
-              <ContextMenuItem onSelect={drawEdge}>Draw edge</ContextMenuItem>
+                <ContextMenuItem onSelect={enableDrawEdgeMode}>Draw edge</ContextMenuItem>
 
-            </ContextMenuContent>
-          )}
+              </ContextMenuContent>
+            )}
 
-          {contextMenuMode === 'updateNode' && (
-            <ContextMenuContent className="w-52">
+            {contextMenuMode === 'updateNode' && (
+              <ContextMenuContent className="w-52">
 
-              <NodeLabelDialogItem
-                itemTitle='Edit state label'
-                dialogTitle='Edit state label'
-                dialogDescription='Provide a updated name'
-                defaultLabel={getContextData<UpdateNodeContextData>().label}
-                onOpenChange={handleDialogItemOpenChange}
-                onSubmit={editState}
-              />
+                <NodeLabelDialogItem
+                  itemTitle='Edit state label'
+                  dialogTitle='Edit state label'
+                  dialogDescription='Provide a updated name'
+                  defaultLabel={getContextData<UpdateNodeContextData>().label}
+                  onOpenChange={handleDialogItemOpenChange}
+                  onSubmit={editState}
+                />
 
 
-              <ContextMenuItem onSelect={deleteNode}>Delete node</ContextMenuItem>
-            </ContextMenuContent>
-          )}
+                <ContextMenuItem onSelect={deleteNode}>Delete node</ContextMenuItem>
+              </ContextMenuContent>
+            )}
 
-          {contextMenuMode === 'updateEdge' && (
-            <ContextMenuContent className="w-52">
+            {contextMenuMode === 'updateEdge' && (
+              <ContextMenuContent className="w-52">
 
-              <ContextMenuItem onSelect={deleteEdge}>Delete edge</ContextMenuItem>
+                <ContextMenuItem onSelect={deleteEdge}>Delete edge</ContextMenuItem>
 
-            </ContextMenuContent>
-          )}
+              </ContextMenuContent>
+            )}
 
-        </ContextMenu>
+          </ContextMenu>
 
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+
+      <EdgeLabelDialogItem
+        dialogTitle='Add Edge'
+        fromNode={getContextData<AddEdgeContextData>()?.from}
+        toNode={getContextData<AddEdgeContextData>()?.to}
+        open={hasOpenEdgeDialog}
+        onOpenChange={handleOpenEdgeDialogChange}
+        onSubmit={updateEdgeLabel}
+      />
+
+    </>
   )
 }
