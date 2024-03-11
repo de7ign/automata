@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DataSet } from "vis-data/peer"
-import { DataSetEdges, IdType, Network, Options, Position } from "vis-network/peer"
+import { DataSetEdges, Edge, IdType, Network, Options, Position } from "vis-network/peer"
 import {
   Card,
   CardContent
@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
 import NodeLabelDialogItem from "@/components/workspace-canvas-node-label-dialog";
 import EdgeLabelDialogItem from "../workspace-canvas-edge-label-dialog/workspace-canvas-edge-label-dialog";
+import { FullItem } from "vis-data/declarations/data-interface";
 
 export default function AutomataWorkspaceCanvas() {
 
@@ -30,6 +31,7 @@ export default function AutomataWorkspaceCanvas() {
   const [contextMenuMode, setContextMenuMode] = useState<ContextMenuMode>(null);
   const [hasOpenDialog, setHasOpenDialog] = useState<boolean>(false);
   const [hasOpenEdgeDialog, setHasOpenEdgeDialog] = useState<boolean>(false);
+  const [hasOpenEditEdgeDialog, setHashEditEdgeDialog] = useState<boolean>(false);
   const [hasStartState, setHasStartState] = useState<boolean>(false);
 
   function getNetwork(): Network {
@@ -139,8 +141,13 @@ export default function AutomataWorkspaceCanvas() {
         } else if (edgeId) {
           // edge found, launch context menu for updating edge
           network.selectEdges([edgeId])
+          const networkEdges = getNetworkEdges();
+          const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
           contextMenuData.current = {
-            edgeId: edgeId
+            id: edgeId,
+            label: edgeDetails?.label || '',
+            from: edgeDetails?.from || '',
+            to: edgeDetails?.to || ''
           }
           setContextMenuMode("updateEdge")
         }
@@ -343,7 +350,7 @@ export default function AutomataWorkspaceCanvas() {
   function updateEdgeLabel(label: string): void {
     const networkEdges = getNetworkEdges();
 
-    const contextData: AddEdgeContextData = getContextData<AddEdgeContextData>();
+    const contextData: AddEdgeContextData | UpdateEdgeContextData = getContextData<AddEdgeContextData | UpdateEdgeContextData>();
     console.log('context data in update edge label ', contextData)
     if (contextData?.id) {
       networkEdges.update({
@@ -357,9 +364,18 @@ export default function AutomataWorkspaceCanvas() {
   function deleteEdge(): void {
     const networkEdges = getNetworkEdges();
     const contextData: UpdateEdgeContextData = getContextData<UpdateEdgeContextData>();
-    if (contextMenuMode === "updateEdge" && contextData?.edgeId) {
-      networkEdges.remove(contextData.edgeId);
+    if (contextMenuMode === "updateEdge" && contextData?.id) {
+      networkEdges.remove(contextData.id);
     }
+  }
+
+  function launchUpdateEdgeModal(): void {
+    setHashEditEdgeDialog(true);
+  }
+
+  function handleOpenUpdateEdgeDialogChange(open: boolean) {
+    setHashEditEdgeDialog(open);
+    onContextMenuOpenChange(open);
   }
 
 
@@ -425,6 +441,11 @@ export default function AutomataWorkspaceCanvas() {
             {contextMenuMode === 'updateEdge' && (
               <ContextMenuContent className="w-52">
 
+                <ContextMenuItem onSelect={(event) => {
+                  event.preventDefault()
+                  launchUpdateEdgeModal()
+                }}>Update edge</ContextMenuItem>
+
                 <ContextMenuItem onSelect={deleteEdge}>Delete edge</ContextMenuItem>
 
               </ContextMenuContent>
@@ -436,14 +457,28 @@ export default function AutomataWorkspaceCanvas() {
       </Card>
 
 
-      <EdgeLabelDialogItem
-        dialogTitle='Add Edge'
-        fromNode={getContextData<AddEdgeContextData>()?.from}
-        toNode={getContextData<AddEdgeContextData>()?.to}
-        open={hasOpenEdgeDialog}
-        onOpenChange={handleOpenEdgeDialogChange}
-        onSubmit={updateEdgeLabel}
-      />
+      {hasOpenEdgeDialog && (
+        <EdgeLabelDialogItem
+          dialogTitle='Add Edge'
+          fromNode={getContextData<AddEdgeContextData>()?.from}
+          toNode={getContextData<AddEdgeContextData>()?.to}
+          open={hasOpenEdgeDialog}
+          onOpenChange={handleOpenEdgeDialogChange}
+          onSubmit={updateEdgeLabel}
+        />
+      )}
+
+      {hasOpenEditEdgeDialog && (
+        <EdgeLabelDialogItem
+          dialogTitle='Update Edge'
+          fromNode={getContextData<UpdateEdgeContextData>()?.from?.toString()}
+          toNode={getContextData<UpdateEdgeContextData>()?.to?.toString()}
+          defaultLabel={getContextData<UpdateEdgeContextData>()?.label}
+          open={hasOpenEditEdgeDialog}
+          onOpenChange={handleOpenUpdateEdgeDialogChange}
+          onSubmit={updateEdgeLabel}
+        />
+      )}
 
     </>
   )

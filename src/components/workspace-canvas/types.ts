@@ -20,7 +20,10 @@ export interface UpdateNodeContextData {
 }
 
 export interface UpdateEdgeContextData {
-  edgeId: IdType;
+  id: IdType;
+  from: IdType;
+  to: IdType;
+  label: string;
 }
 
 export type ContextMenuData = AddNodeContextData | AddEdgeContextData | UpdateNodeContextData | UpdateEdgeContextData | null;

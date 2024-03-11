@@ -40,8 +40,8 @@ export default function EdgeLabelDialogItem(props: EdgeLabelDialogItemProps) {
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
     onSubmit(values.label);
-    form.reset();
     onOpenChange(false);
+    form.reset();
   }
 
   function cancel() {
@@ -55,6 +55,9 @@ export default function EdgeLabelDialogItem(props: EdgeLabelDialogItemProps) {
     }
     onOpenChange(value)
   }
+
+  console.log('rerendering add edge label');
+  
 
   return (
     <Dialog open={open} onOpenChange={dismiss}>
