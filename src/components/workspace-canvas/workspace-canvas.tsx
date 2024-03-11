@@ -16,6 +16,7 @@ import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
 import NodeLabelDialogItem from "@/components/workspace-canvas-node-label-dialog";
 import EdgeLabelDialogItem from "../workspace-canvas-edge-label-dialog/workspace-canvas-edge-label-dialog";
 import { FullItem } from "vis-data/declarations/data-interface";
+import { Button } from "../ui/button";
 
 export default function AutomataWorkspaceCanvas() {
 
@@ -33,6 +34,7 @@ export default function AutomataWorkspaceCanvas() {
   const [hasOpenEdgeDialog, setHasOpenEdgeDialog] = useState<boolean>(false);
   const [hasOpenEditEdgeDialog, setHashEditEdgeDialog] = useState<boolean>(false);
   const [hasStartState, setHasStartState] = useState<boolean>(false);
+  const [isEdgeCreationMode, setIsEdgeCreationMode] = useState<boolean>(false);
 
   function getNetwork(): Network {
     return network.current
@@ -337,12 +339,14 @@ export default function AutomataWorkspaceCanvas() {
   function handleOpenEdgeDialogChange(open: boolean) {
     setHasOpenEdgeDialog(open);
     onContextMenuOpenChange(open);
+    setIsEdgeCreationMode(false);
   }
 
   function enableDrawEdgeMode(): void {
     const network = getNetwork();
 
     network.addEdgeMode();
+    setIsEdgeCreationMode(true);
 
     // setHasOpenEdgeDialog(true)
   }
@@ -384,6 +388,20 @@ export default function AutomataWorkspaceCanvas() {
       <Card className="lg:h-[800px] w-9/12">
         <CardContent className="h-full p-0">
           <ContextMenu onOpenChange={onContextMenuOpenChange}>
+
+            {isEdgeCreationMode && (
+              <div className="bg-sky-500 rounded-t-sm p-1 flex justify-between items-baseline text-sm">
+                <div>
+                  You're now in edge creation mode, click-drag from one state to another!
+                </div>
+                <Button variant="outline" className="bg-transparent" onClick={() => {
+                  const network: Network = getNetwork();
+                  network.disableEditMode();
+                  setIsEdgeCreationMode(false);
+                }}>Cancel</Button>
+              </div>
+            )}̥
+
             <ContextMenuTrigger asChild>
               <div ref={networkContainer} className="h-full"></div>
             </ContextMenuTrigger>
