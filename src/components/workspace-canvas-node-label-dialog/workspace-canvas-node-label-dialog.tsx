@@ -49,8 +49,15 @@ export default function NodeLabelDialogItem(props: NodeLabelDialogItemProps) {
     setDialogOpen(true)
   }
 
+  function dismiss(open: boolean): void {
+    setDialogOpen(open);
+    if(!open) {
+      onOpenChange(false);
+    }
+  }
+
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={dialogOpen} onOpenChange={dismiss}>
       <DialogTrigger asChild>
         <ContextMenuItem disabled={disabled} onSelect={(e) => {
           e.preventDefault();
