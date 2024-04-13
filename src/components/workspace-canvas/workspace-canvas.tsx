@@ -400,7 +400,7 @@ export default function AutomataWorkspaceCanvas() {
                   setIsEdgeCreationMode(false);
                 }}>Cancel</Button>
               </div>
-            )}̥
+            )}
 
             <ContextMenuTrigger asChild>
               <div ref={networkContainer} className="h-full"></div>
