@@ -42,3 +42,5 @@ export interface NetworkNodes extends Node {
   isFinal?: boolean;
   isStart?: boolean;
 }
+
+export type NodeAddUpdateMode = 'normalAdd' | 'startAdd' | 'finalAdd' | 'update';

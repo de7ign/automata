@@ -9,14 +9,14 @@ import {
 } from "@/components/ui/card"
 import keycharm, { Keycharm } from "keycharm";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData, UpdateEdgeContextData, AddEdgeContextData } from "./types";
+import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData, UpdateEdgeContextData, AddEdgeContextData, NodeAddUpdateMode } from "./types";
 import { NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
 import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
-import NodeLabelDialogItem from "@/components/context-menu-node-label-dialog";
 import EdgeLabelDialog from "../edge-label-dialog/edge-label-dialog";
 import { FullItem } from "vis-data/declarations/data-interface";
 import { Button } from "../ui/button";
+import NodeLabelDialog from "../node-label-dialog/node-label-dialog";
 
 export default function AutomataWorkspaceCanvas() {
 
@@ -29,8 +29,15 @@ export default function AutomataWorkspaceCanvas() {
   const contextMenuData = useRef<ContextMenuData>(null);
   let keyBinding: Keycharm;
 
+  const nodeAddUpdateMode = useRef<any>(null);
+
   const [contextMenuMode, setContextMenuMode] = useState<ContextMenuMode>(null);
-  const [hasOpenDialog, setHasOpenDialog] = useState<boolean>(false);
+
+  // Node dialogs
+  const [hasOpenAddNodeDialog, setHasOpenAddNodeDialog] = useState<boolean>(false);
+
+
+  // TODO: Update the name to hasOpenAddEdgeDialog
   const [hasOpenEdgeDialog, setHasOpenEdgeDialog] = useState<boolean>(false);
   const [hasOpenEditEdgeDialog, setHashEditEdgeDialog] = useState<boolean>(false);
   const [hasStartState, setHasStartState] = useState<boolean>(false);
@@ -62,6 +69,14 @@ export default function AutomataWorkspaceCanvas() {
 
   function getContextData<T>(): T {
     return contextMenuData.current as T;
+  }
+
+  function getNodeAddUpdateMode(): NodeAddUpdateMode {
+    return nodeAddUpdateMode.current;
+  }
+
+  function setNodeAddUpdateMode(mode: NodeAddUpdateMode): void {
+    nodeAddUpdateMode.current = mode;
   }
 
   // initialize your network!
@@ -291,15 +306,10 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
-  function handleDialogItemOpenChange(open: boolean): void {
-    setHasOpenDialog(open);
-    onContextMenuOpenChange(open);
-  }
-
   function addState(label: string): void {
     const networkNodes = getNetworkNodes();
     const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
-    if (contextMenuMode === "addNodeAndEdge" && contextData?.position) {
+    if (contextData?.position) {
       networkNodes.add({
         id: uuidv4(),
         label: label,
@@ -314,7 +324,7 @@ export default function AutomataWorkspaceCanvas() {
     const networkNodes = getNetworkNodes();
     const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
 
-    if (contextMenuMode === 'addNodeAndEdge' && contextData?.position) {
+    if (contextData?.position) {
       networkNodes.add({
         id: uuidv4(),
         label: label,
@@ -329,7 +339,7 @@ export default function AutomataWorkspaceCanvas() {
     const networkNodes = getNetworkNodes();
     const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
 
-    if (contextMenuMode === 'addNodeAndEdge' && contextData?.position) {
+    if (contextData?.position) {
       networkNodes.add({
         id: uuidv4(),
         label: label,
@@ -344,7 +354,7 @@ export default function AutomataWorkspaceCanvas() {
   function editState(label: string): void {
     const networkNodes = getNetworkNodes();
     const contextData: UpdateNodeContextData = getContextData<UpdateNodeContextData>();
-    if (contextMenuMode === "updateNode" && contextData?.nodeId) {
+    if (contextData?.nodeId) {
       networkNodes.update({
         ...networkNodes.get(contextData.nodeId),
         label: label
@@ -361,6 +371,7 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
+  // TODO: Update the method name
   function handleOpenEdgeDialogChange(open: boolean): void {
     setHasOpenEdgeDialog(open);
     onContextMenuOpenChange(open);
@@ -373,14 +384,13 @@ export default function AutomataWorkspaceCanvas() {
     network.addEdgeMode();
     setIsEdgeCreationMode(true);
 
-    // setHasOpenEdgeDialog(true)
   }
 
   function updateEdgeLabel(label: string): void {
     const networkEdges = getNetworkEdges();
 
     const contextData: AddEdgeContextData | UpdateEdgeContextData = getContextData<AddEdgeContextData | UpdateEdgeContextData>();
-    
+
     if (contextData?.id) {
       networkEdges.update({
         ...networkEdges.get(contextData.id),
@@ -442,6 +452,21 @@ export default function AutomataWorkspaceCanvas() {
   }
 
 
+  function handleOpenNodeDialogChange(open: boolean): void {
+    setHasOpenAddNodeDialog(open);
+    onContextMenuOpenChange(open);
+  }
+
+  function launchNodeAddUpdateDialog(type: NodeAddUpdateMode): void {
+    // set mode
+    setNodeAddUpdateMode(type);
+
+    // launch modal
+    setHasOpenAddNodeDialog(true);
+
+  }
+
+
   return (
     <>
       <Card className="lg:h-[800px] w-9/12">
@@ -466,32 +491,25 @@ export default function AutomataWorkspaceCanvas() {
             </ContextMenuTrigger>
 
             {contextMenuMode === 'addNodeAndEdge' && (
-              <ContextMenuContent className="w-52" hidden={hasOpenDialog}>
+              <ContextMenuContent className="w-52">
 
-                <NodeLabelDialogItem
-                  itemTitle='Add state'
-                  dialogTitle='Add state'
-                  dialogDescription='Give your new state a name'
-                  onOpenChange={handleDialogItemOpenChange}
-                  onSubmit={addState}
-                />
+                <ContextMenuItem onSelect={() => {
+                  launchNodeAddUpdateDialog("normalAdd")
+                }}>
+                  Add state
+                </ContextMenuItem>
 
-                <NodeLabelDialogItem
-                  itemTitle='Add start state'
-                  dialogTitle='Add start state'
-                  disabled={hasStartState}
-                  dialogDescription='Give your new state a name'
-                  onOpenChange={handleDialogItemOpenChange}
-                  onSubmit={addStartState}
-                />
+                <ContextMenuItem onSelect={() => {
+                  launchNodeAddUpdateDialog("startAdd")
+                }}>
+                  Add start state
+                </ContextMenuItem>
 
-                <NodeLabelDialogItem
-                  itemTitle='Add final state'
-                  dialogTitle='Add final state'
-                  dialogDescription='Give your new state a name'
-                  onOpenChange={handleDialogItemOpenChange}
-                  onSubmit={addFinalState}
-                />
+                <ContextMenuItem onSelect={() => {
+                  launchNodeAddUpdateDialog("finalAdd")
+                }}>
+                  Add final state
+                </ContextMenuItem>
 
                 <ContextMenuItem onSelect={enableDrawEdgeMode}>
                   Draw edge
@@ -504,15 +522,11 @@ export default function AutomataWorkspaceCanvas() {
             {contextMenuMode === 'updateNode' && (
               <ContextMenuContent className="w-52">
 
-                <NodeLabelDialogItem
-                  itemTitle='Edit state label'
-                  dialogTitle='Edit state label'
-                  dialogDescription='Provide a updated name'
-                  defaultLabel={getContextData<UpdateNodeContextData>().label}
-                  onOpenChange={handleDialogItemOpenChange}
-                  onSubmit={editState}
-                />
-
+                <ContextMenuItem onSelect={() => {
+                  launchNodeAddUpdateDialog("update")
+                }}>
+                  Edit state label
+                </ContextMenuItem>
 
                 <ContextMenuItem onSelect={deleteNode}>
                   Delete node
@@ -524,10 +538,9 @@ export default function AutomataWorkspaceCanvas() {
             {contextMenuMode === 'updateEdge' && (
               <ContextMenuContent className="w-52">
 
-                <ContextMenuItem onSelect={(event) => {
-                  event.preventDefault();
-                  launchUpdateEdgeModal();
-                }}>Update edge</ContextMenuItem>
+                <ContextMenuItem onSelect={launchUpdateEdgeModal}>
+                  Update edge
+                </ContextMenuItem>
 
                 <ContextMenuItem onSelect={deleteEdge}>
                   Delete edge
@@ -542,6 +555,50 @@ export default function AutomataWorkspaceCanvas() {
         </CardContent>
       </Card>
 
+      {/* State related dialog box */}
+
+      {hasOpenAddNodeDialog && getNodeAddUpdateMode() === 'normalAdd' && (
+        <NodeLabelDialog
+          dialogTitle='Add state'
+          dialogDescription='Give your new state a name!'
+          open={hasOpenAddNodeDialog}
+          onOpenChange={handleOpenNodeDialogChange}
+          onSubmit={addState}
+        ></NodeLabelDialog>
+      )}
+
+      {hasOpenAddNodeDialog && getNodeAddUpdateMode() === 'startAdd' && (
+        <NodeLabelDialog
+          dialogTitle='Add start state'
+          dialogDescription='Give your new state a name!'
+          open={hasOpenAddNodeDialog}
+          onOpenChange={handleOpenNodeDialogChange}
+          onSubmit={addStartState}
+        ></NodeLabelDialog>
+      )}
+
+      {hasOpenAddNodeDialog && getNodeAddUpdateMode() === 'finalAdd' && (
+        <NodeLabelDialog
+          dialogTitle='Add final state'
+          dialogDescription='Give your new state a name!'
+          open={hasOpenAddNodeDialog}
+          onOpenChange={handleOpenNodeDialogChange}
+          onSubmit={addFinalState}
+        ></NodeLabelDialog>
+      )}
+
+      {hasOpenAddNodeDialog && getNodeAddUpdateMode() === 'update' && (
+        <NodeLabelDialog
+          dialogTitle='Edit state label'
+          dialogDescription='Provide a updated name'
+          defaultLabel={getContextData<UpdateNodeContextData>().label}
+          open={hasOpenAddNodeDialog}
+          onOpenChange={handleOpenNodeDialogChange}
+          onSubmit={editState}
+        ></NodeLabelDialog>
+      )}
+
+      {/* Edge related dialog box */}
 
       {hasOpenEdgeDialog && (
         <EdgeLabelDialog
