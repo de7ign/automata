@@ -166,11 +166,14 @@ export default function AutomataWorkspaceCanvas() {
         preventDefault: true
       })
 
+
+      // Delete bindings
       keyBinding.bind('d', () => {
+        bindCaseInsensitiveShortcutForD();
+      })
 
-        checkSelectedNodeAndDelete();
-
-        checkSelectedEdgeAndDelete();
+      keyBinding.bind('e', () => {
+        enableDrawEdgeMode();
       })
     }
 
@@ -394,6 +397,11 @@ export default function AutomataWorkspaceCanvas() {
     onContextMenuOpenChange(open);
   }
 
+  function bindCaseInsensitiveShortcutForD() {
+    checkSelectedNodeAndDelete();
+    checkSelectedEdgeAndDelete();
+  }
+
   function checkSelectedNodeAndDelete() {
     const selectedNodes: IdType[] = getNetwork().getSelectedNodes();
     if (selectedNodes.length) {
@@ -475,7 +483,10 @@ export default function AutomataWorkspaceCanvas() {
                   onSubmit={addFinalState}
                 />
 
-                <ContextMenuItem onSelect={enableDrawEdgeMode}>Draw edge</ContextMenuItem>
+                <ContextMenuItem onSelect={enableDrawEdgeMode}>
+                  Draw edge
+                  <ContextMenuShortcut>E</ContextMenuShortcut>
+                </ContextMenuItem>
 
               </ContextMenuContent>
             )}
