@@ -23,11 +23,11 @@ export default function AutomataWorkspaceCanvas() {
   const canvasUtil = new WorkSpaceCanvasUtil();
 
   const networkContainer = useRef<HTMLDivElement>(null);
-  const network = useRef<any>(null)
+  const network = useRef<any>(null);
   const networkNodes = useRef<any>(null);
   const networkEdges = useRef<any>(null);
   const contextMenuData = useRef<ContextMenuData>(null);
-  let keyBinding: Keycharm
+  let keyBinding: Keycharm;
 
   const [contextMenuMode, setContextMenuMode] = useState<ContextMenuMode>(null);
   const [hasOpenDialog, setHasOpenDialog] = useState<boolean>(false);
@@ -37,7 +37,7 @@ export default function AutomataWorkspaceCanvas() {
   const [isEdgeCreationMode, setIsEdgeCreationMode] = useState<boolean>(false);
 
   function getNetwork(): Network {
-    return network.current
+    return network.current;
   }
 
   function setNetwork(networkInstance: Network): void {
@@ -152,6 +152,23 @@ export default function AutomataWorkspaceCanvas() {
             to: edgeDetails?.to || ''
           }
           setContextMenuMode("updateEdge")
+        }
+      })
+
+      network.on('doubleClick', (params: NetworkEventParams) => {
+        const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
+
+        if (edgeId) {
+          network.selectEdges([edgeId])
+          const networkEdges = getNetworkEdges();
+          const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
+          contextMenuData.current = {
+            id: edgeId,
+            label: edgeDetails?.label || '',
+            from: edgeDetails?.from || '',
+            to: edgeDetails?.to || ''
+          }
+          launchUpdateEdgeModal();
         }
       })
 
@@ -515,8 +532,8 @@ export default function AutomataWorkspaceCanvas() {
               <ContextMenuContent className="w-52">
 
                 <ContextMenuItem onSelect={(event) => {
-                  event.preventDefault()
-                  launchUpdateEdgeModal()
+                  event.preventDefault();
+                  launchUpdateEdgeModal();
                 }}>Update edge</ContextMenuItem>
 
                 <ContextMenuItem onSelect={deleteEdge}>
