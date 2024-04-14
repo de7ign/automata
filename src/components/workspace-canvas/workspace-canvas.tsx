@@ -168,17 +168,9 @@ export default function AutomataWorkspaceCanvas() {
 
       keyBinding.bind('d', () => {
 
-        // delete selected nodes
-        const selectedNodes: IdType[] = getNetwork().getSelectedNodes();
-        if (selectedNodes.length) {
-          const nodeId = selectedNodes[0];
-          contextMenuData.current = {
-            nodeId: nodeId,
-            label: networkNodes.get(nodeId)?.label || ''
-          }
-          deleteNode();
-        }
+        checkSelectedNodeAndDelete();
 
+        checkSelectedEdgeAndDelete();
       })
     }
 
@@ -388,7 +380,7 @@ export default function AutomataWorkspaceCanvas() {
   function deleteEdge(): void {
     const networkEdges = getNetworkEdges();
     const contextData: UpdateEdgeContextData = getContextData<UpdateEdgeContextData>();
-    if (contextMenuMode === "updateEdge" && contextData?.id) {
+    if (contextData?.id) {
       networkEdges.remove(contextData.id);
     }
   }
@@ -400,6 +392,35 @@ export default function AutomataWorkspaceCanvas() {
   function handleOpenUpdateEdgeDialogChange(open: boolean) {
     setHashEditEdgeDialog(open);
     onContextMenuOpenChange(open);
+  }
+
+  function checkSelectedNodeAndDelete() {
+    const selectedNodes: IdType[] = getNetwork().getSelectedNodes();
+    if (selectedNodes.length) {
+      const nodeId = selectedNodes[0];
+      const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
+      contextMenuData.current = {
+        nodeId: nodeId,
+        label: networkNodes.get(nodeId)?.label || ''
+      }
+      deleteNode();
+    }
+  }
+
+  function checkSelectedEdgeAndDelete() {
+    const selectedEdges: IdType[] = getNetwork().getSelectedEdges();
+    if (selectedEdges.length) {
+      const edgeId = selectedEdges[0];
+      const networkEdges = getNetworkEdges();
+      const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
+      contextMenuData.current = {
+        id: edgeId,
+        label: edgeDetails?.label || '',
+        from: edgeDetails?.from || '',
+        to: edgeDetails?.to || ''
+      }
+      deleteEdge();
+    }
   }
 
 
@@ -487,7 +508,10 @@ export default function AutomataWorkspaceCanvas() {
                   launchUpdateEdgeModal()
                 }}>Update edge</ContextMenuItem>
 
-                <ContextMenuItem onSelect={deleteEdge}>Delete edge</ContextMenuItem>
+                <ContextMenuItem onSelect={deleteEdge}>
+                  Delete edge
+                  <ContextMenuShortcut>select + D</ContextMenuShortcut>
+                </ContextMenuItem>
 
               </ContextMenuContent>
             )}
