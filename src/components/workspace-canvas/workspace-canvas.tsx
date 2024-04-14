@@ -8,7 +8,7 @@ import {
   CardContent
 } from "@/components/ui/card"
 import keycharm, { Keycharm } from "keycharm";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData, UpdateEdgeContextData, AddEdgeContextData } from "./types";
 import { NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
@@ -162,13 +162,33 @@ export default function AutomataWorkspaceCanvas() {
       })
 
       keyBinding = keycharm({
-        container: networkContainer.current,
+        // container: networkContainer.current,
         preventDefault: true
+      })
+
+      keyBinding.bind('d', () => {
+
+        // delete selected nodes
+        const selectedNodes: IdType[] = getNetwork().getSelectedNodes();
+        if (selectedNodes.length) {
+          const nodeId = selectedNodes[0];
+          contextMenuData.current = {
+            nodeId: nodeId,
+            label: networkNodes.get(nodeId)?.label || ''
+          }
+          deleteNode();
+        }
+
       })
     }
 
     // unbind as part of cleanup
     return () => {
+
+      // destroy keybindings
+      keyBinding.destroy();
+
+      // destroy networks
       const network: Network = getNetwork();
       network.destroy();
     }
@@ -331,7 +351,7 @@ export default function AutomataWorkspaceCanvas() {
   function deleteNode(): void {
     const networkNodes = getNetworkNodes();
     const contextData: UpdateNodeContextData = getContextData<UpdateNodeContextData>();
-    if (contextMenuMode === "updateNode" && contextData?.nodeId) {
+    if (contextData?.nodeId) {
       networkNodes.remove(contextData.nodeId);
     }
   }
@@ -452,7 +472,10 @@ export default function AutomataWorkspaceCanvas() {
                 />
 
 
-                <ContextMenuItem onSelect={deleteNode}>Delete node</ContextMenuItem>
+                <ContextMenuItem onSelect={deleteNode}>
+                  Delete node
+                  <ContextMenuShortcut>select + D</ContextMenuShortcut>
+                </ContextMenuItem>
               </ContextMenuContent>
             )}
 
