@@ -15,9 +15,9 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { formLabels, pageLabels } from "./constants"
-import { NodeLabelDialogItemProps } from "./types";
+import { ContextMenuItemNodeLabelDialogProps } from "./types";
 
-export default function NodeLabelDialogItem(props: NodeLabelDialogItemProps) {
+export default function ContextMenuItemNodeLabelDialog(props: ContextMenuItemNodeLabelDialogProps) {
   const { itemTitle, dialogTitle, dialogDescription, defaultLabel, disabled, onOpenChange, onSubmit } = props;
 
   const [dialogOpen, setDialogOpen] = useState(false);

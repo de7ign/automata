@@ -1,5 +1,5 @@
 
-export interface NodeLabelDialogItemProps {
+export interface ContextMenuItemNodeLabelDialogProps {
   itemTitle: string;
   dialogTitle: string;
   dialogDescription: string;

@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { EdgeLabelDialogItemProps } from "./types";
+import { EdgeLabelDialogProps } from "./types";
 import { useForm } from "react-hook-form";
 import * as z from "zod"
 import { formLabels, pageLabels } from "./constants";
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 
-export default function EdgeLabelDialogItem(props: EdgeLabelDialogItemProps) {
+export default function EdgeLabelDialog(props: EdgeLabelDialogProps) {
 
   const { dialogTitle, open, fromNode, toNode, onOpenChange, onSubmit, defaultLabel } = props;
 
@@ -37,7 +37,6 @@ export default function EdgeLabelDialogItem(props: EdgeLabelDialogItemProps) {
     },
   })
 
-
   function handleSubmit(values: z.infer<typeof formSchema>) {
     onSubmit(values.label);
     onOpenChange(false);
@@ -54,10 +53,7 @@ export default function EdgeLabelDialogItem(props: EdgeLabelDialogItemProps) {
       form.reset();
     }
     onOpenChange(value)
-  }
-
-  console.log('rerendering add edge label');
-  
+  }  
 
   return (
     <Dialog open={open} onOpenChange={dismiss}>

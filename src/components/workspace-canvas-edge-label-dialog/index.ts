@@ -1,1 +1,0 @@
-export { default } from "./workspace-canvas-edge-label-dialog";

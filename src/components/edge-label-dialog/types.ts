@@ -1,4 +1,4 @@
-export interface EdgeLabelDialogItemProps {
+export interface EdgeLabelDialogProps {
   dialogTitle: string;
   defaultLabel?: string;
   disabled?: boolean;

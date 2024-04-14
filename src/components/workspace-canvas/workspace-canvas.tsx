@@ -13,8 +13,8 @@ import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, Add
 import { NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
 import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
-import NodeLabelDialogItem from "@/components/workspace-canvas-node-label-dialog";
-import EdgeLabelDialogItem from "../workspace-canvas-edge-label-dialog/workspace-canvas-edge-label-dialog";
+import NodeLabelDialogItem from "@/components/context-menu-node-label-dialog";
+import EdgeLabelDialog from "../edge-label-dialog/edge-label-dialog";
 import { FullItem } from "vis-data/declarations/data-interface";
 import { Button } from "../ui/button";
 
@@ -74,21 +74,20 @@ export default function AutomataWorkspaceCanvas() {
         { id: '3', label: 'Node 3' },
         { id: '4', label: 'Node 4' },
         { id: '5', label: 'Node 5' }
-      ], {}))
+      ], {}));
 
       setNetworkEdges(new DataSet([
         { id: 1, from: 1, to: 3, label: 'asd' },
         { id: 2, from: 1, to: 2 },
         { id: 3, from: 2, to: 4 },
         { id: 4, from: 2, to: 5 }
-      ], {}))
+      ], {}));
 
 
       // provide the data in the vis format
       const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
 
       networkNodes.on('add', function (event, properties, senderId) {
-        console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
 
         // Check if start state is added then set the state variable to true
         markHasStartStateIfStartStateIsPresent();
@@ -96,7 +95,6 @@ export default function AutomataWorkspaceCanvas() {
       });
 
       networkNodes.on('remove', function (event, properties, senderId) {
-        console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
 
         // Check if star state is removed then set the state variable to false
         const isStartStateRemoved = properties?.oldData.some((item: NetworkNodes) => item.isStart);
@@ -123,7 +121,6 @@ export default function AutomataWorkspaceCanvas() {
       network.on('oncontext', (params: NetworkEventParams) => {
         const nodeId: IdType = network.getNodeAt(params.pointer.DOM);
         const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
-        // console.log('edges ', network.getEdgeAt(params.pointer.DOM));
 
         // if both are undefined then, pointer is in empty canvas
         // launch context menu for adding node and edges
@@ -159,7 +156,6 @@ export default function AutomataWorkspaceCanvas() {
         const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
 
         if (edgeId) {
-          network.selectEdges([edgeId])
           const networkEdges = getNetworkEdges();
           const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
           contextMenuData.current = {
@@ -173,7 +169,6 @@ export default function AutomataWorkspaceCanvas() {
       })
 
       network.on('beforeDrawing', (ctx) => {
-        console.log(ctx);
         drawArrowForStartState(ctx);
         drawOuterCircleForFinalStates(ctx);
       })
@@ -213,11 +208,9 @@ export default function AutomataWorkspaceCanvas() {
       ...options.manipulation,
       addEdge: function (edgeData: any, callback: (arg0: any) => void) {
 
-        console.log('inside the add edge and the data ', edgeData);
 
         if (edgeData?.from && edgeData.to) {
           callback(edgeData)
-          console.log('after callback edgedata ', edgeData);
 
           contextMenuData.current = {
             id: edgeData.id,
@@ -260,7 +253,7 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
-  function drawArrowForStartState(ctx: CanvasRenderingContext2D) {
+  function drawArrowForStartState(ctx: CanvasRenderingContext2D): void {
     const network: Network = getNetwork();
 
     const startStateItem = getStartState();
@@ -270,7 +263,7 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
-  function drawOuterCircleForFinalStates(ctx: CanvasRenderingContext2D) {
+  function drawOuterCircleForFinalStates(ctx: CanvasRenderingContext2D): void {
     const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
 
     const items: IdType[] = networkNodes.getIds({
@@ -368,7 +361,7 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
-  function handleOpenEdgeDialogChange(open: boolean) {
+  function handleOpenEdgeDialogChange(open: boolean): void {
     setHasOpenEdgeDialog(open);
     onContextMenuOpenChange(open);
     setIsEdgeCreationMode(false);
@@ -387,7 +380,7 @@ export default function AutomataWorkspaceCanvas() {
     const networkEdges = getNetworkEdges();
 
     const contextData: AddEdgeContextData | UpdateEdgeContextData = getContextData<AddEdgeContextData | UpdateEdgeContextData>();
-    console.log('context data in update edge label ', contextData)
+    
     if (contextData?.id) {
       networkEdges.update({
         ...networkEdges.get(contextData.id),
@@ -409,17 +402,17 @@ export default function AutomataWorkspaceCanvas() {
     setHashEditEdgeDialog(true);
   }
 
-  function handleOpenUpdateEdgeDialogChange(open: boolean) {
+  function handleOpenUpdateEdgeDialogChange(open: boolean): void {
     setHashEditEdgeDialog(open);
     onContextMenuOpenChange(open);
   }
 
-  function bindCaseInsensitiveShortcutForD() {
+  function bindCaseInsensitiveShortcutForD(): void {
     checkSelectedNodeAndDelete();
     checkSelectedEdgeAndDelete();
   }
 
-  function checkSelectedNodeAndDelete() {
+  function checkSelectedNodeAndDelete(): void {
     const selectedNodes: IdType[] = getNetwork().getSelectedNodes();
     if (selectedNodes.length) {
       const nodeId = selectedNodes[0];
@@ -432,7 +425,7 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
-  function checkSelectedEdgeAndDelete() {
+  function checkSelectedEdgeAndDelete(): void {
     const selectedEdges: IdType[] = getNetwork().getSelectedEdges();
     if (selectedEdges.length) {
       const edgeId = selectedEdges[0];
@@ -551,7 +544,7 @@ export default function AutomataWorkspaceCanvas() {
 
 
       {hasOpenEdgeDialog && (
-        <EdgeLabelDialogItem
+        <EdgeLabelDialog
           dialogTitle='Add Edge'
           fromNode={getContextData<AddEdgeContextData>()?.from}
           toNode={getContextData<AddEdgeContextData>()?.to}
@@ -562,7 +555,7 @@ export default function AutomataWorkspaceCanvas() {
       )}
 
       {hasOpenEditEdgeDialog && (
-        <EdgeLabelDialogItem
+        <EdgeLabelDialog
           dialogTitle='Update Edge'
           fromNode={getContextData<UpdateEdgeContextData>()?.from?.toString()}
           toNode={getContextData<UpdateEdgeContextData>()?.to?.toString()}
