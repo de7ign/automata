@@ -200,7 +200,7 @@ export default function AutomataWorkspaceCanvas() {
       })
 
       keyBinding.bind('e', () => {
-        enableDrawEdgeMode();
+        toggleDrawEdgeMode();
       })
     }
 
@@ -377,14 +377,20 @@ export default function AutomataWorkspaceCanvas() {
     onContextMenuOpenChange(open);
     setIsEdgeCreationMode(false);
   }
-
-  function enableDrawEdgeMode(): void {
-    const network = getNetwork();
-
-    network.addEdgeMode();
-    setIsEdgeCreationMode(true);
-
+  
+  function toggleDrawEdgeMode(): void {
+    setIsEdgeCreationMode(isEdgeCreationMode => !isEdgeCreationMode);
   }
+  
+  useEffect(() => {
+    const network: Network = getNetwork();
+
+    if (isEdgeCreationMode) {
+      network.addEdgeMode();
+    } else {
+      network.disableEditMode();
+    }
+  }, [isEdgeCreationMode])
 
   function updateEdgeLabel(label: string): void {
     const networkEdges = getNetworkEdges();
@@ -478,11 +484,7 @@ export default function AutomataWorkspaceCanvas() {
                 <div>
                   You're now in edge creation mode, click-drag from one state to another!
                 </div>
-                <Button variant="outline" className="bg-transparent" onClick={() => {
-                  const network: Network = getNetwork();
-                  network.disableEditMode();
-                  setIsEdgeCreationMode(false);
-                }}>Cancel</Button>
+                <Button variant="outline" className="bg-transparent" onClick={() => setIsEdgeCreationMode(false)}>Cancel</Button>
               </div>
             )}
 
@@ -511,7 +513,7 @@ export default function AutomataWorkspaceCanvas() {
                   Add final state
                 </ContextMenuItem>
 
-                <ContextMenuItem onSelect={enableDrawEdgeMode}>
+                <ContextMenuItem onSelect={() => setIsEdgeCreationMode(true)}>
                   Draw edge
                   <ContextMenuShortcut>E</ContextMenuShortcut>
                 </ContextMenuItem>
