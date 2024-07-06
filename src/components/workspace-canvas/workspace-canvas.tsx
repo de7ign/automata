@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DataSet } from "vis-data/peer"
-import { DataSetEdges, Edge, IdType, Network, Options, Position } from "vis-network/peer"
+import { DataSetEdges, Edge, IdType, Network, Options } from "vis-network/peer"
 import {
   Card,
   CardContent
@@ -36,10 +36,10 @@ export default function AutomataWorkspaceCanvas() {
   // Node dialogs
   const [hasOpenAddNodeDialog, setHasOpenAddNodeDialog] = useState<boolean>(false);
 
-
-  // TODO: Update the name to hasOpenAddEdgeDialog
-  const [hasOpenEdgeDialog, setHasOpenEdgeDialog] = useState<boolean>(false);
+  // Edge dialogs
+  const [hasOpenAddEdgeDialog, setHasOpenAddEdgeDialog] = useState<boolean>(false);
   const [hasOpenEditEdgeDialog, setHashEditEdgeDialog] = useState<boolean>(false);
+
   const [hasStartState, setHasStartState] = useState<boolean>(false);
   const [isEdgeCreationMode, setIsEdgeCreationMode] = useState<boolean>(false);
 
@@ -232,7 +232,7 @@ export default function AutomataWorkspaceCanvas() {
             from: edgeData.from,
             to: edgeData.to
           }
-          setHasOpenEdgeDialog(true)
+          setHasOpenAddEdgeDialog(true)
         } else {
           console.error("Unable to get edge data")
         }
@@ -373,7 +373,7 @@ export default function AutomataWorkspaceCanvas() {
 
   // TODO: Update the method name
   function handleOpenEdgeDialogChange(open: boolean): void {
-    setHasOpenEdgeDialog(open);
+    setHasOpenAddEdgeDialog(open);
     onContextMenuOpenChange(open);
     setIsEdgeCreationMode(false);
   }
@@ -602,12 +602,12 @@ export default function AutomataWorkspaceCanvas() {
 
       {/* Edge related dialog box */}
 
-      {hasOpenEdgeDialog && (
+      {hasOpenAddEdgeDialog && (
         <EdgeLabelDialog
           dialogTitle='Add Edge'
           fromNode={getContextData<AddEdgeContextData>()?.from}
           toNode={getContextData<AddEdgeContextData>()?.to}
-          open={hasOpenEdgeDialog}
+          open={hasOpenAddEdgeDialog}
           onOpenChange={handleOpenEdgeDialogChange}
           onSubmit={updateEdgeLabel}
         />
