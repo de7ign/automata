@@ -1,22 +1,39 @@
 'use client'
 
-import { useEffect, useRef, useState } from "react";
-import { DataSet } from "vis-data/peer"
-import { DataSetEdges, Edge, IdType, Network, Options } from "vis-network/peer"
+import {useEffect, useRef, useState} from "react";
+import {DataSet} from "vis-data/peer"
+import {DataSetEdges, Edge, IdType, Network, Options} from "vis-network/peer"
 import {
   Card,
   CardContent
 } from "@/components/ui/card"
-import keycharm, { Keycharm } from "keycharm";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { NetworkNodes, ContextMenuData, NetworkEventParams, ContextMenuMode, AddNodeContextData, UpdateNodeContextData, UpdateEdgeContextData, AddEdgeContextData, NodeAddUpdateMode } from "./types";
-import { NETWORK_DEFAULT_OPTION } from "./constants";
-import { v4 as uuidv4 } from 'uuid';
-import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
+import keycharm, {Keycharm} from "keycharm";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuShortcut,
+  ContextMenuTrigger
+} from "@/components/ui/context-menu";
+import {
+  NetworkNodes,
+  ContextMenuData,
+  NetworkEventParams,
+  ContextMenuMode,
+  AddNodeContextData,
+  UpdateNodeContextData,
+  UpdateEdgeContextData,
+  AddEdgeContextData,
+  NodeAddUpdateMode
+} from "./types";
+import {NETWORK_DEFAULT_OPTION} from "./constants";
+import {v4 as uuidv4} from 'uuid';
+import {WorkSpaceCanvasUtil} from "./workspace-canvas-util";
 import EdgeLabelDialog from "../edge-label-dialog/edge-label-dialog";
-import { FullItem } from "vis-data/declarations/data-interface";
-import { Button } from "../ui/button";
+import {FullItem} from "vis-data/declarations/data-interface";
+import {Button} from "../ui/button";
 import NodeLabelDialog from "../node-label-dialog/node-label-dialog";
+import networkService from "@/services/network-service";
 
 export default function AutomataWorkspaceCanvas() {
 
@@ -27,7 +44,7 @@ export default function AutomataWorkspaceCanvas() {
   const networkNodes = useRef<any>(null);
   const networkEdges = useRef<any>(null);
   const contextMenuData = useRef<ContextMenuData>(null);
-  let keyBinding: Keycharm;
+  const keyBinding = useRef<Keycharm | null>(null);
 
   const nodeAddUpdateMode = useRef<any>(null);
 
@@ -79,143 +96,120 @@ export default function AutomataWorkspaceCanvas() {
     nodeAddUpdateMode.current = mode;
   }
 
-  // initialize your network!
   useEffect(() => {
-    if (networkContainer.current) {
-
+    if (networkContainer.current != null) {
       setNetworkNodes(new DataSet([
-        { id: '1', label: 'Node x' },
-        { id: '2', label: 'Node 2' },
-        { id: '3', label: 'Node 3' },
-        { id: '4', label: 'Node 4' },
-        { id: '5', label: 'Node 5' }
+        {id: '1', label: 'Node x'},
+        {id: '2', label: 'Node 2'},
+        {id: '3', label: 'Node 3'},
+        {id: '4', label: 'Node 4'},
+        {id: '5', label: 'Node 5'}
       ], {}));
 
       setNetworkEdges(new DataSet([
-        { id: 1, from: 1, to: 3, label: 'asd' },
-        { id: 2, from: 1, to: 2 },
-        { id: 3, from: 2, to: 4 },
-        { id: 4, from: 2, to: 5 }
+        {id: 1, from: 1, to: 3, label: 'asd'},
+        {id: 2, from: 1, to: 2},
+        {id: 3, from: 2, to: 4},
+        {id: 4, from: 2, to: 5}
       ], {}));
 
-
-      // provide the data in the vis format
       const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
-
-      networkNodes.on('add', function (event, properties, senderId) {
-
-        // Check if start state is added then set the state variable to true
-        markHasStartStateIfStartStateIsPresent();
-
-      });
-
-      networkNodes.on('remove', function (event, properties, senderId) {
-
-        // Check if star state is removed then set the state variable to false
-        const isStartStateRemoved = properties?.oldData.some((item: NetworkNodes) => item.isStart);
-
-        if (isStartStateRemoved) {
-          setHasStartState(false);
-        }
-
-      });
 
       const data = {
         nodes: networkNodes,
         edges: getNetworkEdges()
       };
 
-      setNetwork(new Network(networkContainer.current, data, customizeNetworkOption(NETWORK_DEFAULT_OPTION)));
+      network.current = networkService.createNetwork(networkContainer.current, customizeNetworkOption(NETWORK_DEFAULT_OPTION), data);
 
-      // TODO: Similar is used in beforeDrawing, prolly we can extract as method
-      // Check while initializing if we have the a start state, then make the hasStartState as true
-      markHasStartStateIfStartStateIsPresent();
+      initNetworkBindings();
 
-      const network: Network = getNetwork();
-
-      network.on('oncontext', (params: NetworkEventParams) => {
-        const nodeId: IdType = network.getNodeAt(params.pointer.DOM);
-        const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
-
-        // if both are undefined then, pointer is in empty canvas
-        // launch context menu for adding node and edges
-        if (!nodeId && !edgeId) {
-          contextMenuData.current = {
-            position: params.pointer.canvas
-          }
-          setContextMenuMode("addNodeAndEdge")
-        } else if (nodeId) {
-          // node found, launch context menu for updating node
-          network.selectNodes([nodeId], false);
-          contextMenuData.current = {
-            nodeId: nodeId,
-            label: networkNodes.get(nodeId)?.label || ''
-          }
-          setContextMenuMode("updateNode")
-        } else if (edgeId) {
-          // edge found, launch context menu for updating edge
-          network.selectEdges([edgeId])
-          const networkEdges = getNetworkEdges();
-          const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
-          contextMenuData.current = {
-            id: edgeId,
-            label: edgeDetails?.label || '',
-            from: edgeDetails?.from || '',
-            to: edgeDetails?.to || ''
-          }
-          setContextMenuMode("updateEdge")
-        }
-      })
-
-      network.on('doubleClick', (params: NetworkEventParams) => {
-        const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
-
-        if (edgeId) {
-          const networkEdges = getNetworkEdges();
-          const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
-          contextMenuData.current = {
-            id: edgeId,
-            label: edgeDetails?.label || '',
-            from: edgeDetails?.from || '',
-            to: edgeDetails?.to || ''
-          }
-          launchUpdateEdgeModal();
-        }
-      })
-
-      network.on('beforeDrawing', (ctx) => {
-        drawArrowForStartState(ctx);
-        drawOuterCircleForFinalStates(ctx);
-      })
-
-      keyBinding = keycharm({
-        // container: networkContainer.current,
+      keyBinding.current = keycharm({
         preventDefault: true
-      })
+      });
 
+      initKeyBindings();
 
-      // Delete bindings
-      keyBinding.bind('d', () => {
-        bindCaseInsensitiveShortcutForD();
-      })
+      return () => {
 
-      keyBinding.bind('e', () => {
-        toggleDrawEdgeMode();
-      })
+        keyBinding.current?.destroy();
+
+        networkService.destroyNetwork();
+      }
     }
+  }, [networkContainer]);
 
-    // unbind as part of cleanup
-    return () => {
+  function initNetworkBindings() {
+    const network: Network = getNetwork();
 
-      // destroy keybindings
-      keyBinding.destroy();
+    network.on('oncontext', (params: NetworkEventParams) => {
+      const nodeId: IdType = network.getNodeAt(params.pointer.DOM);
+      const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
 
-      // destroy networks
-      const network: Network = getNetwork();
-      network.destroy();
-    }
-  }, [networkContainer])
+      // if both are undefined then, pointer is in empty canvas
+      // launch context menu for adding node and edges
+      if (!nodeId && !edgeId) {
+        contextMenuData.current = {
+          position: params.pointer.canvas
+        }
+        setContextMenuMode("addNodeAndEdge")
+      } else if (nodeId) {
+        // node found, launch context menu for updating node
+        network.selectNodes([nodeId], false);
+        const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
+        contextMenuData.current = {
+          nodeId: nodeId,
+          label: networkNodes.get(nodeId)?.label || ''
+        }
+        setContextMenuMode("updateNode")
+      } else if (edgeId) {
+        // edge found, launch context menu for updating edge
+        network.selectEdges([edgeId])
+        const networkEdges = getNetworkEdges();
+        const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
+        contextMenuData.current = {
+          id: edgeId,
+          label: edgeDetails?.label || '',
+          from: edgeDetails?.from || '',
+          to: edgeDetails?.to || ''
+        }
+        setContextMenuMode("updateEdge")
+      }
+    })
 
+    network.on('doubleClick', (params: NetworkEventParams) => {
+      const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
+
+      if (edgeId) {
+        const networkEdges = getNetworkEdges();
+        const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
+        contextMenuData.current = {
+          id: edgeId,
+          label: edgeDetails?.label || '',
+          from: edgeDetails?.from || '',
+          to: edgeDetails?.to || ''
+        }
+        launchUpdateEdgeModal();
+      }
+    })
+
+    network.on('beforeDrawing', (ctx: CanvasRenderingContext2D) => {
+      drawArrowForStartState(ctx);
+      drawOuterCircleForFinalStates(ctx);
+    })
+  }
+
+  function initKeyBindings() {
+    // Delete bindings
+    keyBinding.current?.bind('d', () => {
+      bindCaseInsensitiveShortcutForD();
+    })
+
+    // Edit bindings
+    keyBinding.current?.bind('e', () => {
+      toggleDrawEdgeMode();
+    })
+  }
 
   function customizeNetworkOption(defaultOption: Options): Options {
     const options: Options = structuredClone(defaultOption)
@@ -377,11 +371,11 @@ export default function AutomataWorkspaceCanvas() {
     onContextMenuOpenChange(open);
     setIsEdgeCreationMode(false);
   }
-  
+
   function toggleDrawEdgeMode(): void {
     setIsEdgeCreationMode(isEdgeCreationMode => !isEdgeCreationMode);
   }
-  
+
   useEffect(() => {
     const network: Network = getNetwork();
 
@@ -482,9 +476,10 @@ export default function AutomataWorkspaceCanvas() {
             {isEdgeCreationMode && (
               <div className="bg-sky-500 rounded-t-sm p-1 flex justify-between items-baseline text-sm">
                 <div>
-                  You're now in edge creation mode, click-drag from one state to another!
+                  You&apos;re now in edge creation mode, click-drag from one state to another!
                 </div>
-                <Button variant="outline" className="bg-transparent" onClick={() => setIsEdgeCreationMode(false)}>Cancel</Button>
+                <Button variant="outline" className="bg-transparent"
+                        onClick={() => setIsEdgeCreationMode(false)}>Cancel</Button>
               </div>
             )}
 
