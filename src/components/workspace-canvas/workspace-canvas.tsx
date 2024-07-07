@@ -17,13 +17,9 @@ import {
 } from "@/components/ui/context-menu";
 import {
   AutomataNode,
-  ContextMenuData,
+  ActionContextData,
   NetworkEventParams,
   ContextMenuMode,
-  AddNodeContextData,
-  UpdateNodeContextData,
-  UpdateEdgeContextData,
-  AddEdgeContextData,
   NodeAddUpdateMode,
   NetworkNodes,
   NetworkEdges,
@@ -44,7 +40,7 @@ export default function AutomataWorkspaceCanvas() {
   const canvasUtil = new WorkSpaceCanvasUtil();
 
   const networkContainer = useRef<HTMLDivElement>(null);
-  const contextMenuData = useRef<ContextMenuData>(null);
+  const actionContextData = useRef<ActionContextData>(null);
   const keyBinding = useRef<Keycharm | null>(null);
 
   const nodeAddUpdateMode = useRef<any>(null);
@@ -61,8 +57,9 @@ export default function AutomataWorkspaceCanvas() {
   const [hasStartState, setHasStartState] = useState<boolean>(false);
   const [isEdgeCreationMode, setIsEdgeCreationMode] = useState<boolean>(false);
 
-  function getContextData<T>(): T {
-    return contextMenuData.current as T;
+
+  function getActionContextData(): ActionContextData {
+    return actionContextData.current;
   }
 
   function getNodeAddUpdateMode(): NodeAddUpdateMode {
@@ -121,24 +118,31 @@ export default function AutomataWorkspaceCanvas() {
 
     network.on('oncontext', (params: NetworkEventParams) => {
 
-      
+
       const nwElements: SelectedNetworkElements | undefined = getSelectedNetworkElements(params);
 
       if (!nwElements?.node && !nwElements?.edge) {
-        contextMenuData.current = {
+        actionContextData.current = {
+          type: 'empty',
           position: params.pointer.canvas
         };
 
         setContextMenuMode("addNodeAndEdge");
       } else if (nwElements?.node) {
         // node found, launch context menu for updating node
-        contextMenuData.current = nwElements.node;
+        actionContextData.current = {
+          type: 'node',
+          ...nwElements.node
+        }
 
         setContextMenuMode("updateNode")
       } else if (nwElements?.edge) {
         // edge found, launch context menu for updating edge
 
-        contextMenuData.current = nwElements?.edge;
+        actionContextData.current = {
+          type: 'edge',
+          ...nwElements?.edge
+        }
         setContextMenuMode("updateEdge")
       }
 
@@ -149,7 +153,10 @@ export default function AutomataWorkspaceCanvas() {
       const nwElements: SelectedNetworkElements | undefined = getSelectedNetworkElements(params);
 
       if (nwElements?.edge) {
-        contextMenuData.current = nwElements.edge;
+        actionContextData.current = {
+          type: 'edge',
+          ...nwElements.edge
+        }
         launchUpdateEdgeModal();
       }
     })
@@ -182,10 +189,12 @@ export default function AutomataWorkspaceCanvas() {
         if (edgeData?.from && edgeData.to) {
           callback(edgeData)
 
-          contextMenuData.current = {
+          actionContextData.current = {
+            type: 'edge',
             id: edgeData.id,
             from: edgeData.from,
-            to: edgeData.to
+            to: edgeData.to,
+            label: ''
           }
           setHasOpenAddEdgeDialog(true)
         } else {
@@ -246,11 +255,11 @@ export default function AutomataWorkspaceCanvas() {
       // TODO: Add type
       const nodeIdToPositions = networkService.getNetwork().getPositions(items);
       const positions = [];
-  
+
       for (let nodeId in nodeIdToPositions) {
         positions.push(nodeIdToPositions[nodeId])
       }
-  
+
       if (positions && Array.isArray(positions)) {
         canvasUtil.drawOuterCircle(ctx, positions);
       }
@@ -266,8 +275,8 @@ export default function AutomataWorkspaceCanvas() {
 
   function addState(label: string): void {
     const networkNodes: NetworkNodes | undefined = networkService.getNodes();
-    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
-    if (contextData?.position) {
+    const contextData: ActionContextData = getActionContextData();
+    if (contextData?.type === "empty" && contextData?.position) {
       networkNodes?.add({
         id: uuidv4(),
         label: label,
@@ -280,9 +289,9 @@ export default function AutomataWorkspaceCanvas() {
 
   function addStartState(label: string): void {
     const networkNodes: NetworkNodes | undefined = networkService.getNodes();
-    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
+    const contextData: ActionContextData = getActionContextData();
 
-    if (contextData?.position) {
+    if (contextData?.type === "empty" && contextData?.position) {
       networkNodes?.add({
         id: uuidv4(),
         label: label,
@@ -295,9 +304,9 @@ export default function AutomataWorkspaceCanvas() {
 
   function addFinalState(label: string): void {
     const networkNodes: NetworkNodes | undefined = networkService.getNodes();
-    const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
+    const contextData: ActionContextData = getActionContextData();
 
-    if (contextData?.position && networkNodes) {
+    if (contextData?.type === "empty" && contextData?.position && networkNodes) {
       networkNodes.add({
         id: uuidv4(),
         label: label,
@@ -308,11 +317,11 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
-
-  function editState(label: string): void {
+  function updateStateLabel(label: string): void {
     const networkNodes: NetworkNodes | undefined = networkService.getNodes();
-    const contextData: UpdateNodeContextData = getContextData<UpdateNodeContextData>();
-    if (contextData?.id && networkNodes) {
+    const contextData: ActionContextData = getActionContextData();
+
+    if (contextData?.type === "node" && contextData?.id && networkNodes) {
       networkNodes.update({
         ...networkNodes.get(contextData.id),
         label: label
@@ -323,8 +332,9 @@ export default function AutomataWorkspaceCanvas() {
 
   function deleteNode(): void {
     const networkNodes: NetworkNodes | undefined = networkService.getNodes();
-    const contextData: UpdateNodeContextData = getContextData<UpdateNodeContextData>();
-    if (contextData?.id && networkNodes) {
+    const contextData: ActionContextData = getActionContextData();
+
+    if (contextData?.type === "node" && contextData?.id && networkNodes) {
       networkNodes.remove(contextData.id);
     }
   }
@@ -350,12 +360,13 @@ export default function AutomataWorkspaceCanvas() {
     }
   }, [isEdgeCreationMode])
 
+
   function updateEdgeLabel(label: string): void {
     const networkEdges: NetworkEdges | undefined = networkService.getEdges();
 
-    const contextData: AddEdgeContextData | UpdateEdgeContextData = getContextData<AddEdgeContextData | UpdateEdgeContextData>();
+    const contextData: ActionContextData = getActionContextData();
 
-    if (contextData?.id && networkEdges) {
+    if (contextData?.type === "edge" && contextData?.id && networkEdges) {
       networkEdges.update({
         ...networkEdges.get(contextData.id),
         label: label
@@ -366,8 +377,9 @@ export default function AutomataWorkspaceCanvas() {
 
   function deleteEdge(): void {
     const networkEdges: NetworkEdges | undefined = networkService.getEdges();
-    const contextData: UpdateEdgeContextData = getContextData<UpdateEdgeContextData>();
-    if (contextData?.id && networkEdges) {
+    const contextData: ActionContextData = getActionContextData();
+
+    if (contextData?.type === "edge" && contextData?.id && networkEdges) {
       networkEdges.remove(contextData.id);
     }
   }
@@ -386,13 +398,15 @@ export default function AutomataWorkspaceCanvas() {
     checkSelectedEdgeAndDelete();
   }
 
+  // TODO: onClick will set context data, no need to set it here, just check the type and delete
   function checkSelectedNodeAndDelete(): void {
     const selectedNodes: IdType[] = networkService.getNetwork().getSelectedNodes();
     if (selectedNodes.length) {
       const nodeId = selectedNodes[0];
       const networkNodes: NetworkNodes | undefined = networkService.getNodes();
       if (networkNodes) {
-        contextMenuData.current = {
+        actionContextData.current = {
+          type: 'node',
           id: nodeId,
           label: networkNodes.get(nodeId)?.label || ''
         }
@@ -402,14 +416,17 @@ export default function AutomataWorkspaceCanvas() {
     }
   }
 
+  // TODO: onClick will set context data, no need to set it here, just check the type and delete
   function checkSelectedEdgeAndDelete(): void {
     const selectedEdges: IdType[] = networkService.getNetwork().getSelectedEdges();
+
     if (selectedEdges.length) {
       const edgeId = selectedEdges[0];
       const networkEdges: NetworkEdges | undefined = networkService.getEdges();
       if (networkEdges) {
         const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
-        contextMenuData.current = {
+        actionContextData.current = {
+          type: 'edge',
           id: edgeId,
           label: edgeDetails?.label || '',
           from: edgeDetails?.from || '',
@@ -524,6 +541,7 @@ export default function AutomataWorkspaceCanvas() {
 
       {/* State related dialog box */}
 
+      {/* TODO: Revisit if we can get rid of getNodeAndUpdateMode() and rely actionContextData */}
       {hasOpenAddNodeDialog && getNodeAddUpdateMode() === 'normalAdd' && (
         <NodeLabelDialog
           dialogTitle='Add state'
@@ -558,10 +576,13 @@ export default function AutomataWorkspaceCanvas() {
         <NodeLabelDialog
           dialogTitle='Edit state label'
           dialogDescription='Provide a updated name'
-          defaultLabel={getContextData<UpdateNodeContextData>().label}
+          defaultLabel={function () {
+            const contextData = getActionContextData();
+            return contextData?.type === "node" ? contextData.label : ''
+          }()}
           open={hasOpenAddNodeDialog}
           onOpenChange={handleOpenNodeDialogChange}
-          onSubmit={editState}
+          onSubmit={updateStateLabel}
         ></NodeLabelDialog>
       )}
 
@@ -570,8 +591,14 @@ export default function AutomataWorkspaceCanvas() {
       {hasOpenAddEdgeDialog && (
         <EdgeLabelDialog
           dialogTitle='Add Edge'
-          fromNode={getContextData<AddEdgeContextData>()?.from}
-          toNode={getContextData<AddEdgeContextData>()?.to}
+          fromNode={function () {
+            const contextData = getActionContextData();
+            return contextData?.type === "edge" ? contextData?.from : '';
+          }()}
+          toNode={function () {
+            const contextData = getActionContextData();
+            return contextData?.type === "edge" ? contextData?.to : '';
+          }()}
           open={hasOpenAddEdgeDialog}
           onOpenChange={handleOpenEdgeDialogChange}
           onSubmit={updateEdgeLabel}
@@ -581,9 +608,18 @@ export default function AutomataWorkspaceCanvas() {
       {hasOpenEditEdgeDialog && (
         <EdgeLabelDialog
           dialogTitle='Update Edge'
-          fromNode={getContextData<UpdateEdgeContextData>()?.from?.toString()}
-          toNode={getContextData<UpdateEdgeContextData>()?.to?.toString()}
-          defaultLabel={getContextData<UpdateEdgeContextData>()?.label}
+          fromNode={function () {
+            const contextData = getActionContextData();
+            return contextData?.type === "edge" ? contextData.from : '';
+          }()}
+          toNode={function () {
+            const contextData = getActionContextData();
+            return contextData?.type === "edge" ? contextData.to : '';
+          }()}
+          defaultLabel={function () {
+            const contextData = getActionContextData();
+            return contextData?.type === "edge" ? contextData.label : '';
+          }()}
           open={hasOpenEditEdgeDialog}
           onOpenChange={handleOpenUpdateEdgeDialogChange}
           onSubmit={updateEdgeLabel}

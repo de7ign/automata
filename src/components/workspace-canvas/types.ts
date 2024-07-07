@@ -1,37 +1,29 @@
-import {Position, IdType, Node, DataSetEdges} from "vis-network";
-import {DataSet} from "vis-data";
+import { Position, IdType, Node, DataSetEdges } from "vis-network";
+import { DataSet } from "vis-data";
 
 
 export type ContextMenuMode = 'addNodeAndEdge' | 'updateNode' | 'updateEdge' | null;
 
-export interface AddNodeContextData {
+interface EmptyContextData {
+  type: 'empty';
   position: Position;
 }
 
-export interface AddEdgeContextData {
-  id: string;
-  from: string;
-  to: string;
-}
-
-export interface UpdateNodeContextData {
+interface NodeContextData {
+  type: 'node';
   id: IdType;
   label: string;
 }
 
-export interface UpdateEdgeContextData {
+interface EdgeContextData {
+  type: 'edge';
   id: IdType;
   from: IdType;
   to: IdType;
   label: string;
 }
 
-export type ContextMenuData =
-  AddNodeContextData
-  | AddEdgeContextData
-  | UpdateNodeContextData
-  | UpdateEdgeContextData
-  | null;
+export type ActionContextData = EmptyContextData | NodeContextData | EdgeContextData | null;
 
 export interface NetworkEventParams {
   edges: string[];
