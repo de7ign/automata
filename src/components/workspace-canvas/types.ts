@@ -1,5 +1,5 @@
-import {Position, IdType, Node} from "vis-network";
-import {string} from "zod";
+import {Position, IdType, Node, DataSetEdges} from "vis-network";
+import {DataSet} from "vis-data";
 
 
 export type ContextMenuMode = 'addNodeAndEdge' | 'updateNode' | 'updateEdge' | null;
@@ -15,7 +15,7 @@ export interface AddEdgeContextData {
 }
 
 export interface UpdateNodeContextData {
-  nodeId: IdType;
+  id: IdType;
   label: string;
 }
 
@@ -43,15 +43,19 @@ export interface NetworkEventParams {
   };
 }
 
-export interface NetworkNodes extends Node {
+export interface AutomataNode extends Node {
   isFinal?: boolean;
   isStart?: boolean;
 }
 
+export type NetworkNodes = DataSet<AutomataNode> | DataSet<AutomataNode, "id">;
+
+export type NetworkEdges = DataSetEdges;
+
 export type NodeAddUpdateMode = 'normalAdd' | 'startAdd' | 'finalAdd' | 'update';
 
 export interface NodeDetail {
-  nodeId: IdType;
+  id: IdType;
   label: string;
 }
 

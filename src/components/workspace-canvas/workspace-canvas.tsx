@@ -1,13 +1,13 @@
 'use client'
 
-import {useEffect, useRef, useState} from "react";
-import {DataSet} from "vis-data/peer"
-import {DataSetEdges, Edge, IdType, Network, Options} from "vis-network/peer"
+import { useEffect, useRef, useState } from "react";
+import { DataSet } from "vis-data/peer"
+import { Data, Edge, IdType, Network, Options } from "vis-network/peer"
 import {
   Card,
   CardContent
 } from "@/components/ui/card"
-import keycharm, {Keycharm} from "keycharm";
+import keycharm, { Keycharm } from "keycharm";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -16,7 +16,7 @@ import {
   ContextMenuTrigger
 } from "@/components/ui/context-menu";
 import {
-  NetworkNodes,
+  AutomataNode,
   ContextMenuData,
   NetworkEventParams,
   ContextMenuMode,
@@ -24,25 +24,26 @@ import {
   UpdateNodeContextData,
   UpdateEdgeContextData,
   AddEdgeContextData,
-  NodeAddUpdateMode
+  NodeAddUpdateMode,
+  NetworkNodes,
+  NetworkEdges,
+  SelectedNetworkElements
 } from "./types";
-import {NETWORK_DEFAULT_OPTION} from "./constants";
-import {v4 as uuidv4} from 'uuid';
-import {WorkSpaceCanvasUtil} from "./workspace-canvas-util";
+import { NETWORK_DEFAULT_OPTION } from "./constants";
+import { v4 as uuidv4 } from 'uuid';
+import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
 import EdgeLabelDialog from "../edge-label-dialog/edge-label-dialog";
-import {FullItem} from "vis-data/declarations/data-interface";
-import {Button} from "../ui/button";
+import { FullItem } from "vis-data/declarations/data-interface";
+import { Button } from "../ui/button";
 import NodeLabelDialog from "../node-label-dialog/node-label-dialog";
 import networkService from "@/services/network-service";
+import { getSelectedNetworkElements } from "./workspace-network-util";
 
 export default function AutomataWorkspaceCanvas() {
 
   const canvasUtil = new WorkSpaceCanvasUtil();
 
   const networkContainer = useRef<HTMLDivElement>(null);
-  const network = useRef<any>(null);
-  const networkNodes = useRef<any>(null);
-  const networkEdges = useRef<any>(null);
   const contextMenuData = useRef<ContextMenuData>(null);
   const keyBinding = useRef<Keycharm | null>(null);
 
@@ -60,30 +61,6 @@ export default function AutomataWorkspaceCanvas() {
   const [hasStartState, setHasStartState] = useState<boolean>(false);
   const [isEdgeCreationMode, setIsEdgeCreationMode] = useState<boolean>(false);
 
-  function getNetwork(): Network {
-    return network.current;
-  }
-
-  function setNetwork(networkInstance: Network): void {
-    network.current = networkInstance;
-  }
-
-  function setNetworkNodes(nodeInstance: DataSet<NetworkNodes>): void {
-    networkNodes.current = nodeInstance;
-  }
-
-  function getNetworkNodes(): DataSet<NetworkNodes> {
-    return networkNodes.current;
-  }
-
-  function setNetworkEdges(edgeInstance: DataSetEdges): void {
-    networkEdges.current = edgeInstance;
-  }
-
-  function getNetworkEdges(): DataSetEdges {
-    return networkEdges.current;
-  }
-
   function getContextData<T>(): T {
     return contextMenuData.current as T;
   }
@@ -98,29 +75,28 @@ export default function AutomataWorkspaceCanvas() {
 
   useEffect(() => {
     if (networkContainer.current != null) {
-      setNetworkNodes(new DataSet([
-        {id: '1', label: 'Node x'},
-        {id: '2', label: 'Node 2'},
-        {id: '3', label: 'Node 3'},
-        {id: '4', label: 'Node 4'},
-        {id: '5', label: 'Node 5'}
-      ], {}));
 
-      setNetworkEdges(new DataSet([
-        {id: 1, from: 1, to: 3, label: 'asd'},
-        {id: 2, from: 1, to: 2},
-        {id: 3, from: 2, to: 4},
-        {id: 4, from: 2, to: 5}
-      ], {}));
+      const defaultNodes = new DataSet([
+        { id: '1', label: 'Node x' },
+        { id: '2', label: 'Node 2' },
+        { id: '3', label: 'Node 3' },
+        { id: '4', label: 'Node 4' },
+        { id: '5', label: 'Node 5' }
+      ], {});
 
-      const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
+      const defaultEdges = new DataSet([
+        { id: 1, from: 1, to: 3, label: 'asd' },
+        { id: 2, from: 1, to: 2 },
+        { id: 3, from: 2, to: 4 },
+        { id: 4, from: 2, to: 5 }
+      ], {})
 
-      const data = {
-        nodes: networkNodes,
-        edges: getNetworkEdges()
+      const data: Data = {
+        nodes: defaultNodes,
+        edges: defaultEdges
       };
 
-      network.current = networkService.createNetwork(networkContainer.current, customizeNetworkOption(NETWORK_DEFAULT_OPTION), data);
+      networkService.createNetwork(networkContainer.current, customizeNetworkOption(NETWORK_DEFAULT_OPTION), data);
 
       initNetworkBindings();
 
@@ -140,55 +116,40 @@ export default function AutomataWorkspaceCanvas() {
   }, [networkContainer]);
 
   function initNetworkBindings() {
-    const network: Network = getNetwork();
+
+    const network: Network = networkService.getNetwork();
 
     network.on('oncontext', (params: NetworkEventParams) => {
-      const nodeId: IdType = network.getNodeAt(params.pointer.DOM);
-      const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
 
-      // if both are undefined then, pointer is in empty canvas
-      // launch context menu for adding node and edges
-      if (!nodeId && !edgeId) {
+      
+      const nwElements: SelectedNetworkElements | undefined = getSelectedNetworkElements(params);
+
+      if (!nwElements?.node && !nwElements?.edge) {
         contextMenuData.current = {
           position: params.pointer.canvas
-        }
-        setContextMenuMode("addNodeAndEdge")
-      } else if (nodeId) {
+        };
+
+        setContextMenuMode("addNodeAndEdge");
+      } else if (nwElements?.node) {
         // node found, launch context menu for updating node
-        network.selectNodes([nodeId], false);
-        const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
-        contextMenuData.current = {
-          nodeId: nodeId,
-          label: networkNodes.get(nodeId)?.label || ''
-        }
+        contextMenuData.current = nwElements.node;
+
         setContextMenuMode("updateNode")
-      } else if (edgeId) {
+      } else if (nwElements?.edge) {
         // edge found, launch context menu for updating edge
-        network.selectEdges([edgeId])
-        const networkEdges = getNetworkEdges();
-        const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
-        contextMenuData.current = {
-          id: edgeId,
-          label: edgeDetails?.label || '',
-          from: edgeDetails?.from || '',
-          to: edgeDetails?.to || ''
-        }
+
+        contextMenuData.current = nwElements?.edge;
         setContextMenuMode("updateEdge")
       }
+
     })
 
     network.on('doubleClick', (params: NetworkEventParams) => {
-      const edgeId: IdType = network.getEdgeAt(params.pointer.DOM);
 
-      if (edgeId) {
-        const networkEdges = getNetworkEdges();
-        const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
-        contextMenuData.current = {
-          id: edgeId,
-          label: edgeDetails?.label || '',
-          from: edgeDetails?.from || '',
-          to: edgeDetails?.to || ''
-        }
+      const nwElements: SelectedNetworkElements | undefined = getSelectedNetworkElements(params);
+
+      if (nwElements?.edge) {
+        contextMenuData.current = nwElements.edge;
         launchUpdateEdgeModal();
       }
     })
@@ -238,15 +199,15 @@ export default function AutomataWorkspaceCanvas() {
 
 
   function getStartState(): IdType | undefined {
-    const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
+    const networkNodes: NetworkNodes | undefined = networkService.getNodes();
 
-    const item: IdType[] = networkNodes.getIds({
-      filter: function (item: NetworkNodes) {
+    const item: IdType[] | undefined = networkNodes?.getIds({
+      filter: function (item: AutomataNode) {
         return !!item.isStart;
       }
     })
 
-    if (item.length === 1) {
+    if (item?.length === 1) {
       return item[0];
     }
     return undefined;
@@ -263,7 +224,7 @@ export default function AutomataWorkspaceCanvas() {
   }
 
   function drawArrowForStartState(ctx: CanvasRenderingContext2D): void {
-    const network: Network = getNetwork();
+    const network: Network = networkService.getNetwork();
 
     const startStateItem = getStartState();
 
@@ -273,23 +234,26 @@ export default function AutomataWorkspaceCanvas() {
   }
 
   function drawOuterCircleForFinalStates(ctx: CanvasRenderingContext2D): void {
-    const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
+    const networkNodes: NetworkNodes | undefined = networkService.getNodes();
 
-    const items: IdType[] = networkNodes.getIds({
-      filter: function (item: NetworkNodes) {
+    const items: IdType[] | undefined = networkNodes?.getIds({
+      filter: function (item: AutomataNode) {
         return !!item.isFinal;
       }
     })
 
-    const nodeIdToPositions = getNetwork().getPositions(items);
-    const positions = [];
-
-    for (let nodeId in nodeIdToPositions) {
-      positions.push(nodeIdToPositions[nodeId])
-    }
-
-    if (positions && Array.isArray(positions)) {
-      canvasUtil.drawOuterCircle(ctx, positions);
+    if (items) {
+      // TODO: Add type
+      const nodeIdToPositions = networkService.getNetwork().getPositions(items);
+      const positions = [];
+  
+      for (let nodeId in nodeIdToPositions) {
+        positions.push(nodeIdToPositions[nodeId])
+      }
+  
+      if (positions && Array.isArray(positions)) {
+        canvasUtil.drawOuterCircle(ctx, positions);
+      }
     }
   }
 
@@ -301,10 +265,10 @@ export default function AutomataWorkspaceCanvas() {
   }
 
   function addState(label: string): void {
-    const networkNodes = getNetworkNodes();
+    const networkNodes: NetworkNodes | undefined = networkService.getNodes();
     const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
     if (contextData?.position) {
-      networkNodes.add({
+      networkNodes?.add({
         id: uuidv4(),
         label: label,
         x: contextData.position.x,
@@ -315,11 +279,11 @@ export default function AutomataWorkspaceCanvas() {
 
 
   function addStartState(label: string): void {
-    const networkNodes = getNetworkNodes();
+    const networkNodes: NetworkNodes | undefined = networkService.getNodes();
     const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
 
     if (contextData?.position) {
-      networkNodes.add({
+      networkNodes?.add({
         id: uuidv4(),
         label: label,
         x: contextData.position.x,
@@ -330,10 +294,10 @@ export default function AutomataWorkspaceCanvas() {
   }
 
   function addFinalState(label: string): void {
-    const networkNodes = getNetworkNodes();
+    const networkNodes: NetworkNodes | undefined = networkService.getNodes();
     const contextData: AddNodeContextData = getContextData<AddNodeContextData>();
 
-    if (contextData?.position) {
+    if (contextData?.position && networkNodes) {
       networkNodes.add({
         id: uuidv4(),
         label: label,
@@ -346,11 +310,11 @@ export default function AutomataWorkspaceCanvas() {
 
 
   function editState(label: string): void {
-    const networkNodes = getNetworkNodes();
+    const networkNodes: NetworkNodes | undefined = networkService.getNodes();
     const contextData: UpdateNodeContextData = getContextData<UpdateNodeContextData>();
-    if (contextData?.nodeId) {
+    if (contextData?.id && networkNodes) {
       networkNodes.update({
-        ...networkNodes.get(contextData.nodeId),
+        ...networkNodes.get(contextData.id),
         label: label
       })
     }
@@ -358,10 +322,10 @@ export default function AutomataWorkspaceCanvas() {
 
 
   function deleteNode(): void {
-    const networkNodes = getNetworkNodes();
+    const networkNodes: NetworkNodes | undefined = networkService.getNodes();
     const contextData: UpdateNodeContextData = getContextData<UpdateNodeContextData>();
-    if (contextData?.nodeId) {
-      networkNodes.remove(contextData.nodeId);
+    if (contextData?.id && networkNodes) {
+      networkNodes.remove(contextData.id);
     }
   }
 
@@ -377,7 +341,7 @@ export default function AutomataWorkspaceCanvas() {
   }
 
   useEffect(() => {
-    const network: Network = getNetwork();
+    const network: Network = networkService.getNetwork();
 
     if (isEdgeCreationMode) {
       network.addEdgeMode();
@@ -387,11 +351,11 @@ export default function AutomataWorkspaceCanvas() {
   }, [isEdgeCreationMode])
 
   function updateEdgeLabel(label: string): void {
-    const networkEdges = getNetworkEdges();
+    const networkEdges: NetworkEdges | undefined = networkService.getEdges();
 
     const contextData: AddEdgeContextData | UpdateEdgeContextData = getContextData<AddEdgeContextData | UpdateEdgeContextData>();
 
-    if (contextData?.id) {
+    if (contextData?.id && networkEdges) {
       networkEdges.update({
         ...networkEdges.get(contextData.id),
         label: label
@@ -401,9 +365,9 @@ export default function AutomataWorkspaceCanvas() {
   }
 
   function deleteEdge(): void {
-    const networkEdges = getNetworkEdges();
+    const networkEdges: NetworkEdges | undefined = networkService.getEdges();
     const contextData: UpdateEdgeContextData = getContextData<UpdateEdgeContextData>();
-    if (contextData?.id) {
+    if (contextData?.id && networkEdges) {
       networkEdges.remove(contextData.id);
     }
   }
@@ -423,30 +387,36 @@ export default function AutomataWorkspaceCanvas() {
   }
 
   function checkSelectedNodeAndDelete(): void {
-    const selectedNodes: IdType[] = getNetwork().getSelectedNodes();
+    const selectedNodes: IdType[] = networkService.getNetwork().getSelectedNodes();
     if (selectedNodes.length) {
       const nodeId = selectedNodes[0];
-      const networkNodes: DataSet<NetworkNodes> = getNetworkNodes();
-      contextMenuData.current = {
-        nodeId: nodeId,
-        label: networkNodes.get(nodeId)?.label || ''
+      const networkNodes: NetworkNodes | undefined = networkService.getNodes();
+      if (networkNodes) {
+        contextMenuData.current = {
+          id: nodeId,
+          label: networkNodes.get(nodeId)?.label || ''
+        }
       }
+
       deleteNode();
     }
   }
 
   function checkSelectedEdgeAndDelete(): void {
-    const selectedEdges: IdType[] = getNetwork().getSelectedEdges();
+    const selectedEdges: IdType[] = networkService.getNetwork().getSelectedEdges();
     if (selectedEdges.length) {
       const edgeId = selectedEdges[0];
-      const networkEdges = getNetworkEdges();
-      const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
-      contextMenuData.current = {
-        id: edgeId,
-        label: edgeDetails?.label || '',
-        from: edgeDetails?.from || '',
-        to: edgeDetails?.to || ''
+      const networkEdges: NetworkEdges | undefined = networkService.getEdges();
+      if (networkEdges) {
+        const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
+        contextMenuData.current = {
+          id: edgeId,
+          label: edgeDetails?.label || '',
+          from: edgeDetails?.from || '',
+          to: edgeDetails?.to || ''
+        }
       }
+
       deleteEdge();
     }
   }
@@ -479,7 +449,7 @@ export default function AutomataWorkspaceCanvas() {
                   You&apos;re now in edge creation mode, click-drag from one state to another!
                 </div>
                 <Button variant="outline" className="bg-transparent"
-                        onClick={() => setIsEdgeCreationMode(false)}>Cancel</Button>
+                  onClick={() => setIsEdgeCreationMode(false)}>Cancel</Button>
               </div>
             )}
 
