@@ -174,8 +174,10 @@ export default function AutomataWorkspaceCanvas() {
     })
 
     // Edit bindings
-    keyBinding.current?.bind('e', () => {
-      toggleDrawEdgeMode();
+    keyBinding.current?.bind('e', (event: KeyboardEvent) => {
+      if (event.ctrlKey) {
+        toggleDrawEdgeMode();
+      }
     })
   }
 
@@ -497,7 +499,7 @@ export default function AutomataWorkspaceCanvas() {
 
                 <ContextMenuItem onSelect={() => setIsEdgeCreationMode(true)}>
                   Draw edge
-                  <ContextMenuShortcut>E</ContextMenuShortcut>
+                  <ContextMenuShortcut>ctrl + e</ContextMenuShortcut>
                 </ContextMenuItem>
 
               </ContextMenuContent>
