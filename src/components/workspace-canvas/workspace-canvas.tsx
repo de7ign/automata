@@ -169,8 +169,10 @@ export default function AutomataWorkspaceCanvas() {
 
   function initKeyBindings() {
     // Delete bindings
-    keyBinding.current?.bind('d', () => {
-      bindCaseInsensitiveShortcutForD();
+    keyBinding.current?.bind('d', (event: KeyboardEvent) => {
+      if (event.ctrlKey) {
+        bindCaseInsensitiveShortcutForD();
+      }
     })
 
     // Edit bindings
@@ -477,7 +479,7 @@ export default function AutomataWorkspaceCanvas() {
             </ContextMenuTrigger>
 
             {contextMenuMode === 'addNodeAndEdge' && (
-              <ContextMenuContent className="w-52">
+              <ContextMenuContent className="w-60">
 
                 <ContextMenuItem onSelect={() => {
                   launchNodeAddUpdateDialog("normalAdd")
@@ -506,7 +508,7 @@ export default function AutomataWorkspaceCanvas() {
             )}
 
             {contextMenuMode === 'updateNode' && (
-              <ContextMenuContent className="w-52">
+              <ContextMenuContent className="w-60">
 
                 <ContextMenuItem onSelect={() => {
                   launchNodeAddUpdateDialog("update")
@@ -516,13 +518,13 @@ export default function AutomataWorkspaceCanvas() {
 
                 <ContextMenuItem onSelect={deleteNode}>
                   Delete node
-                  <ContextMenuShortcut>select + D</ContextMenuShortcut>
+                  <ContextMenuShortcut>select + ctrl + d</ContextMenuShortcut>
                 </ContextMenuItem>
               </ContextMenuContent>
             )}
 
             {contextMenuMode === 'updateEdge' && (
-              <ContextMenuContent className="w-52">
+              <ContextMenuContent className="w-60">
 
                 <ContextMenuItem onSelect={launchUpdateEdgeModal}>
                   Update edge
