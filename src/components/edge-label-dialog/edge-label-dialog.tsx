@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 
 export default function EdgeLabelDialog(props: EdgeLabelDialogProps) {
 
-  const { dialogTitle, open, fromNode, toNode, onOpenChange, onSubmit, defaultLabel } = props;
+  const { dialogTitle, open, fromNodeLabel, toNodeLabel, onOpenChange, onSubmit, defaultLabel } = props;
 
   const _defaultLabel: string = defaultLabel || '';
 
@@ -63,7 +63,7 @@ export default function EdgeLabelDialog(props: EdgeLabelDialogProps) {
           <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
 
-        <div className="text-sm">Provide a label name for the edge from <b>{fromNode}</b> to <b>{toNode}</b></div>
+        <div className="text-sm">Provide a label name for the edge from <b>{fromNodeLabel}</b> to <b>{toNodeLabel}</b></div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">

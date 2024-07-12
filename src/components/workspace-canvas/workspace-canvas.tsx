@@ -52,7 +52,7 @@ export default function AutomataWorkspaceCanvas() {
 
   // Edge dialogs
   const [hasOpenAddEdgeDialog, setHasOpenAddEdgeDialog] = useState<boolean>(false);
-  const [hasOpenEditEdgeDialog, setHashEditEdgeDialog] = useState<boolean>(false);
+  const [hasOpenEditEdgeDialog, setHasOpenEditEdgeDialog] = useState<boolean>(false);
 
   const [hasStartState, setHasStartState] = useState<boolean>(false);
   const [isEdgeCreationMode, setIsEdgeCreationMode] = useState<boolean>(false);
@@ -123,6 +123,8 @@ export default function AutomataWorkspaceCanvas() {
 
       const nwElements: SelectedNetworkElements | undefined = getSelectedNetworkElements(params);
 
+      const networkNodes: NetworkNodes | undefined = networkService.getNodes();
+
       if (!nwElements?.node && !nwElements?.edge) {
         actionContextData.current = {
           type: 'empty',
@@ -141,9 +143,14 @@ export default function AutomataWorkspaceCanvas() {
       } else if (nwElements?.edge) {
         // edge found, launch context menu for updating edge
 
+        const fromNode = networkNodes?.get(nwElements.edge.from);
+        const toNode = networkNodes?.get(nwElements.edge.to);
+
         actionContextData.current = {
           type: 'edge',
-          ...nwElements?.edge
+          ...nwElements?.edge,
+          fromLabel: fromNode?.label || '$fromNodeLabel',
+          toLabel: toNode?.label || '$toNodeLabel'
         }
         setContextMenuMode("updateEdge")
       }
@@ -154,10 +161,18 @@ export default function AutomataWorkspaceCanvas() {
 
       const nwElements: SelectedNetworkElements | undefined = getSelectedNetworkElements(params);
 
+
       if (nwElements?.edge) {
+        const networkNodes: NetworkNodes | undefined = networkService.getNodes();
+
+        const fromNode = networkNodes?.get(nwElements.edge.from);
+        const toNode = networkNodes?.get(nwElements.edge.to);
+
         actionContextData.current = {
           type: 'edge',
-          ...nwElements.edge
+          ...nwElements.edge,
+          fromLabel: fromNode?.label || '$fromNodeLabel',
+          toLabel: toNode?.label || '$toNodeLabel'
         }
         launchUpdateEdgeModal();
       }
@@ -189,17 +204,24 @@ export default function AutomataWorkspaceCanvas() {
     const options: Options = structuredClone(defaultOption)
     options.manipulation = {
       ...options.manipulation,
+      // TODO: Add type for edgeData
       addEdge: function (edgeData: any, callback: (arg0: any) => void) {
 
 
         if (edgeData?.from && edgeData.to) {
           callback(edgeData)
 
+          const networkNodes: NetworkNodes | undefined = networkService.getNodes();
+          const fromNode: null | FullItem<AutomataNode, "id"> | undefined = networkNodes?.get(edgeData.from as IdType);
+          const toNode: null | FullItem<AutomataNode, "id"> | undefined = networkNodes?.get(edgeData.to as IdType);
+
           actionContextData.current = {
             type: 'edge',
             id: edgeData.id,
             from: edgeData.from,
+            fromLabel: fromNode?.label || '$fromNodeLabel',
             to: edgeData.to,
+            toLabel: toNode?.label || '$edgeNodeLabel',
             label: ''
           }
           setHasOpenAddEdgeDialog(true)
@@ -391,11 +413,11 @@ export default function AutomataWorkspaceCanvas() {
   }
 
   function launchUpdateEdgeModal(): void {
-    setHashEditEdgeDialog(true);
+    setHasOpenEditEdgeDialog(true);
   }
 
   function handleOpenUpdateEdgeDialogChange(open: boolean): void {
-    setHashEditEdgeDialog(open);
+    setHasOpenEditEdgeDialog(open);
     onContextMenuOpenChange(open);
   }
 
@@ -429,14 +451,19 @@ export default function AutomataWorkspaceCanvas() {
     if (selectedEdges.length) {
       const edgeId = selectedEdges[0];
       const networkEdges: NetworkEdges | undefined = networkService.getEdges();
-      if (networkEdges) {
+      const networkNodes: NetworkNodes | undefined = networkService.getNodes();
+      if (networkEdges && networkNodes) {
         const edgeDetails: FullItem<Edge, "id"> | null = networkEdges.get(edgeId);
+        const fromNodeDetails: FullItem<AutomataNode, "id"> | null = networkNodes.get(edgeDetails?.from || '');
+        const toNodeDetails: FullItem<AutomataNode, "id"> | null = networkNodes.get(edgeDetails?.to || '');
         actionContextData.current = {
           type: 'edge',
           id: edgeId,
           label: edgeDetails?.label || '',
           from: edgeDetails?.from || '',
-          to: edgeDetails?.to || ''
+          fromLabel: fromNodeDetails?.label || '$fromNodeLabel',
+          to: edgeDetails?.to || '',
+          toLabel: toNodeDetails?.label || '$toNodeLabel'
         }
       }
 
@@ -597,13 +624,13 @@ export default function AutomataWorkspaceCanvas() {
       {hasOpenAddEdgeDialog && (
         <EdgeLabelDialog
           dialogTitle='Add Edge'
-          fromNode={function () {
+          fromNodeLabel={function () {
             const contextData = getActionContextData();
-            return contextData?.type === "edge" ? contextData?.from : '';
+            return contextData?.type === "edge" ? contextData?.fromLabel : '$fromNodeLabel';
           }()}
-          toNode={function () {
+          toNodeLabel={function () {
             const contextData = getActionContextData();
-            return contextData?.type === "edge" ? contextData?.to : '';
+            return contextData?.type === "edge" ? contextData?.toLabel : '$toNodeLabel';
           }()}
           open={hasOpenAddEdgeDialog}
           onOpenChange={handleOpenEdgeDialogChange}
@@ -614,17 +641,17 @@ export default function AutomataWorkspaceCanvas() {
       {hasOpenEditEdgeDialog && (
         <EdgeLabelDialog
           dialogTitle='Update Edge'
-          fromNode={function () {
+          fromNodeLabel={function () {
             const contextData = getActionContextData();
-            return contextData?.type === "edge" ? contextData.from : '';
+            return contextData?.type === "edge" ? contextData.fromLabel : '$fromNodeLabel';
           }()}
-          toNode={function () {
+          toNodeLabel={function () {
             const contextData = getActionContextData();
-            return contextData?.type === "edge" ? contextData.to : '';
+            return contextData?.type === "edge" ? contextData.toLabel : '$toNodeLabel';
           }()}
           defaultLabel={function () {
             const contextData = getActionContextData();
-            return contextData?.type === "edge" ? contextData.label : '';
+            return contextData?.type === "edge" ? contextData.label : '$edgeLabel';
           }()}
           open={hasOpenEditEdgeDialog}
           onOpenChange={handleOpenUpdateEdgeDialogChange}

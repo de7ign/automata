@@ -19,7 +19,9 @@ interface EdgeContextData {
   type: 'edge';
   id: IdType;
   from: IdType;
+  fromLabel: string;
   to: IdType;
+  toLabel: string;
   label: string;
 }
 
