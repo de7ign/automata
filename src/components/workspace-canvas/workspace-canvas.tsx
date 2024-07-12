@@ -101,7 +101,9 @@ export default function AutomataWorkspaceCanvas() {
         preventDefault: true
       });
 
-      initKeyBindings();
+      // Temporary disabling the key bindings,
+      // will revisit, what shortcuts to assign
+      // initKeyBindings();
 
       return () => {
 
@@ -501,7 +503,7 @@ export default function AutomataWorkspaceCanvas() {
 
                 <ContextMenuItem onSelect={() => setIsEdgeCreationMode(true)}>
                   Draw edge
-                  <ContextMenuShortcut>ctrl + e</ContextMenuShortcut>
+                  {/* <ContextMenuShortcut>ctrl + e</ContextMenuShortcut> */}
                 </ContextMenuItem>
 
               </ContextMenuContent>
@@ -518,7 +520,7 @@ export default function AutomataWorkspaceCanvas() {
 
                 <ContextMenuItem onSelect={deleteNode}>
                   Delete node
-                  <ContextMenuShortcut>select + ctrl + d</ContextMenuShortcut>
+                  {/* <ContextMenuShortcut>select + ctrl + d</ContextMenuShortcut> */}
                 </ContextMenuItem>
               </ContextMenuContent>
             )}
@@ -532,7 +534,7 @@ export default function AutomataWorkspaceCanvas() {
 
                 <ContextMenuItem onSelect={deleteEdge}>
                   Delete edge
-                  <ContextMenuShortcut>select + D</ContextMenuShortcut>
+                  {/* <ContextMenuShortcut>select + D</ContextMenuShortcut> */}
                 </ContextMenuItem>
 
               </ContextMenuContent>
