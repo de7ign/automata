@@ -25,7 +25,7 @@ import {
   NetworkEdges,
   SelectedNetworkElements
 } from "./types";
-import { NETWORK_DEFAULT_OPTION } from "./constants";
+import { ATX_LAMBDA, NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
 import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
 import EdgeLabelDialog from "../edge-label-dialog/edge-label-dialog";
@@ -397,7 +397,7 @@ export default function AutomataWorkspaceCanvas() {
     if (contextData?.type === "edge" && contextData?.id && networkEdges) {
       networkEdges.update({
         ...networkEdges.get(contextData.id),
-        label: label
+        label: label || ATX_LAMBDA
       })
     }
 

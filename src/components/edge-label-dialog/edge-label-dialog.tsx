@@ -23,9 +23,7 @@ export default function EdgeLabelDialog(props: EdgeLabelDialogProps) {
   const _defaultLabel: string = defaultLabel || '';
 
   const formSchema = z.object({
-    label: z.string().min(1, {
-      message: formLabels.label.error.min
-    }).max(5, {
+    label: z.string().max(5, {
       message: formLabels.label.error.max
     }),
   })
