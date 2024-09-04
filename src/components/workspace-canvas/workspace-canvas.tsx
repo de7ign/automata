@@ -74,8 +74,8 @@ export default function AutomataWorkspaceCanvas() {
     if (networkContainer.current != null) {
 
       const defaultNodes = new DataSet([
-        { id: '1', label: 'Node1', isStart: true },
-        { id: '2', label: 'Node2', isFinal: true }
+        { id: '1', label: 'q0', isStart: true },
+        { id: '2', label: 'q1', isFinal: true }
       ], {});
 
       const defaultEdges = new DataSet([
