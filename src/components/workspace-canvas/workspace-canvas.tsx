@@ -79,9 +79,9 @@ export default function AutomataWorkspaceCanvas() {
       ], {});
 
       const defaultEdges = new DataSet([
-        { id: 1, from: 1, to: 2, label: 'a' },
-        { id: 2, from: 2, to: 2, label: 'b' },
-        { id: 3, from: 2, to: 1, label: 'a' },
+        { id: '1', from: '1', to: '2', label: 'a' },
+        { id: '2', from: '2', to: '2', label: 'b' },
+        { id: '3', from: '2', to: '1', label: 'a' },
       ], {})
 
       const data: Data = {
