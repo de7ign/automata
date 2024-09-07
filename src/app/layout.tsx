@@ -10,6 +10,7 @@ import {NetworkProvider} from "@/components/network-provider";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap"
 })
 
 export const metadata: Metadata = {
