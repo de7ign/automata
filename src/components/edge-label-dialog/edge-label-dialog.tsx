@@ -12,8 +12,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "../ui/textarea";
 
 
 export default function EdgeLabelDialog(props: EdgeLabelDialogProps) {
@@ -22,10 +22,50 @@ export default function EdgeLabelDialog(props: EdgeLabelDialogProps) {
 
   const _defaultLabel: string = defaultLabel || '';
 
+  /**
+   * Reject strings like this "a, a"
+   * 
+   * @param data 
+   * @returns 
+   */
+  const allStringsUnique = (data: string) => {
+    const dataArray = data.split(',');
+    const dataSet: Set<string> = new Set();
+
+    for(let i = 0; i < dataArray.length; i++) {
+      const dataValue = dataArray[i].trim();
+      if (dataSet.has(dataValue)) {
+        return false;
+      }
+      dataSet.add(dataValue);
+    }
+
+    return true;
+  }
+
+  /**
+   * Reject strings like this "a, a a"
+   * 
+   * @param data 
+   * @returns 
+   */
+  const allStringsWithNoWhiteSpace = (data: string) => {
+    const dataArray = data.split(',');
+
+    for(let i = 0; i < dataArray.length; i++) {
+      const dataValue = dataArray[i].trim();
+      if (dataValue.includes(' ')) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   const formSchema = z.object({
-    label: z.string().max(5, {
-      message: formLabels.label.error.max
-    }),
+    label: z.string()
+      .refine(allStringsUnique, { message: formLabels.label.error.allStringsUnique })
+      .refine(allStringsWithNoWhiteSpace, { message: formLabels.label.error.allStringsUnique })
   })
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -36,7 +76,7 @@ export default function EdgeLabelDialog(props: EdgeLabelDialogProps) {
   })
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
-    onSubmit(values.label);
+    onSubmit(values.label?.trim());
     onOpenChange(false);
     form.reset();
   }
@@ -55,13 +95,14 @@ export default function EdgeLabelDialog(props: EdgeLabelDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={dismiss}>
-      <DialogContent className="max-w-[325px]">
+      <DialogContent className="max-w-l">
 
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
+          <DialogDescription>Provide a label name for the edge from <b>{fromNodeLabel}</b> to <b>{toNodeLabel}</b></DialogDescription>
         </DialogHeader>
 
-        <div className="text-sm">Provide a label name for the edge from <b>{fromNodeLabel}</b> to <b>{toNodeLabel}</b></div>
+        <div className="text-sm">You can provide multiple labels separated by commas</div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
@@ -72,12 +113,14 @@ export default function EdgeLabelDialog(props: EdgeLabelDialogProps) {
                 <FormItem>
                   <FormLabel>{formLabels.label.label}</FormLabel>
                   <FormControl>
-                    <Input type="text" placeholder={formLabels.label.placeholder} {...field} />
+                    <Textarea {...field} placeholder={formLabels.label.placeholder}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Inside form so the submit can work */}
             <DialogFooter>
               <Button variant="secondary" type="button" onClick={cancel}>Cancel</Button>
               <Button type="submit">{pageLabels.save}</Button>

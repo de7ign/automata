@@ -1,10 +1,10 @@
 export const formLabels = {
   label: {
     label: 'Edge Label',
-    placeholder: 'Label',
+    placeholder: 'For multiple labels, enter strings separated by commas',
     error: {
-      min: 'Label is required',
-      max: 'Label must be less than 10 characters'
+      allStringsUnique: 'All strings should be unique',
+      noWhiteSpaceInStrings: 'Strings cannot not contain whitespace'
     }
   }
 }

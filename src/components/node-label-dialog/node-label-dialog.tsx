@@ -38,6 +38,7 @@ export default function NodeLabelDialog(props: NodeLabelDialogProps) {
   })
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
+    // TODO: Trim spaces
     onSubmit(values.label);
     onOpenChange(false);
     form.reset();

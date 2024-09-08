@@ -205,7 +205,8 @@ export default function AutomataWorkspaceCanvas() {
 
 
         if (edgeData?.from && edgeData.to) {
-          callback(edgeData)
+
+          setHasOpenAddEdgeDialog(true)
 
           const networkNodes: NetworkNodes | undefined = networkService.getNodes();
           const fromNode: null | FullItem<AutomataNode, "id"> | undefined = networkNodes?.get(edgeData.from as IdType);
@@ -213,14 +214,14 @@ export default function AutomataWorkspaceCanvas() {
 
           actionContextData.current = {
             type: 'edge',
-            id: edgeData.id,
+            id: edgeData.id, // it will be null, if callback is not used
             from: edgeData.from,
             fromLabel: fromNode?.label || '$fromNodeLabel',
             to: edgeData.to,
             toLabel: toNode?.label || '$edgeNodeLabel',
             label: ''
           }
-          setHasOpenAddEdgeDialog(true)
+
         } else {
           console.error("Unable to get edge data")
         }
@@ -389,12 +390,27 @@ export default function AutomataWorkspaceCanvas() {
     const networkEdges: NetworkEdges | undefined = networkService.getEdges();
 
     const contextData: ActionContextData = getActionContextData();
+    
+    if (contextData?.type === "edge" && networkEdges) {
 
-    if (contextData?.type === "edge" && contextData?.id && networkEdges) {
-      networkEdges.update({
-        ...networkEdges.get(contextData.id),
-        label: label || ATX_LAMBDA
-      })
+      // Update
+      if (contextData?.id) {
+        networkEdges.update({
+          ...networkEdges.get(contextData.id),
+          label: label || ATX_LAMBDA
+        })
+      } else { // add
+
+        networkEdges.add({
+          ...contextData,
+          id: crypto.randomUUID(),
+          label: label || ATX_LAMBDA
+        })
+
+        // TODO: Add logic to handle when already a transition is present and another edge is being added
+
+      }
+
     }
 
   }
