@@ -393,22 +393,45 @@ export default function AutomataWorkspaceCanvas() {
     
     if (contextData?.type === "edge" && networkEdges) {
 
-      // Update
+      // Update edge
       if (contextData?.id) {
         networkEdges.update({
           ...networkEdges.get(contextData.id),
           label: label || ATX_LAMBDA
         })
-      } else { // add
+      } else { // Add edge
 
-        networkEdges.add({
-          ...contextData,
-          id: crypto.randomUUID(),
-          label: label || ATX_LAMBDA
+        const edgeDetails: FullItem<Edge, "id">[] = networkEdges.get({
+          filter: (item) => {
+            return item.from === contextData.from && item.to === contextData.to;
+          }
         })
 
-        // TODO: Add logic to handle when already a transition is present and another edge is being added
+        // Already an edge is present, merge the labels
+        if (edgeDetails) {
+          if (edgeDetails.length > 1) {
+            console.error("Invalid network: There shouldn't be more than one transition for a pair of nodes")
+          }
 
+          if (edgeDetails[0].label === ATX_LAMBDA) {
+            edgeDetails[0].label = label;
+          } else if (label) {
+            // Consider only if existing label is not ATX_LAMBDA and user input is NOT empty string
+            // So we do not add an empty string to back of valid input
+            edgeDetails[0].label += ', ' + label
+          }
+
+          networkEdges.update(edgeDetails);
+
+        } else {
+          // No existing edge, do a plain add
+
+          networkEdges.add({
+            ...contextData,
+            id: crypto.randomUUID(),
+            label: label || ATX_LAMBDA
+          })
+        }
       }
 
     }
