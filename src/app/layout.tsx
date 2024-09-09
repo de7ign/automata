@@ -5,7 +5,8 @@ import './globals.css'
 import { cn } from "../lib/utils"
 import AutomataNavbar from '@/components/navbar/navbar'
 import { ThemeProvider } from '@/components/theme-provider'
-import {NetworkProvider} from "@/components/network-provider";
+import { NetworkProvider } from "@/components/network-provider";
+import { NfaProvider } from '@/components/nfa-provider'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,11 +37,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NetworkProvider>
-            <AutomataNavbar />
-
-            <div className="p-10">
-              {children}
-            </div>
+            <NfaProvider>
+              <AutomataNavbar />
+              <div className="p-10">
+                {children}
+              </div>
+            </NfaProvider>
           </NetworkProvider>
 
         </ThemeProvider>

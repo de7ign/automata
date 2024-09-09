@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card"
 
 import AutomataWorkspaceCanvas from "@/components/workspace-canvas"
-import { PAGE_LABELS } from "./constants"
+import WorkspaceOperator from "../workspace-operator"
 
 export default function AutomataWorkspace() {
   return (
@@ -16,15 +16,7 @@ export default function AutomataWorkspace() {
 
       <AutomataWorkspaceCanvas />
 
-      <Card className="lg:h-[800px] w-3/12">
-        <CardHeader>
-          <CardTitle>{PAGE_LABELS.title}</CardTitle>
-          <CardDescription>{PAGE_LABELS.description}</CardDescription>
-        </CardHeader>
-        <CardContent className="h-full">
-          Some content
-        </CardContent>
-      </Card>
+      <WorkspaceOperator />
     </div>
 
   )
