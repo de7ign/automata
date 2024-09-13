@@ -232,23 +232,18 @@ export default function AutomataWorkspaceCanvas() {
   }
 
 
-  function getStartState(): IdType | undefined {
+  function getStartState(): IdType[] {
     const networkNodes: NetworkNodes | undefined = networkService.getNodes();
 
-    const item: IdType[] | undefined = networkNodes?.getIds({
+    return networkNodes?.getIds({
       filter: function (item: AutomataNode) {
         return !!item.isStart;
       }
-    })
-
-    if (item?.length === 1) {
-      return item[0];
-    }
-    return undefined;
+    }) || [];
   }
 
   function isStartStatePresent(): boolean {
-    return !!getStartState();
+    return getStartState().length > 0;
   }
 
   function markHasStartStateIfStartStateIsPresent() {
@@ -260,11 +255,11 @@ export default function AutomataWorkspaceCanvas() {
   function drawArrowForStartState(ctx: CanvasRenderingContext2D): void {
     const network: Network = networkService.getNetwork();
 
-    const startStateItem = getStartState();
+    const startStates: IdType[] = getStartState();
 
-    if (startStateItem) {
-      canvasUtil.drawArrowToLeftOfCircle(ctx, network.getPosition(startStateItem));
-    }
+    startStates.forEach(startState => {
+      canvasUtil.drawArrowToLeftOfCircle(ctx, network.getPosition(startState));
+    });
   }
 
   function drawOuterCircleForFinalStates(ctx: CanvasRenderingContext2D): void {
