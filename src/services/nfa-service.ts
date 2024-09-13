@@ -15,7 +15,7 @@ class NfaService {
 
         const errorList: string[] = [];
 
-        this.cannotContainMoreThanOneStartStateRule(nfa, errorList)
+        this.exactOneStartStateRule(nfa, errorList)
 
         return errorList;
     }
@@ -59,8 +59,10 @@ class NfaService {
         return false; // No accept state reached
     }
 
-    private cannotContainMoreThanOneStartStateRule(nfa: Nfa, errorList: string[]) {
-        if (nfa.startStates.size > 1) {
+    private exactOneStartStateRule(nfa: Nfa, errorList: string[]) {
+        if (nfa.startStates.size === 0) {
+            errorList.push("State machine need one start state.")
+        } else if (nfa.startStates.size > 1) {
             errorList.push("State machine cannot have more than one start state.")
         }
     }
