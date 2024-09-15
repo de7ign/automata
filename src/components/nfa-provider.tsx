@@ -13,6 +13,6 @@ export const NfaProvider = ({children}: { children: ReactNode }) => {
   )
 };
 
-export const useNetwork = () => {
+export const useNfaService = () => {
   return useContext(NfaContext);
 };

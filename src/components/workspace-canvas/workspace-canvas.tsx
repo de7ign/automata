@@ -32,10 +32,12 @@ import EdgeLabelDialog from "../edge-label-dialog/edge-label-dialog";
 import { FullItem } from "vis-data/declarations/data-interface";
 import { Button } from "../ui/button";
 import NodeLabelDialog from "../node-label-dialog/node-label-dialog";
-import networkService from "@/services/network-service";
+import { useNetworkService } from "../network-provider";
 import { getSelectedNetworkElements } from "./workspace-network-util";
 
 export default function AutomataWorkspaceCanvas() {
+
+  const networkService = useNetworkService();
 
   const canvasUtil = new WorkSpaceCanvasUtil();
 

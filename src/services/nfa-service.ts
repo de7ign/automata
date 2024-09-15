@@ -4,6 +4,21 @@ import { FullItem } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data/peer";
 import Nfa from "./nfa";
 
+
+export interface NfaInput {
+    value: string;
+}
+
+interface NfaInputResult {
+    value: string;
+    errors: string[];
+}
+
+export interface NfaResult {
+    errors: string[];
+    results: NfaInputResult[]
+}
+
 class NfaService {
 
     constructor() { }
@@ -20,7 +35,79 @@ class NfaService {
         return errorList;
     }
 
-    validate(input: string): string[] | boolean {
+    public validate(inputs: NfaInput[]): NfaResult {
+
+        const nfa: Nfa = this.getNFA();
+
+        const errorsList = this.isValidNfa(nfa);
+
+        if (errorsList.length) {
+            console.log('error')
+
+            return {
+                errors: errorsList,
+                results: []
+            };
+        }
+
+        const nfaInputResult: NfaInputResult[] = inputs.map((input: NfaInput): NfaInputResult => {
+            // if (!input.value) {
+            //     return {
+            //         value: input.value,
+            //         errors: ["This field cannot be empty"]
+            //     }
+            // } else 
+            if (this.isInputValid(nfa, input.value)) {
+                return {
+                    value: input.value,
+                    errors: []
+                }
+            }
+
+            return {
+                value: input.value,
+                errors: ["The input is not accepted by the FSM"]
+            }
+        })
+
+
+        return {
+            errors: [],
+            results: nfaInputResult
+        }
+    }
+
+    private isInputValid(nfa: Nfa, input: string): boolean {
+        let currentStates: Set<AutomataNode> = new Set(nfa.startStates);
+
+        for (let symbol of input) {
+
+            const nextStates: Set<AutomataNode> = new Set();
+            for (let state of currentStates) {
+                if (nfa.transitions.has(state) && nfa.transitions.get(state)?.has(symbol)) {
+                    for (let nextState of nfa.transitions.get(state)?.get(symbol) || []) {
+                        nextStates.add(nextState);
+                    }
+                }
+            }
+
+            currentStates = nextStates;
+
+            if (currentStates.size === 0) {
+                return false; // No possible state to move to
+            }
+        }
+
+        for (let state of currentStates) {
+            if (nfa.acceptStates.has(state)) {
+                return true; // If any current state is an accept state, the input is accepted
+            }
+        }
+
+        return false; // No accept state reached
+    }
+
+    private validatex(input: string): string[] | boolean {
 
         const nfa: Nfa = this.getNFA();
 
@@ -73,8 +160,7 @@ class NfaService {
         const nfa: Nfa = new Nfa();
 
         const nodes: DataSet<AutomataNode> | undefined = networkService.getNodes();
-        console.log("nodes ", nodes?.get());
-        
+
         nodes?.forEach(state => {
             nfa.addState(state);
         })
@@ -84,8 +170,6 @@ class NfaService {
             const toNode: FullItem<AutomataNode, "id"> | null | undefined = nodes?.get(transitions.to || '');
 
             if (fromNode && toNode) {
-                const { id: fromId, ...fromNodeData } = fromNode;
-                const { id: toId, ...toNodeData } = toNode;
 
                 transitions.label?.split(',')?.forEach((label: string) => {
                     nfa.addTransition(fromNode, label.trim(), toNode);
@@ -93,8 +177,6 @@ class NfaService {
 
             }
         })
-
-        console.log(nfa);
 
         return nfa;
 

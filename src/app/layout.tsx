@@ -36,14 +36,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NetworkProvider>
-            <NfaProvider>
+          <NfaProvider>
+            <NetworkProvider>
               <AutomataNavbar />
               <div className="p-10">
                 {children}
               </div>
-            </NfaProvider>
-          </NetworkProvider>
+            </NetworkProvider>
+          </NfaProvider>
 
         </ThemeProvider>
 

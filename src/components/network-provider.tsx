@@ -13,6 +13,6 @@ export const NetworkProvider = ({children}: { children: ReactNode }) => {
   )
 };
 
-export const useNetwork = () => {
+export const useNetworkService = () => {
   return useContext(NetworkContext);
 };
