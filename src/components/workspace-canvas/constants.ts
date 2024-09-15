@@ -1,6 +1,9 @@
 import { Options } from "vis-network/peer";
 
 export const NETWORK_DEFAULT_OPTION: Options = {
+  layout: {
+    randomSeed: '0.7250393187294002:1726417578188' // seed for default example
+  },
   nodes: {
     shape: "circle",
     widthConstraint: {
