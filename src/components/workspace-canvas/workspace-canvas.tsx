@@ -110,7 +110,7 @@ export default function AutomataWorkspaceCanvas() {
         networkService.destroyNetwork();
       }
     }
-  }, [networkContainer]);
+  }, [networkContainer, networkService]);
 
   function initNetworkBindings() {
 

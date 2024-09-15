@@ -133,7 +133,7 @@ export default function WorkspaceOperator() {
                             {/* <FormDescription>Enter a value for input {index + 1}.</FormDescription>*/}
                             <FormMessage>
                               {form.formState.errors.inputs?.[index] && (
-                                <span className="text-red-500">{form.formState.errors.inputs[index].message}</span>
+                                <span className="text-red-500">{form.formState.errors.inputs?.[index]?.message}</span>
                               )}
                             </FormMessage>
 
