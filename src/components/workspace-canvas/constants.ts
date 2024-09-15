@@ -25,7 +25,7 @@ export const NETWORK_DEFAULT_OPTION: Options = {
       to: { enabled: true, scaleFactor: 1, type: "arrow" }
     },
     // by default all edges property should be this
-    smooth: { enabled: true, type: "curvedCW", roundness: 0.5 },
+    smooth: { enabled: true, type: "curvedCW", roundness: 0.2 },
     color: {
       color:'#2563eb',
       highlight:'#2563eb',
