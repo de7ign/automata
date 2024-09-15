@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PAGE_LABELS } from "./constants";
 import { NfaResult } from "@/services/nfa-service";
 import { useNfaService } from "../nfa-provider";
@@ -14,6 +14,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "../ui/form";
+import { AccordionHeader } from "@radix-ui/react-accordion";
 
 
 type ValidationType = 'multi';
@@ -103,6 +104,9 @@ export default function WorkspaceOperator() {
     <Card className="lg:h-[800px] w-3/12">
       <CardHeader>
         <CardTitle>{PAGE_LABELS.title}</CardTitle>
+        <CardDescription className="text-red-500">
+          This Toolbar is in work in progress. Until finalised you may notice some tools move, redesigned or even disappear for a while
+        </CardDescription>
       </CardHeader>
       <CardContent className="h-full">
         <Accordion type="single" collapsible>
