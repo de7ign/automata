@@ -42,7 +42,6 @@ class NfaService {
         const errorsList = this.isValidNfa(nfa);
 
         if (errorsList.length) {
-            console.log('error')
 
             return {
                 errors: errorsList,
@@ -51,12 +50,6 @@ class NfaService {
         }
 
         const nfaInputResult: NfaInputResult[] = inputs.map((input: NfaInput): NfaInputResult => {
-            // if (!input.value) {
-            //     return {
-            //         value: input.value,
-            //         errors: ["This field cannot be empty"]
-            //     }
-            // } else 
             if (this.isInputValid(nfa, input.value)) {
                 return {
                     value: input.value,

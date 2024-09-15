@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PAGE_LABELS } from "./constants";
@@ -13,8 +13,7 @@ import { AlertCircle, CheckCircle, Plus, Trash2 } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "../ui/form";
-import { AccordionHeader } from "@radix-ui/react-accordion";
+import { Form, FormField, FormItem, FormControl, FormMessage } from "../ui/form";
 
 
 type ValidationType = 'multi';
@@ -58,7 +57,6 @@ export default function WorkspaceOperator() {
   const onSubmit = (data: FormType) => {
 
     const validationResult: NfaResult = nfaService.validate(data.inputs);
-    console.log("onSubmit ", validationResult)
 
     if (validationResult.errors?.length > 0) {
       // fsm validity
@@ -95,10 +93,6 @@ export default function WorkspaceOperator() {
       })
     }
   };
-
-  useEffect(() => {
-    console.log('errors ', form.formState.errors)
-  }, [form.formState.errors])
 
   return (
     <Card className="lg:h-[800px] w-3/12">
