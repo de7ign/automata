@@ -405,7 +405,7 @@ export default function AutomataWorkspaceCanvas() {
         })
 
         // Already an edge is present, merge the labels
-        if (edgeDetails) {
+        if (edgeDetails.length) {
           if (edgeDetails.length > 1) {
             console.error("Invalid network: There shouldn't be more than one transition for a pair of nodes")
           }
