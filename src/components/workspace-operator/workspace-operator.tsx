@@ -196,6 +196,24 @@ export default function WorkspaceOperator() {
               </div>
             </AccordionContent>
           </AccordionItem>
+
+          <AccordionItem value="step-string-validation">
+            <AccordionTrigger>
+              Step by Step Validation
+            </AccordionTrigger>
+            <AccordionContent>
+              Coming soon
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="export">
+            <AccordionTrigger>
+              Export
+            </AccordionTrigger>
+            <AccordionContent>
+              Coming soon
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
 
       </CardContent>
