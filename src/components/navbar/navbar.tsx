@@ -17,12 +17,16 @@ export default function AutomataNavbar() {
           <Badge variant="secondary">Public Alpha</Badge>
         </div>
         <div className="flex gap-4">
-          <Button variant="ghost">Feedback</Button>
+          {/* <Button variant="ghost">Feedback</Button> */}
           <Button variant="ghost" size="icon">
-            <Icons.gitHub className="h-4 w-4" />
+            <a href="https://github.com/de7ign" target='_blank'>
+              <Icons.gitHub className="h-4 w-4" />
+            </a>
           </Button>
-          <Button variant="ghost" size="icon">
-            <Icons.twitter className="h-4 w-4" />
+          <Button asChild variant="ghost" size="icon">
+            <a href="https://x.com/dzndev" target='_blank'>
+              <Icons.twitter className="h-4 w-4" />
+            </a>
           </Button>
         </div>
       </div>
