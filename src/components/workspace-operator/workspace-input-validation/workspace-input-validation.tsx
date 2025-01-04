@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { NfaResult } from "@/services/nfa-service";
+import { NfaInput, NfaInputResult, NfaResult } from "@/services/nfa-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -43,9 +43,9 @@ export default function WorkspaceInputValidation() {
 
   const onSubmit = (data: FormType) => {
 
-    const validationResult: NfaResult = nfaService.validate(data.inputs);
+    const validationResult: NfaResult<NfaInputResult> = nfaService.validate(data.inputs);
 
-    if (validationResult.errors?.length > 0) {
+    if (validationResult.errors.length) {
       // fsm validity
       setValidationAlertDetails({
         variant: 'destructive',
@@ -113,7 +113,7 @@ export default function WorkspaceInputValidation() {
               )} />
             ))}
 
-            {validationAlertDetails && validationAlertDetails.messages.length > 0 && (
+            {validationAlertDetails && (
               <Alert variant={validationAlertDetails.variant}>
                 {validationAlertDetails.variant === "default" ? (
                   <CheckCircle className="h-4 w-4" />
@@ -123,18 +123,15 @@ export default function WorkspaceInputValidation() {
 
                 <AlertTitle>{validationAlertDetails.title}</AlertTitle>
 
-                <AlertDescription>
-                  {validationAlertDetails.messages.length === 1 ? (
-                    <>{validationAlertDetails.messages[0]}</>
-
-                  ) : (
+                {validationAlertDetails.messages.length > 0 && (
+                  <AlertDescription>
                     <ul>
                       {validationAlertDetails.messages.map((msg, index) => (
                         <li key={index}>{msg}</li>
                       ))}
                     </ul>
-                  )}
-                </AlertDescription>
+                  </AlertDescription>
+                )}
 
               </Alert>
             )}
