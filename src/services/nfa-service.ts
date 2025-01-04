@@ -204,8 +204,6 @@ class NfaService {
     }
 
     private traceTransitionsUtil(nfa: Nfa, input: string): { nodes: DataSet<any>, edges: DataSet<any> } {
-        console.log(nfa.states)
-        console.log(nfa.transitions)
         const nodes: NetworkNodes = new DataSet();
         const edges: NetworkEdges = new DataSet();
     
@@ -213,7 +211,6 @@ class NfaService {
         let currentStates: Set<{ state: AutomataNode, nodeId: string }> = new Set(
             Array.from(nfa.startStates).map(state => ({ state, nodeId: `root-${state.id}` }))
         );
-        console.log('currentStates', currentStates)
     
         let stepCounter = 0;
     
@@ -229,8 +226,6 @@ class NfaService {
     
         // Apply initial lambda closure on start states
         currentStates = this.getTracedLambdaClosure(nfa, currentStates, nodes, edges);
-        console.log('currentStates ', currentStates);
-        console.log('init nodes', nodes.map(e => e))
     
         // Process each symbol in the input string
         for (let symbol of input) {
@@ -239,11 +234,9 @@ class NfaService {
             // Process transitions for the current set of states
             currentStates.forEach(({ state, nodeId }) => {
                 const stateTransitions = nfa.transitions.get(state)?.get(symbol) || new Set();
-                console.log('state ', state, 'symbol', symbol, 'stateTransitions', stateTransitions);
 
                 stateTransitions.forEach(nextState => {
                     const nextNodeId = `step-${stepCounter}-${state.id}-to-${nextState.id}`;
-                    console.log('nextNodeId', nextNodeId);
                     
                     // Add node for the next state in the transition tree
                     nodes.add({
@@ -265,7 +258,6 @@ class NfaService {
                         state: nextState, 
                         nodeId: nextNodeId
                      });
-                     console.log('nodes', nodes.map(e => e))
                 });
             });
     
