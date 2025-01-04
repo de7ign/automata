@@ -76,14 +76,14 @@ export default function AutomataWorkspaceCanvas() {
     if (networkContainer.current != null) {
 
       const defaultNodes = new DataSet([
-        { id: '1', label: 'q0', isStart: true },
-        { id: '2', label: 'q1', isFinal: true }
+        { id: '4609ac3a-e9ab-424f-a443-f5e534f4660a', label: 'q0', isStart: true },
+        { id: '0912eacd-f69d-4164-ab9f-c9d952fcfc50', label: 'q1', isFinal: true }
       ], {});
 
       const defaultEdges = new DataSet([
-        { id: '1', from: '1', to: '2', label: 'a' },
-        { id: '2', from: '2', to: '2', label: 'b' },
-        { id: '3', from: '2', to: '1', label: 'a' },
+        { id: '226e6be1-c56f-4dd7-9a80-418e442d093c', from: '4609ac3a-e9ab-424f-a443-f5e534f4660a', to: '0912eacd-f69d-4164-ab9f-c9d952fcfc50', label: 'a' },
+        { id: 'd9fe2c60-3f37-4e94-b159-62ac22e12e01', from: '0912eacd-f69d-4164-ab9f-c9d952fcfc50', to: '0912eacd-f69d-4164-ab9f-c9d952fcfc50', label: 'b' },
+        { id: '0ff34c68-102c-40e0-a048-9c676bacac1e', from: '0912eacd-f69d-4164-ab9f-c9d952fcfc50', to: '4609ac3a-e9ab-424f-a443-f5e534f4660a', label: 'a' },
       ], {})
 
       const data: Data = {
