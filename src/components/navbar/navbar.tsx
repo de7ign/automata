@@ -3,6 +3,10 @@ import { Icons } from '@/components/ui/icons'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
+import { ExternalLink } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
 export default function AutomataNavbar() {
   return (
     <div className="flex w-auto h-16 justify-center items-center px-10 border-b">
@@ -14,7 +18,22 @@ export default function AutomataNavbar() {
               Automata Playground
             </span>
           </Link>
-          <Badge variant="secondary">Public Alpha</Badge>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="secondary">Public Alpha</Badge>
+              </TooltipTrigger>
+              <TooltipContent asChild>
+                <div className='w-60'>
+                  <Button variant='link' asChild className={cn('p-0')}>
+                    <Link target='_blank' href='https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha'>
+                    Alpha&nbsp;<ExternalLink size='18' /></Link> 
+                  </Button>
+                  &nbsp;Features are not tested thoroughly, and potentially unstable. UI/UX will change without notice.
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <div className="flex gap-4">
           {/* <Button variant="ghost">Feedback</Button> */}

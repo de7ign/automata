@@ -289,12 +289,12 @@ class NfaService {
                     // Add node and edge for the lambda transition in the visualization
                     nodes.add({
                         id: lambdaNodeId,
-                        label: `${lambdaState.label} (via λ)`,
+                        label: `${lambdaState.label} (via ${ATX_LAMBDA})`,
                     });
                     edges.add({
                         from: nodeId,
                         to: lambdaNodeId,
-                        label: "λ",
+                        label: ATX_LAMBDA,
                         color: { color: 'gray' },
                     });
                 }
