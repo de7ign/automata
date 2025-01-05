@@ -1,12 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-
 import AutomataWorkspaceCanvas from "@/components/workspace-canvas"
 import WorkspaceOperator from "../workspace-operator"
 

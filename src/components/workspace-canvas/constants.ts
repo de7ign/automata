@@ -45,5 +45,3 @@ export const NETWORK_DEFAULT_OPTION: Options = {
     selectConnectedEdges: false
   }
 };
-
-export const ATX_LAMBDA = 'λ';

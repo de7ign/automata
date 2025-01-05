@@ -1,5 +1,3 @@
-import { IdType } from "vis-network";
-
 export interface EdgeLabelDialogProps {
   dialogTitle: string;
   defaultLabel?: string;

@@ -53,5 +53,3 @@ export const NETWORK_VISUALIZE_OPTION: Options = {
   },
   // autoResize: true
 };
-
-export const ATX_LAMBDA = 'λ';

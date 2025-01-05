@@ -15,7 +15,7 @@ export default function WorkspaceOperator() {
       <CardHeader>
         <CardTitle>{PAGE_LABELS.title}</CardTitle>
         <CardDescription className="text-red-500">
-          This Toolbar is in work in progress. Until finalised you may notice some tools move, redesigned or even disappear for a while
+          {PAGE_LABELS.description}
         </CardDescription>
       </CardHeader>
       <CardContent className="h-full">

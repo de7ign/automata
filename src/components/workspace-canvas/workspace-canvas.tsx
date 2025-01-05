@@ -12,7 +12,6 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuShortcut,
   ContextMenuTrigger
 } from "@/components/ui/context-menu";
 import {
@@ -25,7 +24,7 @@ import {
   NetworkEdges,
   SelectedNetworkElements
 } from "./types";
-import { ATX_LAMBDA, NETWORK_DEFAULT_OPTION } from "./constants";
+import { NETWORK_DEFAULT_OPTION } from "./constants";
 import { v4 as uuidv4 } from 'uuid';
 import { WorkSpaceCanvasUtil } from "./workspace-canvas-util";
 import EdgeLabelDialog from "../edge-label-dialog/edge-label-dialog";
@@ -34,6 +33,7 @@ import { Button } from "../ui/button";
 import NodeLabelDialog from "../node-label-dialog/node-label-dialog";
 import { useNetworkService } from "../network-provider";
 import { getSelectedNetworkElements } from "./workspace-network-util";
+import { ATX_LAMBDA } from "@/common/constants";
 
 export default function AutomataWorkspaceCanvas() {
 

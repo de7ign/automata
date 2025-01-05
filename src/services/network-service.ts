@@ -1,6 +1,7 @@
 import { AutomataNode } from "@/components/workspace-canvas/types";
-import { Data, DataInterfaceNodes, Network, Options, DataSetEdges } from "vis-network/peer";
+import { Data, Network, Options, DataSetEdges } from "vis-network/peer";
 import { DataSet } from "vis-data/peer"
+
 class NetworkService {
 
   private static instance: NetworkService;
