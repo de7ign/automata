@@ -11,9 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-
-import { Skeleton } from "@/components/ui/skeleton";
-import { Data, DataSetEdges, DataSetNodes, IdType, Network, Position } from "vis-network/peer";
+import { DataSetEdges, DataSetNodes, IdType, Network } from "vis-network/peer";
 import { NETWORK_VISUALIZE_OPTION } from "./constants";
 import { useNfaService } from "@/components/nfa-provider";
 import { NfaResult, NfaTraceResult } from "@/services/nfa-service";
@@ -21,7 +19,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle, AlertCircle } from "lucide-react";
 import { AutomataNode, NetworkNodes } from "@/components/workspace-canvas/types";
 import { WorkSpaceCanvasUtil } from "@/components/workspace-canvas/workspace-canvas-util";
-import { DataSet } from "vis-data/peer";
 
 const formSchema = z.object({
   label: z.string().min(1, {
@@ -142,7 +139,6 @@ const TransitionDialog: React.FC<TransitionDialogProps> = ({ openTransitionDialo
   } | undefined;
 
   function drawArrowForStartState(ctx: CanvasRenderingContext2D): void {
-    // const network: Network = nfaService.getNetwork();
 
     const networkNodes = data?.nodes;
 
@@ -246,23 +242,3 @@ const TransitionDialog: React.FC<TransitionDialogProps> = ({ openTransitionDialo
     </Dialog>
   );
 };
-
-
-function CustomLoadingScreen() {
-  return (
-    <div className="flex items-center flex-col">
-      <div className="flex items-center space-x-4">
-        <Skeleton className="h-12 w-12 rounded-full" />
-        <Skeleton className="h-4 w-[250px]" />
-      </div>
-      <div className="flex items-center space-x-4">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-12 w-12 rounded-full" />
-      </div>
-      <div className="flex items-center space-x-4">
-        <Skeleton className="h-12 w-12 rounded-full" />
-        <Skeleton className="h-4 w-[250px]" />
-      </div>
-    </div>
-  )
-}

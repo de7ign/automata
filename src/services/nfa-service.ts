@@ -3,8 +3,8 @@ import networkService from "@/services/network-service";
 import { FullItem } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data/peer";
 import Nfa from "./nfa";
-import { ATX_LAMBDA } from "@/components/workspace-canvas/constants";
-import { Data, DataSetEdges, DataSetNodes } from "vis-network/peer";
+import { DataSetEdges, DataSetNodes } from "vis-network/peer";
+import { ATX_LAMBDA } from "@/common/constants";
 
 
 export interface NfaInput {

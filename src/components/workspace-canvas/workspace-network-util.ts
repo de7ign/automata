@@ -1,6 +1,6 @@
 import { Edge, IdType, Network } from "vis-network";
 import networkService from "@/services/network-service";
-import { NetworkEventParams, AutomataNode, SelectedNetworkElements, NetworkNodes, NetworkEdges } from "./types";
+import { NetworkEventParams, SelectedNetworkElements, NetworkNodes, NetworkEdges } from "./types";
 import { FullItem } from "vis-data/declarations/data-interface";
 
 export function getSelectedNetworkElements(params: NetworkEventParams): SelectedNetworkElements | undefined {
