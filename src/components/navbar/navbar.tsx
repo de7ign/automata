@@ -21,7 +21,7 @@ export default function AutomataNavbar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge variant="secondary">Public Alpha</Badge>
+                <Badge variant="secondary">Public Alpha v{process.env.npm_package_version}</Badge>
               </TooltipTrigger>
               <TooltipContent asChild>
                 <div className='w-60'>
