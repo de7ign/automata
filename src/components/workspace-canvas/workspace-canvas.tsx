@@ -173,6 +173,14 @@ export default function AutomataWorkspaceCanvas() {
           toLabel: toNode?.label || '$toNodeLabel'
         }
         launchUpdateEdgeModal();
+      } else if (nwElements?.node) {
+
+        actionContextData.current = {
+          type: "node",
+          ...nwElements.node
+        }
+
+        launchNodeAddUpdateDialog("update")
       }
     })
 
