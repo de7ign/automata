@@ -34,6 +34,19 @@ class NetworkService {
     return <DataSetEdges>this.data?.edges;
   }
 
+  public clearWorkspace(): void {
+    const nodes: DataSet<AutomataNode> = new DataSet();
+    const edges: DataSetEdges = new DataSet();
+    if (this.data) {
+      this.data.nodes = nodes;
+      this.data.edges = edges
+    }
+    this.network?.setData({
+      nodes,
+      edges
+    })
+  }
+
   public destroyNetwork(): void {
     if (this.network) {
       this.network.destroy();

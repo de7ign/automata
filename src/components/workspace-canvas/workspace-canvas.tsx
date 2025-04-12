@@ -12,6 +12,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger
 } from "@/components/ui/context-menu";
 import {
@@ -526,6 +527,10 @@ export default function AutomataWorkspaceCanvas() {
 
   }
 
+  function clearCanvasWorkspace(): void {
+    networkService.clearWorkspace()
+  }
+
 
   return (
     <>
@@ -571,6 +576,13 @@ export default function AutomataWorkspaceCanvas() {
                 <ContextMenuItem onSelect={() => setIsEdgeCreationMode(true)}>
                   Draw edge
                   {/* <ContextMenuShortcut>ctrl + e</ContextMenuShortcut> */}
+                </ContextMenuItem>
+
+                
+                <ContextMenuSeparator />
+
+                <ContextMenuItem onSelect={clearCanvasWorkspace}>
+                  Clear workspace
                 </ContextMenuItem>
 
               </ContextMenuContent>
